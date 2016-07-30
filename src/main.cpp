@@ -19,7 +19,13 @@
 int main(int argc, char *argv[]) {
     // initialize resources, if needed
     // Q_INIT_RESOURCE(resfile);
+		
 
+    QSurfaceFormat format;
+		format.setVersion(6,1);
+		format.setProfile(QSurfaceFormat::CoreProfile);
+		QSurfaceFormat::setDefaultFormat(format);
+		
     QApplication app(argc, argv);
 
     // create and show your widgets here
