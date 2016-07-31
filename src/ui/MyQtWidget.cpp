@@ -13,6 +13,7 @@
 
 #include "ui/MyQtWidget.h"
 #include "opengl/Shader.h"
+#include "opengl/ShaderProgram.h"
 
 #include <QDebug>
 #include <QOpenGLContext>
@@ -36,8 +37,10 @@ void MyQtWidget::initializeGL() {
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
 std::cerr << "valid: " << this->context()->isValid() << std::endl;
-QString versionString(QLatin1String(reinterpret_cast<const char*>(glGetString(GL_VERSION))));
-qDebug() << "Driver Version String:" << versionString;
+QString openglVersionString(QLatin1String(reinterpret_cast<const char*>(glGetString(GL_VERSION))));
+QString shaderVersionString(QLatin1String(reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION))));
+qDebug() << "Driver Version String:" << openglVersionString;
+qDebug() << "Shader Version String:" << shaderVersionString;
 qDebug() << "Current Context:" << this->format();
 
   float tri_vert[] = {
@@ -45,9 +48,9 @@ qDebug() << "Current Context:" << this->format();
     .5f,-.5f, 0.0f,
      -.5f,-.5f, 0.0f};
   float tri_col[] = {
-     1.0f, 1.0f, 1.0f,
-     1.0f, 1.0f, 1.0f,
-     1.0f, 1.0f, 1.0f};
+     1.0f, 0.0f, 0.0f,
+     0.0f, 1.0f, 0.0f,
+     0.0f, 0.0f, 1.0f};
 
   GLuint points_vbo = 0;
   glGenBuffers (1, &points_vbo);
@@ -68,14 +71,15 @@ qDebug() << "Current Context:" << this->format();
 	
 	glEnableVertexAttribArray (0);
   glEnableVertexAttribArray (1);
-  // float quad_vert[] = {
-  //      -1.0f, 1.0f, 0.0f,
-  //       1.0f, 1.0f, 0.0f,
-  //       1.0f,-1.0f, 0.0f,
-  //      -1.0f,-1.0f, 0.0f};
 	
-	ShapeShifter::Opengl::VertexShader("/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert");
-	ShapeShifter::Opengl::FragmentShader("/Users/bbyington/ShapeShifter/shaders/vertex/BasicFragmetShader.frag");
+	std::vector<std::unique_ptr<ShapeShifter::Opengl::Shader>> shaders;
+	shaders.emplace_back(
+	    new ShapeShifter::Opengl::VertexShader("/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert"));
+	shaders.emplace_back(
+	    new ShapeShifter::Opengl::FragmentShader("/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag"));
+	ShapeShifter::Opengl::ShaderProgram program(std::move(shaders));
+	program.UseProgram();
+
 }
 
 void MyQtWidget::gluPerspective(double fovy,double aspect, double zNear, double zFar) {
@@ -105,24 +109,7 @@ void MyQtWidget::resizeGL(int width, int height) {
 void MyQtWidget::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-
-    glTranslatef(-1.5f,0.0f,-6.0f);
       
-		//glBindVertexArray (vao);
-    //glDrawArrays (GL_TRIANGLES, 0, 3);
-
-    glBegin(GL_TRIANGLES);
-        glVertex3f( 0.0f, 1.0f, 0.0f);
-        glVertex3f(-1.0f,-1.0f, 0.0f);
-        glVertex3f( 1.0f,-1.0f, 0.0f);
-    glEnd(); 
-
-    glTranslatef(3.0f,0.0f,0.0f);
-
-    glBegin(GL_QUADS);
-        glVertex3f(-1.0f, 1.0f, 0.0f);
-        glVertex3f( 1.0f, 1.0f, 0.0f);
-        glVertex3f( 1.0f,-1.0f, 0.0f);
-        glVertex3f(-1.0f,-1.0f, 0.0f);
-    glEnd(); 
+		glBindVertexArray (vao);
+    glDrawArrays (GL_TRIANGLES, 0, 3);
 }
