@@ -16,10 +16,6 @@
 MainWindow::MainWindow() {
     widget.setupUi(this);
     qtw_.reset(new MyQtWidget());
-//		QSurfaceFormat format;
-//		format.setVersion(4,1);
-//		format.setProfile(QSurfaceFormat::CoreProfile);
-//		qtw_->setFormat(format);
     widget.DisplayFrame->layout()->addWidget(qtw_.get());
     //QMainWindow::showMaximized();
 }

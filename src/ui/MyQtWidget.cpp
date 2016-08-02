@@ -28,50 +28,24 @@ MyQtWidget::~MyQtWidget() {
 
 void MyQtWidget::initializeGL() {
 
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClearDepth(1.0f);
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  glClearDepth(1.0f);
 
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LEQUAL);
 
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-std::cerr << "valid: " << this->context()->isValid() << std::endl;
-QString openglVersionString(QLatin1String(reinterpret_cast<const char*>(glGetString(GL_VERSION))));
-QString shaderVersionString(QLatin1String(reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION))));
-qDebug() << "Driver Version String:" << openglVersionString;
-qDebug() << "Shader Version String:" << shaderVersionString;
-qDebug() << "Current Context:" << this->format();
+  std::cerr << "valid: " << this->context()->isValid() << std::endl;
+  QString openglVersionString(QLatin1String(reinterpret_cast<const char*>(glGetString(GL_VERSION))));
+  QString shaderVersionString(QLatin1String(reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION))));
+  qDebug() << "Driver Version String:" << openglVersionString;
+  qDebug() << "Shader Version String:" << shaderVersionString;
+  qDebug() << "Current Context:" << this->format();
 
-  float tri_vert[] = {
-     0.0f, .5f, 0.0f,
-    .5f,-.5f, 0.0f,
-     -.5f,-.5f, 0.0f};
-  float tri_col[] = {
-     1.0f, 0.0f, 0.0f,
-     0.0f, 1.0f, 0.0f,
-     0.0f, 0.0f, 1.0f};
+	root_.reset(new ShapeShifter::Opengl::SquareTest2D());
+	root_->UpdateData();
 
-  GLuint points_vbo = 0;
-  glGenBuffers (1, &points_vbo);
-  glBindBuffer (GL_ARRAY_BUFFER, points_vbo);
-  glBufferData (GL_ARRAY_BUFFER, 9 * sizeof (float), tri_vert, GL_STATIC_DRAW);
-
-	GLuint colours_vbo = 0;
-  glGenBuffers (1, &colours_vbo);
-  glBindBuffer (GL_ARRAY_BUFFER, colours_vbo);
-  glBufferData (GL_ARRAY_BUFFER, 9 * sizeof (float), tri_col, GL_STATIC_DRAW);
-
-  glGenVertexArrays (1, &vao);
-  glBindVertexArray (vao);
-  glBindBuffer (GL_ARRAY_BUFFER, points_vbo);
-  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-  glBindBuffer (GL_ARRAY_BUFFER, colours_vbo);
-  glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	
-	glEnableVertexAttribArray (0);
-  glEnableVertexAttribArray (1);
-	
 	std::vector<std::unique_ptr<ShapeShifter::Opengl::Shader>> shaders;
 	shaders.emplace_back(
 	    new ShapeShifter::Opengl::VertexShader("/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert"));
@@ -109,7 +83,6 @@ void MyQtWidget::resizeGL(int width, int height) {
 void MyQtWidget::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-      
-		glBindVertexArray (vao);
-    glDrawArrays (GL_TRIANGLES, 0, 3);
+		
+		root_->RenderTree();
 }

@@ -21,6 +21,8 @@
 
 #include "ui_MyQtWidget.h"
 
+#include "opengl/RenderNode.h"
+
 class MyQtWidget : public QOpenGLWidget {
     Q_OBJECT
 public:
@@ -36,6 +38,7 @@ protected:
 
 private:
 	GLuint vao = 0;
+	std::unique_ptr<ShapeShifter::Opengl::RenderNode> root_;
 
 };
 
