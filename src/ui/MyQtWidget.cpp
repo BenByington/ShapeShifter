@@ -18,6 +18,8 @@
 #include <QDebug>
 #include <QOpenGLContext>
 
+#include <memory>
+
 MyQtWidget::MyQtWidget() {
   widget.setupUi(this);
 
@@ -44,6 +46,8 @@ void MyQtWidget::initializeGL() {
   qDebug() << "Current Context:" << this->format();
 
 	root_.reset(new ShapeShifter::Opengl::SquareTest2D());
+	std::shared_ptr<ShapeShifter::Opengl::RenderNode> second(new ShapeShifter::Opengl::TriangleTest2D);
+	root_->AddChild(second);
 	root_->UpdateData();
 
 	std::vector<std::unique_ptr<ShapeShifter::Opengl::Shader>> shaders;

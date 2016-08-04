@@ -30,15 +30,17 @@ protected:
   RenderNode(const RenderNode& orig) = delete;
 
 	//Helpers to keep the tree consistent, while they share a vertex array object.
-	virtual size_t vertexCount() const = 0;
+	virtual size_t vertexCount() const;
 	// TODO make safe so we can't overrun buffer?  
-	virtual void fillVertex(float* rawData, size_t size) = 0;
-	virtual void fillColors(float* rawData, size_t size) = 0;
+	virtual void fillVertex(std::vector<float>& rawData, size_t start) = 0;
+	virtual void fillColors(std::vector<float>& rawData, size_t start) = 0;
 
+	void drawRecurse() const;
+	virtual void drawSelf() const = 0;
+
+	virtual size_t personalCount() const = 0;
 private:
-  void TreePopulateColor(float* rawData, size_t size);
-	void TreePopulateVertex(float* rawData, size_t size);
-	
+  size_t TreePopulateData(std::vector<float>& vert, std::vector<float>& color, size_t start);
 
 public:
   virtual ~RenderNode();
@@ -48,25 +50,48 @@ public:
 
 	//TODO move back to private
 protected:
+	//TODO this is a state machine variable right now...  too brittle, need a new solution
   size_t starti_ = 0;
 	size_t endi_ = 0;
-	size_t size = 0;
 
 	GLuint vao = 0;
 	std::vector<std::shared_ptr<RenderNode>> children;
-	std::vector<size_t> child_sizes;
 };
 
-class SquareTest2D : public RenderNode {
+class PureNode : public RenderNode {
+public:
+	PureNode() {}
+	virtual ~PureNode() {}
+protected:
+	virtual size_t personalCount() const override { return 0; }
+};
+
+class PointsNode : public RenderNode {
+public:
+	PointsNode() {}
+	virtual ~PointsNode() {}
+};
+
+class SquareTest2D : public PointsNode {
 public:
 	SquareTest2D();
 	virtual ~SquareTest2D();
 protected:
-	virtual size_t vertexCount() const override;
-	virtual void fillVertex(float* rawData, size_t size) override;
-	virtual void fillColors(float* rawData, size_t size) override;
+	virtual size_t personalCount() const override;
+	virtual void fillVertex(std::vector<float>& rawData, size_t start) override;
+	virtual void fillColors(std::vector<float>& rawData, size_t start) override;
+	virtual void drawSelf() const override;
+};
 
- 
+class TriangleTest2D : public PointsNode {
+public:
+	TriangleTest2D();
+	virtual ~TriangleTest2D();
+protected:
+	virtual size_t personalCount() const override;
+	virtual void fillVertex(std::vector<float>& rawData, size_t start) override;
+	virtual void fillColors(std::vector<float>& rawData, size_t start) override;
+	virtual void drawSelf() const override;
 };
 
 }} // ShapeShifter::Opengl

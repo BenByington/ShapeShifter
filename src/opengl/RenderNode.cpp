@@ -28,45 +28,46 @@ RenderNode::~RenderNode() {
 
 void RenderNode::AddChild(std::shared_ptr<RenderNode> child) {
 	children.push_back(child);
-	child_sizes.push_back(child->vertexCount());
-	size += child->vertexCount();
 }
 
-void RenderNode::TreePopulateColor(float* rawData, size_t size) {
-	size_t start = 0;
+size_t RenderNode::vertexCount() const {
+	size_t ret = personalCount();
 	for (const auto& child : children) {
-		child->TreePopulateColor(rawData+start, child->vertexCount()*3);
-		start += child->vertexCount()*3;
+		ret += child->vertexCount();
 	}
-
-	fillColors(rawData+start, vertexCount()*3);
-	start += vertexCount()*3;
-	std::cerr << start << " " << size << std::endl;
-	assert(start == size);
+	return ret;
 }
 
 //TODO unify with TreePopulatColor?  Lots of copy paste...
-void RenderNode::TreePopulateVertex(float* rawData, size_t size) {
-	size_t start = 0;
+size_t RenderNode::TreePopulateData(std::vector<float>& vert, std::vector<float>& color, const size_t start) {
+	assert(starti_ == 0);
+
+	size_t idx = start;
 	for (const auto& child : children) {
-		//TODO fixx all they *3 running around now...  We have two different notions of size
-		child->TreePopulateVertex(rawData+start, child->vertexCount()*3);
-		start += child->vertexCount()*3;
+		idx += child->TreePopulateData(vert, color, idx);
 	}
 
-	fillVertex(rawData+start, vertexCount()*3);
-	start += vertexCount()*3;
-	assert(start == size);
+	starti_ = idx;
+	
+	fillVertex(vert, idx);
+	fillColors(color, idx);
+	idx += this->personalCount();
+
+	endi_ = idx;
+	return endi_ - starti_;
 }
 
 void RenderNode::UpdateData() {
 
-  std::vector<float> tri_vert(size*3, 0);
-	std::vector<float> tri_col(size*3, 0);
+	// TODO find a way to recurse the tree only once maybe?
+	size_t size = this->vertexCount();
+
+  std::vector<float> tri_vert(size, 0);
+	std::vector<float> tri_col(size, 0);
 	std::cerr << tri_vert.size() << std::endl;
 	
-	TreePopulateVertex(tri_vert.data(), tri_vert.size());
-	TreePopulateColor(tri_col.data(), tri_col.size());
+	size_t end = TreePopulateData(tri_vert, tri_col, 0);
+	assert(end == tri_vert.size());
 
   GLuint points_vbo = 0;
   glGenBuffers (1, &points_vbo);
@@ -91,53 +92,101 @@ void RenderNode::UpdateData() {
 
 void RenderNode::RenderTree() const {
 		glBindVertexArray (vao);
-    glDrawArrays (GL_TRIANGLE_STRIP, 0, size);
+		drawRecurse();
+    //glDrawArrays (GL_TRIANGLE_STRIP, 0, 12+9);
 }
 
-
+void RenderNode::drawRecurse() const {
+	for (const auto& child : children) {
+		child->drawRecurse();
+	}
+	this->drawSelf();
+}
 
 //TODO this is ugly don't do this in constructor
-SquareTest2D::SquareTest2D() {size = 4;}
+SquareTest2D::SquareTest2D() {}
 SquareTest2D::~SquareTest2D() {}
-size_t SquareTest2D::vertexCount() const { return 4; }
+size_t SquareTest2D::personalCount() const { return 12; }
 
-void SquareTest2D::fillColors(float* rawData, size_t size) {
-	rawData[0] = 1.0;
-	rawData[1] = 0.0;
-	rawData[2] = 0.0;
+void SquareTest2D::fillColors(std::vector<float>& data, size_t start) {
+	data[start+0] = 1.0;
+	data[start+1] = 0.0;
+	data[start+2] = 0.0;
 	
-	rawData[3] = 1.0;
-	rawData[4] = 1.0;
-	rawData[5] = 0.0;
+	data[start+3] = 1.0;
+	data[start+4] = 1.0;
+	data[start+5] = 0.0;
 
-	rawData[6] = 0.0;
-	rawData[7] = 0.0;
-	rawData[8] = 1.0;
-	
-	rawData[9] = 0.0;
-	rawData[10] = 1.0;
-	rawData[11] = 0.0;
-	
-	assert(size == vertexCount()*3);
+	data[start+6] = 0.0;
+	data[start+7] = 0.0;
+	data[start+8] = 1.0;
+
+	data[start+9] = 0.0;
+	data[start+10] = 1.0;
+	data[start+11] = 0.0;
 }
 
-void SquareTest2D::fillVertex(float* rawData, size_t size) {
-	rawData[0] = -.5;
-	rawData[1] = -.5;
-	rawData[2] = 0.0;
+void SquareTest2D::fillVertex(std::vector<float>& data, size_t start) {
+	data[start+0] = -.5;
+	data[start+1] = -.5;
+	data[start+2] = 0.0;
 	
-	rawData[3] = -.5;
-	rawData[4] =  .5;
-	rawData[5] = 0.0;
+	data[start+3] = -.5;
+	data[start+4] =  .5;
+	data[start+5] = 0.0;
 	
-	rawData[6]  =  .5;
-	rawData[7] = -.5;
-	rawData[8] = 0.0;
+	data[start+6]  =  .5;
+	data[start+7] = -.5;
+	data[start+8] = 0.0;
 
-	rawData[9] =  .5;
-	rawData[10] =  .5;
-	rawData[11] = 0.0;
-	assert(size == vertexCount()*3);
+	data[start+9] =  .5;
+	data[start+10] =  .5;
+	data[start+11] = 0.0;
+}
+
+TriangleTest2D::TriangleTest2D() {}
+TriangleTest2D::~TriangleTest2D() {}
+size_t TriangleTest2D::personalCount() const { return 9; }
+
+void TriangleTest2D::fillColors(std::vector<float>& data, size_t start) {
+	data[start+0] = 1.0;
+	data[start+1] = 0.0;
+	data[start+2] = 0.0;
+	
+	data[start+3] = 1.0;
+	data[start+4] = 1.0;
+	data[start+5] = 0.0;
+
+	data[start+6] = 0.0;
+	data[start+7] = 0.0;
+	data[start+8] = 1.0;
+}
+
+void TriangleTest2D::fillVertex(std::vector<float>& data, size_t start) {
+	data[start+0] = -0.6;
+	data[start+1] = -0.6;
+	data[start+2] = 0.0;
+	
+	data[start+3] = -0.6;
+	data[start+4] =  0.6;
+	data[start+5] = 0.0;
+	
+	data[start+6]  =  0.6;
+	data[start+7] = -0.6;
+	data[start+8] = 0.0;
+}
+
+void TriangleTest2D::drawSelf() const {
+	assert(starti_ % 3 == 0);
+	assert(this->vertexCount() % 3 == 0);
+  glDrawArrays (GL_LINE_STRIP, starti_/3, this->personalCount()/3);
+}
+
+void SquareTest2D::drawSelf() const {
+	assert(starti_ % 3 == 0);
+	assert(this->vertexCount() % 3 == 0);
+	std::cerr << starti_ << " " << personalCount() << std::endl;
+  glDrawArrays (GL_TRIANGLE_STRIP, starti_/3, this->personalCount()/3);
 }
 
 }} // ShapeShifter::Opengl
