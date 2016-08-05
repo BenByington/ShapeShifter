@@ -59,6 +59,7 @@ void RenderNode::UpdateData() {
 	// out how big the tree is, and then again to actually populate the VAO.
 	// Could potentially recurse once, filling pre-allocated buffers and adding
 	// more as necessary?
+	CleanupBuffer();
 	size_t size = this->BufferSizeRequired();
 
   std::vector<float> tri_vert(size, 0);
@@ -87,6 +88,12 @@ void RenderNode::UpdateData() {
 	
 	glEnableVertexAttribArray (0);
   glEnableVertexAttribArray (1);
+}
+
+void RenderNode::CleanupBuffer() {
+	//TODO check to make sure this is correct
+	glDeleteVertexArrays(1, &vao);
+	vao = 0;
 }
 
 void RenderNode::RenderTree() const {

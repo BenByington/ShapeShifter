@@ -31,7 +31,7 @@ namespace Opengl {
  */
 class RenderNode {
 public:
-  virtual ~RenderNode() {}
+  virtual ~RenderNode() { CleanupBuffer(); }
 
 	/**
 	 * Adds a child to this node.  
@@ -83,6 +83,8 @@ private:
 	// TODO see how framerate is affected by the number/size of each child
 	void DrawChildren() const;
 
+  void CleanupBuffer();
+	
   /**
 	 * Functions that must be implemented by any concrete child implementations.
 	 * These are used to figure out how much space each child needs in the VAO 
