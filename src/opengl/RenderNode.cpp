@@ -64,7 +64,6 @@ void RenderNode::UpdateData() {
 
   std::vector<float> tri_vert(size, 0);
 	std::vector<float> tri_col(size, 0);
-	std::cerr << tri_vert.size() << std::endl;
 	
 	size_t end = PopulateBufferData(tri_vert, tri_col, 0);
 	assert(end == tri_vert.size());

@@ -33,7 +33,7 @@ Shader::Shader(const std::string& filename, ShaderType t) {
   glGetIntegerv(GL_SHADER_COMPILER, &can_compile);
 	assert(can_compile == GL_TRUE);
 	
-  shader = glCreateShader(t == VERTEX ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER);
+  shader = glCreateShader(t == ShaderType::VERTEX ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER);
 	auto source = data.c_str();
 	int source_len = data.length();
 	glShaderSource(shader, 1, &source, &source_len);

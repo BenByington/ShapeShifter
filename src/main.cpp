@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     // create and show your widgets here
-    MainWindow window;
+    ShapeShifter::ui::MainWindow window;
     window.show();
 
     return app.exec();

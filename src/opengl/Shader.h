@@ -20,22 +20,25 @@
 namespace ShapeShifter {
 namespace Opengl {
 
+/*
+ * Class that wraps an opengl shader resource.  It expects the shader to
+ * program to live in a separate text file, which it will load and parse
+ * and compile.  Must use one of the children classes to actually instantiate.
+ */
 class Shader {
-public:
-  enum ShaderType {
+protected:
+  enum class ShaderType {
 		VERTEX,
 		FRAGMENT
 	};
 	
-protected:
   Shader(const std::string& filename, ShaderType t);
   Shader(const Shader&) = delete;
-	Shader(const Shader&&) = delete;
+	Shader& operator()(const Shader&) = delete;
 public:
   virtual ~Shader();
 	
 public:
-	virtual ShaderType type() = 0;
 	operator GLuint() const {return shader;}
 private:
   GLuint shader = 0;
@@ -44,22 +47,18 @@ private:
 
 class VertexShader : public Shader {
 public:
-	VertexShader(const std::string& filename) : Shader(filename, VERTEX) {}
+	VertexShader(const std::string& filename) : Shader(filename, ShaderType::VERTEX) {}
 	VertexShader(const VertexShader&) = delete;
-	VertexShader(const VertexShader&&) = delete;
+	VertexShader& operator()(const VertexShader&) = delete;
 	virtual ~VertexShader() {}
-
-	virtual ShaderType type() override { return ShaderType::VERTEX; }
 };
 
 class FragmentShader : public Shader {
 public:
-	FragmentShader(const std::string& filename) : Shader(filename, FRAGMENT) {}
+	FragmentShader(const std::string& filename) : Shader(filename, ShaderType::FRAGMENT) {}
 	FragmentShader(const FragmentShader&) = delete;
-	FragmentShader(const FragmentShader&&) = delete;
+	FragmentShader& operator()(const FragmentShader&) = delete;
 	virtual ~FragmentShader() {}
-
-	virtual ShaderType type() override { return ShaderType::FRAGMENT; }
 };
 
 }} // ShapeShifter::Opengl

@@ -20,6 +20,9 @@
 
 #include "ui/MyQtWidget.h"
 
+namespace ShapeShifter {
+namespace ui {
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
@@ -29,5 +32,7 @@ private:
     Ui::MainWindow widget;
     std::unique_ptr<MyQtWidget> qtw_;
 };
+
+}} //ShapeShifter::ui
 
 #endif /* _MAINWINDOW_H */

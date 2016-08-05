@@ -13,6 +13,9 @@
 
 #include "ui/MainWindow.h"
 
+namespace ShapeShifter {
+namespace ui {
+
 MainWindow::MainWindow() {
     widget.setupUi(this);
     qtw_.reset(new MyQtWidget());
@@ -22,3 +25,5 @@ MainWindow::MainWindow() {
 
 MainWindow::~MainWindow() {
 }
+
+}} //ShapeShifter::ui

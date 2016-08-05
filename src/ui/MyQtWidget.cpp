@@ -20,6 +20,9 @@
 
 #include <memory>
 
+namespace ShapeShifter {
+namespace ui {
+
 MyQtWidget::MyQtWidget() {
   widget.setupUi(this);
 
@@ -38,24 +41,23 @@ void MyQtWidget::initializeGL() {
 
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-  std::cerr << "valid: " << this->context()->isValid() << std::endl;
   QString openglVersionString(QLatin1String(reinterpret_cast<const char*>(glGetString(GL_VERSION))));
   QString shaderVersionString(QLatin1String(reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION))));
   qDebug() << "Driver Version String:" << openglVersionString;
   qDebug() << "Shader Version String:" << shaderVersionString;
   qDebug() << "Current Context:" << this->format();
 
-	root_.reset(new ShapeShifter::Opengl::SquareTest2D());
-	std::shared_ptr<ShapeShifter::Opengl::RenderNode> second(new ShapeShifter::Opengl::TriangleTest2D);
+	root_.reset(new Opengl::SquareTest2D());
+	std::shared_ptr<Opengl::RenderNode> second(new Opengl::TriangleTest2D);
 	root_->AddChild(second);
 	root_->UpdateData();
 
-	std::vector<std::unique_ptr<ShapeShifter::Opengl::Shader>> shaders;
+	std::vector<std::unique_ptr<Opengl::Shader>> shaders;
 	shaders.emplace_back(
-	    new ShapeShifter::Opengl::VertexShader("/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert"));
+	    new Opengl::VertexShader("/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert"));
 	shaders.emplace_back(
-	    new ShapeShifter::Opengl::FragmentShader("/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag"));
-	ShapeShifter::Opengl::ShaderProgram program(std::move(shaders));
+	    new Opengl::FragmentShader("/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag"));
+	Opengl::ShaderProgram program(std::move(shaders));
 	program.UseProgram();
 
 }
@@ -90,3 +92,5 @@ void MyQtWidget::paintGL() {
 		
 		root_->RenderTree();
 }
+
+}} //ShapeShifter::ui

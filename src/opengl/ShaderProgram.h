@@ -26,7 +26,7 @@ class ShaderProgram {
 public:
   ShaderProgram(std::vector<std::unique_ptr<Shader>> shaders);
   ShaderProgram(const ShaderProgram&) = delete;
-	ShaderProgram(const ShaderProgram&&) = delete;
+	ShaderProgram& operator()(ShaderProgram&) = delete;
   virtual ~ShaderProgram();
 
 	void UseProgram() { glUseProgram(program_); }
