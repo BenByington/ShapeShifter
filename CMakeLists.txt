@@ -14,7 +14,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(SRC_ROOT src/)
 
-file(GLOB SRC src/*.cpp src/ui/*.cpp src/opengl/*.cpp)
+file(GLOB_RECURSE SRC ./src/ src/*.cpp)
+
 add_executable(ShapeShifter ${SRC})
 include_directories(src)
 
