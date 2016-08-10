@@ -24,6 +24,10 @@ void RenderNode::AddChild(std::shared_ptr<RenderNode> child) {
 	children.push_back(child);
 }
 
+void RenderNode::SetRotation(const math::Quaternion& rot) {
+  this->rotation_ = rot;
+}
+
 size_t RenderNode::BufferSizeRequired() const {
 	size_t ret = ExclusiveBufferSizeRequired();
 	for (const auto& child : children) {
@@ -95,15 +99,20 @@ void RenderNode::CleanupBuffer() {
 	vao = 0;
 }
 
-void RenderNode::RenderTree() const {
-		glBindVertexArray (vao);
-		DrawChildren();
+void RenderNode::RenderTree(const ShaderProgram& shader) const {
+  glBindVertexArray(vao);
+  shader.UseProgram();
+  DrawChildren(shader);
 }
 
-void RenderNode::DrawChildren() const {
+void RenderNode::DrawChildren(const ShaderProgram& shader) const {
 	for (const auto& child : children) {
-		child->DrawChildren();
+		child->DrawChildren(shader);
 	}
+  const auto& rot = rotation_.RotationMatrix();
+  rot.print();
+  shader.uploadMatrix(rot);
+  
 	this->DrawSelf();
 }
 

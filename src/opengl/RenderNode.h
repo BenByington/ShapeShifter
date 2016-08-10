@@ -14,8 +14,11 @@
 #ifndef RENDERNODE_H
 #define RENDERNODE_H
 
-// TODO repalce with proper non-qt include
-#include <QOpenGLWidget>
+//TODO change my own opengl directory to not be the same as system
+#include "opengl/math/Quaternion.h"
+#include "opengl/ShaderProgram.h"
+
+#include <opengl/gl3.h>
 
 #include <cstdlib>
 #include <memory>
@@ -59,7 +62,9 @@ public:
 	/**
 	 * Walks down the tree, applies rotation matrices, and calls opengl to render
    */
-	void RenderTree() const;
+	void RenderTree(const ShaderProgram& shader) const;
+
+  void SetRotation(const math::Quaternion& rot);
 
 protected:
 	// Prevent any duplication so we can easier avoid conflicts over opengl 
@@ -81,7 +86,7 @@ private:
   size_t PopulateBufferData(std::vector<float>& vert, std::vector<float>& color, size_t start) ;
 	// Renders all children in the tree.  
 	// TODO see how framerate is affected by the number/size of each child
-	void DrawChildren() const;
+	void DrawChildren(const ShaderProgram& shader) const;
 
   void CleanupBuffer();
 	
@@ -105,6 +110,8 @@ private:
 	// TODO need resource cleanup function
 	GLuint vao = 0;
 	std::vector<std::shared_ptr<RenderNode>> children;
+
+  math::Quaternion rotation_;
 };
 
 /**

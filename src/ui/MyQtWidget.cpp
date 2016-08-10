@@ -49,6 +49,8 @@ void MyQtWidget::initializeGL() {
 
 	root_.reset(new Opengl::SquareTest2D());
 	std::shared_ptr<Opengl::RenderNode> second(new Opengl::TriangleTest2D);
+  second->SetRotation(Opengl::math::Quaternion(.2, .2, .2, .2));
+  
 	root_->AddChild(second);
 	root_->UpdateData();
 
@@ -57,9 +59,7 @@ void MyQtWidget::initializeGL() {
 	    new Opengl::VertexShader("/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert"));
 	shaders.emplace_back(
 	    new Opengl::FragmentShader("/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag"));
-	Opengl::ShaderProgram program(std::move(shaders));
-	program.UseProgram();
-
+	program_.reset(new Opengl::ShaderProgram(std::move(shaders)));
 }
 
 void MyQtWidget::gluPerspective(double fovy,double aspect, double zNear, double zFar) {
@@ -90,7 +90,7 @@ void MyQtWidget::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 		
-		root_->RenderTree();
+		root_->RenderTree(*program_);
 }
 
 }} //ShapeShifter::ui

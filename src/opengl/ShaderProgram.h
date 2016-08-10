@@ -17,6 +17,7 @@
 #include <vector>
 #include <memory>
 
+#include "opengl/math/Matrix4.h"
 #include "opengl/Shader.h"
 
 namespace ShapeShifter {
@@ -29,7 +30,8 @@ public:
 	ShaderProgram& operator()(ShaderProgram&) = delete;
   virtual ~ShaderProgram();
 
-	void UseProgram() { glUseProgram(program_); }
+	void UseProgram() const { glUseProgram(program_); }
+  void uploadMatrix(const math::Matrix4& mat) const;
 private:
 	std::vector<std::unique_ptr<Shader>> shaders_;
 	GLuint program_;

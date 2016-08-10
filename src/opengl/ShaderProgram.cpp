@@ -68,5 +68,11 @@ ShaderProgram::~ShaderProgram() {
 	glDeleteProgram(program_);
 }
 
+void ShaderProgram::uploadMatrix(const math::Matrix4& mat) const {
+  GLint transform_location = glGetUniformLocation(program_, "transform");
+  // TODO decipher this
+  glUniformMatrix4fv(transform_location, 1, GL_FALSE, mat.data());
+}
+
 }} // ShapeShifter::Opengl
 
