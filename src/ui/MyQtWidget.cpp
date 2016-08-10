@@ -15,8 +15,8 @@
 #include "opengl/Shader.h"
 #include "opengl/ShaderProgram.h"
 
-#include <QDebug>
-#include <QOpenGLContext>
+#include <QtCore/QDebug>
+#include <QtGui/QOpenGLContext>
 
 #include <memory>
 

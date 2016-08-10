@@ -17,7 +17,7 @@
 #include <cmath>
 #include <iostream>
 
-#include <QOpenGLWidget>
+#include <QtWidgets/QOpenGLWidget>
 
 #include "ui_MyQtWidget.h"
 
@@ -42,6 +42,7 @@ protected:
 private:
 	GLuint vao = 0;
 	std::unique_ptr<Opengl::RenderNode> root_;
+  std::unique_ptr<Opengl::ShaderProgram> program_;
 
 };
 

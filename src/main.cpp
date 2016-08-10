@@ -11,8 +11,8 @@
  * Created on July 19, 2016, 7:20 PM
  */
 
-#include <QApplication>
-#include <qwidget.h>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/qwidget.h>
 
 #include "ui/MainWindow.h"
 
