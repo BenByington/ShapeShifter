@@ -4,10 +4,10 @@
  * and open the template in the editor.
  */
 
-/* 
+/*
  * File:   RenderNode.cpp
  * Author: bbyington
- * 
+ *
  * Created on August 2, 2016, 7:53 AM
  */
 
@@ -39,8 +39,8 @@ size_t RenderNode::BufferSizeRequired() const {
 //TODO let things reallocate the buffer
 
 size_t RenderNode::PopulateBufferData(
-    std::vector<float>& vert, 
-		std::vector<float>& color, 
+    std::vector<float>& vert,
+		std::vector<float>& color,
 		const size_t start) {
 	size_t idx = start;
 	for (const auto& child : children) {
@@ -48,18 +48,18 @@ size_t RenderNode::PopulateBufferData(
 	}
 
 	start_vertex_ = idx;
-	
+
 	FillVertexData(vert, idx);
 	FillColorData(color, idx);
 	idx += this->ExclusiveBufferSizeRequired();
 
 	end_vertex_ = idx;
-	return end_vertex_ - start_vertex_;
+	return end_vertex_;
 }
 
 void RenderNode::UpdateData() {
 
-  // Note, this function essentially recurses the tree twice, once to figure 
+  // Note, this function essentially recurses the tree twice, once to figure
 	// out how big the tree is, and then again to actually populate the VAO.
 	// Could potentially recurse once, filling pre-allocated buffers and adding
 	// more as necessary?
@@ -68,7 +68,7 @@ void RenderNode::UpdateData() {
 
   std::vector<float> tri_vert(size, 0);
 	std::vector<float> tri_col(size, 0);
-	
+
 	size_t end = PopulateBufferData(tri_vert, tri_col, 0);
 	assert(end == tri_vert.size());
 
@@ -88,7 +88,7 @@ void RenderNode::UpdateData() {
   glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
   glBindBuffer (GL_ARRAY_BUFFER, colours_vbo);
   glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-	
+
 	glEnableVertexAttribArray (0);
   glEnableVertexAttribArray (1);
 }
@@ -112,7 +112,7 @@ void RenderNode::DrawChildren(const ShaderProgram& shader) const {
   const auto& rot = rotation_.RotationMatrix();
   rot.print();
   shader.uploadMatrix(rot);
-  
+
 	this->DrawSelf();
 }
 
@@ -122,7 +122,7 @@ void SquareTest2D::FillColorData(std::vector<float>& data, size_t start) const {
 	data[start+0] = 1.0;
 	data[start+1] = 0.0;
 	data[start+2] = 0.0;
-	
+
 	data[start+3] = 1.0;
 	data[start+4] = 1.0;
 	data[start+5] = 0.0;
@@ -140,11 +140,11 @@ void SquareTest2D::FillVertexData(std::vector<float>& data, size_t start) const 
 	data[start+0] = -.5;
 	data[start+1] = -.5;
 	data[start+2] = 0.0;
-	
+
 	data[start+3] = -.5;
 	data[start+4] =  .5;
 	data[start+5] = 0.0;
-	
+
 	data[start+6]  =  .5;
 	data[start+7] = -.5;
 	data[start+8] = 0.0;
@@ -160,7 +160,7 @@ void TriangleTest2D::FillColorData(std::vector<float>& data, size_t start) const
 	data[start+0] = 1.0;
 	data[start+1] = 0.0;
 	data[start+2] = 0.0;
-	
+
 	data[start+3] = 1.0;
 	data[start+4] = 1.0;
 	data[start+5] = 0.0;
@@ -178,11 +178,11 @@ void TriangleTest2D::FillVertexData(std::vector<float>& data, size_t start) cons
 	data[start+0] = -0.6;
 	data[start+1] = -0.6;
 	data[start+2] = 0.0;
-	
+
 	data[start+3] = -0.6;
 	data[start+4] =  0.6;
 	data[start+5] = 0.0;
-	
+
 	data[start+6]  =  0.6;
 	data[start+7] = -0.6;
 	data[start+8] = 0.0;
