@@ -49,7 +49,7 @@ void MyQtWidget::initializeGL() {
 
 	root_.reset(new Opengl::SquareTest2D());
 	std::shared_ptr<Opengl::RenderNode> second(new Opengl::TriangleTest2D);
-  second->SetRotation(Opengl::math::Quaternion(.2, .2, .2, .2));
+  second->SetTranslation(Opengl::math::Vector4({.1,.1,.2,1}));
 
 	root_->AddChild(second);
 	root_->UpdateData();

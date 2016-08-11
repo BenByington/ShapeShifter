@@ -77,7 +77,7 @@ Vector4 Matrix4::operator*(const Vector4& right) const {
 		//_mm_fmadd_ps(temp, ret, ret);
 	}
   // TODO look to see if it matters that we're saving as Vector4 instead of __m128
-  return ret;
+  return Vector4(ret);
 }
 
 Matrix4 Matrix4::operator *(const Matrix4& right) const {
@@ -103,10 +103,10 @@ Matrix4 Matrix4::operator *(const Matrix4& right) const {
 }
 
 void Matrix4::print() const {
-  std::cerr << data_[0 + DIM*0] << ", " << data_[1 + DIM*0] << " " << data_[2 + DIM*0] << " " << data_[3 + DIM*0] << std::endl;
-  std::cerr << data_[0 + DIM*1] << ", " << data_[1 + DIM*1] << " " << data_[2 + DIM*1] << " " << data_[3 + DIM*1] << std::endl;
-  std::cerr << data_[0 + DIM*2] << ", " << data_[1 + DIM*2] << " " << data_[2 + DIM*2] << " " << data_[3 + DIM*2] << std::endl;
-  std::cerr << data_[0 + DIM*3] << ", " << data_[1 + DIM*3] << " " << data_[2 + DIM*3] << " " << data_[3 + DIM*3] << std::endl;
+  std::cerr << data_[0*DIM+0] << ", " << data_[1*DIM+0] << " " << data_[2*DIM+0] << " " << data_[3*DIM+0] << std::endl;
+  std::cerr << data_[0*DIM+1] << ", " << data_[1*DIM+1] << " " << data_[2*DIM+1] << " " << data_[3*DIM+1] << std::endl;
+  std::cerr << data_[0*DIM+2] << ", " << data_[1*DIM+2] << " " << data_[2*DIM+2] << " " << data_[3*DIM+2] << std::endl;
+  std::cerr << data_[0*DIM+3] << ", " << data_[1*DIM+3] << " " << data_[2*DIM+3] << " " << data_[3*DIM+3] << std::endl;
 }
 
 }}} // ShapeShifter::Opengl::math

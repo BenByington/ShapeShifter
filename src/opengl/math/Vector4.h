@@ -24,9 +24,10 @@ namespace math {
 class alignas(16) Vector4 {
 public:
 	//TODO make sure I'm storing in correct order
-  Vector4(const std::array<float, 4>& data);
+  explicit Vector4(const std::array<float, 4>& data);
+  // TODO see why explicit breaks this...
 	Vector4(const __m128 data) {_mm_store_ps(data_.begin(), data); }
-  Vector4(const Vector4& orig);
+  explicit Vector4(const Vector4& orig);
 	const Vector4& operator=(const Vector4& other);
   virtual ~Vector4();
 

@@ -65,11 +65,12 @@ public:
 	void RenderTree(const ShaderProgram& shader) const;
 
   void SetRotation(const math::Quaternion& rot);
+  void SetTranslation(const math::Vector4& trans);
 
 protected:
 	// Prevent any duplication so we can easier avoid conflicts over opengl
 	// resources.
-  RenderNode() = default;
+  RenderNode() : translation_({0.0f, 0.0f, 0.0f, 1.0f}) {}
   RenderNode(const RenderNode& orig) = delete;
 	RenderNode& operator=(RenderNode&) = delete;
 
@@ -112,6 +113,7 @@ private:
 	std::vector<std::shared_ptr<RenderNode>> children;
 
   math::Quaternion rotation_;
+  math::Vector4 translation_;
 };
 
 /**

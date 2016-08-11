@@ -28,6 +28,10 @@ void RenderNode::SetRotation(const math::Quaternion& rot) {
   this->rotation_ = rot;
 }
 
+void RenderNode::SetTranslation(const math::Vector4& trans) {
+  this->translation_ = trans;
+}
+
 size_t RenderNode::BufferSizeRequired() const {
 	size_t ret = ExclusiveBufferSizeRequired();
 	for (const auto& child : children) {
@@ -109,7 +113,8 @@ void RenderNode::DrawChildren(const ShaderProgram& shader) const {
 	for (const auto& child : children) {
 		child->DrawChildren(shader);
 	}
-  const auto& rot = rotation_.RotationMatrix();
+  auto rot = rotation_.RotationMatrix();
+  rot.WriteColumn(3, translation_);
   rot.print();
   shader.uploadMatrix(rot);
 
@@ -139,19 +144,19 @@ void SquareTest2D::FillColorData(std::vector<float>& data, size_t start) const {
 void SquareTest2D::FillVertexData(std::vector<float>& data, size_t start) const {
 	data[start+0] = -.5;
 	data[start+1] = -.5;
-	data[start+2] = 0.0;
+	data[start+2] = -.5;
 
 	data[start+3] = -.5;
 	data[start+4] =  .5;
-	data[start+5] = 0.0;
+	data[start+5] = .5;
 
 	data[start+6]  =  .5;
 	data[start+7] = -.5;
-	data[start+8] = 0.0;
+	data[start+8] = -.5;
 
 	data[start+9] =  .5;
 	data[start+10] =  .5;
-	data[start+11] = 0.0;
+	data[start+11] = .5;
 }
 
 size_t TriangleTest2D::ExclusiveBufferSizeRequired() const { return 12; }
