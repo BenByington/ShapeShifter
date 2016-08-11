@@ -4,10 +4,10 @@
  * and open the template in the editor.
  */
 
-/* 
+/*
  * File:   Matrix4.cpp
  * Author: bbyington
- * 
+ *
  * Created on August 5, 2016, 8:21 AM
  */
 
@@ -41,7 +41,7 @@ void Matrix4::WriteColumn(size_t col, const Vector4& v) {
 }
 
 Matrix4::Matrix4() : data_({0}) {}
-                           
+
 Matrix4 Matrix4::Identity() {
 	return {{1, 0, 0, 0,
 			     0, 1, 0, 0,
@@ -86,7 +86,7 @@ Matrix4 Matrix4::operator *(const Matrix4& right) const {
   __m128 t2 = _mm_load_ps(data_.begin() + 2*DIM);
   __m128 t3 = _mm_load_ps(data_.begin() + 3*DIM);
 	_MM_TRANSPOSE4_PS(t0, t1, t2, t3);
-  
+
 	Matrix4 ret;
   __m128 r;
 
@@ -99,7 +99,7 @@ Matrix4 Matrix4::operator *(const Matrix4& right) const {
   r = _mm_mul_ps(_mm_load_ps(right.data_.begin() + 3*DIM), t3);
   _mm_store_ps(ret.data_.begin() + 3*DIM, r);
 	return ret;
-	
+
 }
 
 void Matrix4::print() const {

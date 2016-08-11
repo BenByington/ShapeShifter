@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-/* 
+/*
  * File:   RenderNode.h
  * Author: bbyington
  *
@@ -37,14 +37,14 @@ public:
   virtual ~RenderNode() { CleanupBuffer(); }
 
 	/**
-	 * Adds a child to this node.  
+	 * Adds a child to this node.
 	 * TODO actually make that an error
-	 * Note: It is an error to add a child that is already established as the 
+	 * Note: It is an error to add a child that is already established as the
 	 *       root of another tree (by calling UpdateData)
 	 * Note: These are intentionally shared, and external code may keep a
 	 *       reference to do things like tweak the rotation matrix.  Tweaking the
 	 *       actual vertex count or absolute position will not be supported.
-	 * 
+	 *
    * @param child subtree to add to this node.
    */
 	void AddChild(std::shared_ptr<RenderNode> child);
@@ -67,40 +67,40 @@ public:
   void SetRotation(const math::Quaternion& rot);
 
 protected:
-	// Prevent any duplication so we can easier avoid conflicts over opengl 
+	// Prevent any duplication so we can easier avoid conflicts over opengl
 	// resources.
   RenderNode() = default;
   RenderNode(const RenderNode& orig) = delete;
 	RenderNode& operator=(RenderNode&) = delete;
 
-	// Functions for child classes to figure out what indices in the VAO they 
-	// should be modifying.  Only guaranteed to be valid during calls to 
+	// Functions for child classes to figure out what indices in the VAO they
+	// should be modifying.  Only guaranteed to be valid during calls to
 	// FillVertexData and FillColorData.
 	size_t start_vertex() const {return start_vertex_; }
 	size_t end_vertex() const {return end_vertex_; }
-	
+
 private:
 	// Compute how big the VAO should be
 	size_t BufferSizeRequired() const;
 	// Fill the VAO with data and push to card
   size_t PopulateBufferData(std::vector<float>& vert, std::vector<float>& color, size_t start) ;
-	// Renders all children in the tree.  
+	// Renders all children in the tree.
 	// TODO see how framerate is affected by the number/size of each child
 	void DrawChildren(const ShaderProgram& shader) const;
 
   void CleanupBuffer();
-	
+
   /**
 	 * Functions that must be implemented by any concrete child implementations.
-	 * These are used to figure out how much space each child needs in the VAO 
+	 * These are used to figure out how much space each child needs in the VAO
 	 * (3x number of vertices) and to actually populate the data and render
 	 * your own vertices.
-   */	
+   */
 	virtual size_t ExclusiveBufferSizeRequired() const = 0;
 	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const = 0;
 	virtual void FillColorData(std::vector<float>& rawData, size_t start) const = 0;
 	virtual void DrawSelf() const = 0;
-	
+
 	// TODO this is currently inconsistent.  I'd prefer the code to think in terms
 	//      of vertices, but right now these actually record number of floats in
 	//      the buffer (3x vertices);

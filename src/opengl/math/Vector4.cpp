@@ -4,10 +4,10 @@
  * and open the template in the editor.
  */
 
-/* 
+/*
  * File:   Vector4.cpp
  * Author: bbyington
- * 
+ *
  * Created on August 5, 2016, 9:06 PM
  */
 

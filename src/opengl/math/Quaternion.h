@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-/* 
+/*
  * File:   Quaternion.h
  * Author: bbyington
  *
@@ -27,9 +27,9 @@ public:
   Quaternion(const Quaternion& orig) = default;
 	Quaternion& operator=(const Quaternion& other) = default;
   virtual ~Quaternion() {}
-	
+
   Matrix4 RotationMatrix() const;
-  
+
   //TODO encapsulate?
   //TODO add normalization function
   float qw;

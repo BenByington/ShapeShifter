@@ -4,10 +4,10 @@
  * and open the template in the editor.
  */
 
-/* 
+/*
  * File:   Quaternion.cpp
  * Author: bbyington
- * 
+ *
  * Created on August 7, 2016, 1:09 PM
  */
 
@@ -19,7 +19,7 @@ namespace ShapeShifter {
 namespace Opengl {
 namespace math {
 
-Quaternion::Quaternion(float s, float x, float y, float z) 
+Quaternion::Quaternion(float s, float x, float y, float z)
   : qw(s), qx(x), qy(y), qz(z) {}
 
 Matrix4 Quaternion::RotationMatrix() const {

@@ -4,10 +4,10 @@
  * and open the template in the editor.
  */
 
-/* 
+/*
  * File:   Shader.cpp
  * Author: bbyington
- * 
+ *
  * Created on July 29, 2016, 8:38 AM
  */
 
@@ -32,7 +32,7 @@ Shader::Shader(const std::string& filename, ShaderType t) {
 	GLint can_compile = GL_FALSE;
   glGetIntegerv(GL_SHADER_COMPILER, &can_compile);
 	assert(can_compile == GL_TRUE);
-	
+
   shader = glCreateShader(t == ShaderType::VERTEX ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER);
 	auto source = data.c_str();
 	int source_len = data.length();
@@ -40,7 +40,7 @@ Shader::Shader(const std::string& filename, ShaderType t) {
 	glCompileShader(shader);
 
   GLint compiled = false;
-  
+
   glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
   if (!compiled) {
 		GLint logLength = 0;

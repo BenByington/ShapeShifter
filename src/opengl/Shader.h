@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-/* 
+/*
  * File:   Shader.h
  * Author: bbyington
  *
@@ -31,13 +31,13 @@ protected:
 		VERTEX,
 		FRAGMENT
 	};
-	
+
   Shader(const std::string& filename, ShaderType t);
   Shader(const Shader&) = delete;
 	Shader& operator()(const Shader&) = delete;
 public:
   virtual ~Shader();
-	
+
 public:
 	operator GLuint() const {return shader;}
 private:

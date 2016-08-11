@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-/* 
+/*
  * File:   Matrix4.h
  * Author: bbyington
  *
@@ -30,7 +30,7 @@ class alignas(16) Matrix4 {
 public:
 
   static const size_t DIM = 4;
-	
+
   Matrix4(const std::array<float, 16>& cols);
   Matrix4(const Matrix4& orig);
 	const Matrix4& operator=(const Matrix4& other);
@@ -44,10 +44,10 @@ public:
   static Matrix4 Identity();
 	static Matrix4 Scale(float sx, float sy, float sz);
 	static Matrix4 Translate(float tx, float ty, float tz);
-	
+
 	Vector4 operator*(const Vector4& right) const;
 	Matrix4 operator*(const Matrix4& right) const;
-  
+
   // TODO this is ugly and possibly dangerous...  Fix!
   const float* data() const { return reinterpret_cast<const float*>(data_.begin()); }
 

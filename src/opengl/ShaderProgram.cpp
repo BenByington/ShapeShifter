@@ -2,15 +2,15 @@
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
- * 
- * 
+ *
+ *
  * TODO change license netbeans includes
  */
 
-/* 
+/*
  * File:   ShaderProgram.cpp
  * Author: bbyington
- * 
+ *
  * Created on July 31, 2016, 3:08 PM
  */
 
@@ -22,7 +22,7 @@
 namespace ShapeShifter {
 namespace Opengl {
 
-ShaderProgram::ShaderProgram(std::vector<std::unique_ptr<Shader>> shaders) 
+ShaderProgram::ShaderProgram(std::vector<std::unique_ptr<Shader>> shaders)
   : shaders_(std::move(shaders)) {
 
 	program_ = glCreateProgram();
