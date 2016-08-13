@@ -103,20 +103,19 @@ void RenderNode::CleanupBuffer() {
 	vao = 0;
 }
 
-void RenderNode::RenderTree(const ShaderProgram& shader) const {
+void RenderNode::RenderTree(const Camera& camera, const ShaderProgram& shader) const {
   glBindVertexArray(vao);
   shader.UseProgram();
-  DrawChildren(shader);
+  DrawChildren(camera, shader);
 }
 
-void RenderNode::DrawChildren(const ShaderProgram& shader) const {
+void RenderNode::DrawChildren(const Camera& camera, const ShaderProgram& shader) const {
 	for (const auto& child : children) {
-		child->DrawChildren(shader);
+		child->DrawChildren(camera, shader);
 	}
   auto rot = rotation_.RotationMatrix();
   rot.WriteColumn(3, translation_);
-  rot.print();
-  shader.uploadMatrix(rot);
+  shader.uploadMatrix(camera.ProjectionMatrix()*rot);
 
 	this->DrawSelf();
 }
@@ -144,19 +143,19 @@ void SquareTest2D::FillColorData(std::vector<float>& data, size_t start) const {
 void SquareTest2D::FillVertexData(std::vector<float>& data, size_t start) const {
 	data[start+0] = -.5;
 	data[start+1] = -.5;
-	data[start+2] = -.5;
+	data[start+2] = 1.5;
 
 	data[start+3] = -.5;
 	data[start+4] =  .5;
-	data[start+5] = .5;
+	data[start+5] = 2.5;
 
 	data[start+6]  =  .5;
 	data[start+7] = -.5;
-	data[start+8] = -.5;
+	data[start+8] = 1.5;
 
 	data[start+9] =  .5;
 	data[start+10] =  .5;
-	data[start+11] = .5;
+	data[start+11] = 2.5;
 }
 
 size_t TriangleTest2D::ExclusiveBufferSizeRequired() const { return 12; }
@@ -207,6 +206,22 @@ void SquareTest2D::DrawSelf() const {
 	assert(start_vertex() % 3 == 0);
 	assert(this->ExclusiveBufferSizeRequired() % 3 == 0);
   glDrawArrays (GL_TRIANGLE_STRIP, start_vertex()/3, this->ExclusiveBufferSizeRequired()/3);
+}
+
+void RenderNode::DebugRotation(const math::Matrix4& mat) const {
+  std::vector<float> data(this->ExclusiveBufferSizeRequired());
+  this->FillVertexData(data, 0);
+  std::cerr << "Matrix: " << std::endl;
+  mat.print();
+  for (size_t i = 0; i < data.size(); i += 3) {
+    // TODO figure out how to make Vector4 constructor less verbose...
+    math::Vector4 vec(std::array<float,4>{{data[i], data[i+1], data[i+2], 1}});
+    std::cerr << "Before: " << std::endl;
+    vec.print();
+    auto result = mat * vec;
+    std::cerr << "After: " << std::endl;
+    result.print();
+  }
 }
 
 }} // ShapeShifter::Opengl

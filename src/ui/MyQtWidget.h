@@ -43,6 +43,7 @@ private:
 	GLuint vao = 0;
 	std::unique_ptr<Opengl::RenderNode> root_;
   std::unique_ptr<Opengl::ShaderProgram> program_;
+  std::unique_ptr<Opengl::Camera> camera_;
 
 };
 
