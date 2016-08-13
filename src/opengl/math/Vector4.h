@@ -21,7 +21,7 @@ namespace ShapeShifter {
 namespace Opengl {
 namespace math {
 
-class alignas(16) Vector4 {
+class alignas(16) Vector4 final {
 public:
 	//TODO make sure I'm storing in correct order
   explicit Vector4(const std::array<float, 4>& data);
@@ -29,14 +29,16 @@ public:
 	Vector4(const __m128 data) {_mm_store_ps(data_.begin(), data); }
   explicit Vector4(const Vector4& orig);
 	const Vector4& operator=(const Vector4& other);
-  virtual ~Vector4();
+  ~Vector4();
 
 	//TODO ensure idx is valid?
-	float operator[](int idx) const { data_[idx];}
+	float operator[](int idx) const { return data_[idx];}
   const float* begin() const { return data_.begin(); }
   const float* end() const { return data_.end(); }
 
 	operator __m128() const { return _mm_load_ps(data_.begin()); }
+
+  void print() const;
 
 private:
   std::array<float, 4> data_;

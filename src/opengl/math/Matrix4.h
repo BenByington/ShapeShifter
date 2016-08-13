@@ -26,7 +26,7 @@ namespace math {
 
 // column major for now
 // TODO don't store __m128.  Just store alligned float array
-class alignas(16) Matrix4 {
+class alignas(16) Matrix4 final {
 public:
 
   static const size_t DIM = 4;
@@ -34,7 +34,7 @@ public:
   Matrix4(const std::array<float, 16>& cols);
   Matrix4(const Matrix4& orig);
 	const Matrix4& operator=(const Matrix4& other);
-  virtual ~Matrix4();
+  ~Matrix4();
 
 	// Don't know which of these will stick, just throwing out functions to try
 	// for now

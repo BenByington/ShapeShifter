@@ -13,6 +13,7 @@
 
 #include "Matrix4.h"
 
+#include <cassert>
 #include <immintrin.h>
 #include <iostream>
 
@@ -69,7 +70,8 @@ Vector4 Matrix4::operator*(const Vector4& right) const {
 	__m128 ret = _mm_setzero_ps();
 
 	for (size_t i = 0; i < 4; ++i) {
-	  __m128 temp = _mm_set1_ps(right[i]);
+    float temp2 = right[i];
+	  __m128 temp = _mm_set1_ps(temp2);
     __m128 col = _mm_load_ps(data_.begin() + i*DIM);
 	  temp = _mm_mul_ps(temp, col);
 		ret = _mm_add_ps(ret, temp);
@@ -81,23 +83,15 @@ Vector4 Matrix4::operator*(const Vector4& right) const {
 }
 
 Matrix4 Matrix4::operator *(const Matrix4& right) const {
-  __m128 t0 = _mm_load_ps(data_.begin() + 0*DIM);
-  __m128 t1 = _mm_load_ps(data_.begin() + 1*DIM);
-  __m128 t2 = _mm_load_ps(data_.begin() + 2*DIM);
-  __m128 t3 = _mm_load_ps(data_.begin() + 3*DIM);
-	_MM_TRANSPOSE4_PS(t0, t1, t2, t3);
-
 	Matrix4 ret;
-  __m128 r;
+  assert(alignof(data_) == 4);
 
-  r = _mm_mul_ps(_mm_load_ps(right.data_.begin() + 0*DIM), t0);
-  _mm_store_ps(ret.data_.begin() + 0*DIM, r);
-  r = _mm_mul_ps(_mm_load_ps(right.data_.begin() + 1*DIM), t1);
-  _mm_store_ps(ret.data_.begin() + 1*DIM, r);
-  r = _mm_mul_ps(_mm_load_ps(right.data_.begin() + 2*DIM), t2);
-  _mm_store_ps(ret.data_.begin() + 2*DIM, r);
-  r = _mm_mul_ps(_mm_load_ps(right.data_.begin() + 3*DIM), t3);
-  _mm_store_ps(ret.data_.begin() + 3*DIM, r);
+  for (size_t i = 0; i < DIM; ++i) {
+    __m128 col = _mm_load_ps(right.data_.begin() + i*DIM);
+    auto vec = (*this)*col;
+    ret.WriteColumn(i, vec);
+  }
+
 	return ret;
 
 }

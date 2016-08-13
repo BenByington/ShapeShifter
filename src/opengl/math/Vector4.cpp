@@ -13,6 +13,8 @@
 
 #include "Vector4.h"
 
+#include <iostream>
+
 namespace ShapeShifter {
 namespace Opengl {
 namespace math {
@@ -28,6 +30,12 @@ Vector4::~Vector4() {
 const Vector4& Vector4::operator =(const Vector4& other) {
 	data_ = other.data_;
 	return *this;
+}
+
+void Vector4::print() const {
+  for (size_t i = 0; i < 4; ++i) {
+    std::cerr << data_[i] << std::endl;
+  }
 }
 
 }}} // ShapeShifter::Opengl::math
