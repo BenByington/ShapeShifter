@@ -28,6 +28,8 @@ public:
 	Quaternion& operator=(const Quaternion& other) = default;
   virtual ~Quaternion() {}
 
+  Quaternion operator*(const Quaternion& other) const;
+
   Matrix4 RotationMatrix() const;
 
   //TODO encapsulate?

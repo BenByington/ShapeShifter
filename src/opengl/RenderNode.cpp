@@ -106,15 +106,22 @@ void RenderNode::CleanupBuffer() {
 void RenderNode::RenderTree(const Camera& camera, const ShaderProgram& shader) const {
   glBindVertexArray(vao);
   shader.UseProgram();
-  DrawChildren(camera, shader);
+  DrawChildren(camera, math::Quaternion(), math::Vector4({0, 0, 0, 1}), shader);
 }
 
-void RenderNode::DrawChildren(const Camera& camera, const ShaderProgram& shader) const {
+void RenderNode::DrawChildren(
+    const Camera& camera,
+    const math::Quaternion& cumRot,
+    const math::Vector4& cumTrans,
+    const ShaderProgram& shader) const {
+
+  auto localQuat = rotation_*cumRot;
+  auto rot = localQuat.RotationMatrix();
+  auto localTrans = rot * translation_ + cumTrans;
 	for (const auto& child : children) {
-		child->DrawChildren(camera, shader);
+		child->DrawChildren(camera, localQuat, localTrans, shader);
 	}
-  auto rot = rotation_.RotationMatrix();
-  rot.WriteColumn(3, translation_);
+  rot.WriteColumn(3, localTrans);
   shader.uploadMatrix(camera.ProjectionMatrix()*rot);
 
 	this->DrawSelf();
@@ -141,21 +148,21 @@ void SquareTest2D::FillColorData(std::vector<float>& data, size_t start) const {
 }
 
 void SquareTest2D::FillVertexData(std::vector<float>& data, size_t start) const {
-	data[start+0] = -.5;
-	data[start+1] = -.5;
-	data[start+2] = 1.5;
+	data[start+0] = 0;
+	data[start+1] = 0;
+	data[start+2] = 0;
 
-	data[start+3] = -.5;
-	data[start+4] =  .5;
-	data[start+5] = 2.5;
+	data[start+3] = 0;
+	data[start+4] = 1;
+	data[start+5] = 0;
 
-	data[start+6]  =  .5;
-	data[start+7] = -.5;
-	data[start+8] = 1.5;
+	data[start+6]  =  1;
+	data[start+7] = 0;
+	data[start+8] = 0;
 
-	data[start+9] =  .5;
-	data[start+10] =  .5;
-	data[start+11] = 2.5;
+	data[start+9] =  1;
+	data[start+10] =  1;
+	data[start+11] = 0;
 }
 
 size_t TriangleTest2D::ExclusiveBufferSizeRequired() const { return 12; }

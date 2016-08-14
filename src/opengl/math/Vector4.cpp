@@ -38,4 +38,13 @@ void Vector4::print() const {
   }
 }
 
+Vector4 Vector4::operator +(const Vector4& other) const {
+  __m128 left = _mm_load_ps(data_.begin());
+  __m128 right = _mm_load_ps(other.data_.begin());
+  __m128 sum = _mm_add_ps(left, right);
+  Vector4 ret(sum);
+  ret[3] = 1;
+  return ret;
+}
+
 }}} // ShapeShifter::Opengl::math

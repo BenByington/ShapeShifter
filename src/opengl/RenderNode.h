@@ -88,7 +88,7 @@ private:
   size_t PopulateBufferData(std::vector<float>& vert, std::vector<float>& color, size_t start) ;
 	// Renders all children in the tree.
 	// TODO see how framerate is affected by the number/size of each child
-	void DrawChildren(const Camera& camera, const ShaderProgram& shader) const;
+	void DrawChildren(const Camera& camera, const math::Quaternion& cumRot, const math::Vector4& cumTrans, const ShaderProgram& shader) const;
 
   void CleanupBuffer();
 

@@ -19,6 +19,7 @@
 #include <QtGui/QOpenGLContext>
 
 #include <memory>
+#include <cmath>
 
 namespace ShapeShifter {
 namespace ui {
@@ -48,10 +49,31 @@ void MyQtWidget::initializeGL() {
   qDebug() << "Current Context:" << this->format();
 
 	root_.reset(new Opengl::SquareTest2D());
-	std::shared_ptr<Opengl::RenderNode> second(new Opengl::TriangleTest2D);
-  second->SetTranslation(Opengl::math::Vector4({.1,.1,.2,1}));
+  root_->SetTranslation(Opengl::math::Vector4({-.5, -.5, 2.5, 1}));
 
-	//root_->AddChild(second);
+  float pi = 4*std::atan(1.0f);
+
+  std::shared_ptr<Opengl::RenderNode> second(new Opengl::SquareTest2D());
+  second->SetRotation({std::cos(pi/4), 0 , std::sin(pi/4), 0});
+  root_->AddChild(second);
+
+  std::shared_ptr<Opengl::RenderNode> third(new Opengl::SquareTest2D());
+  third->SetTranslation(Opengl::math::Vector4({0, 0 , 1.0, 1.0}));
+  second->AddChild(third);
+
+  std::shared_ptr<Opengl::RenderNode> fourth(new Opengl::SquareTest2D());
+  fourth->SetRotation({std::cos(pi/4), 0, 0, std::sin(pi/4)});
+  third->AddChild(fourth);
+
+  std::shared_ptr<Opengl::RenderNode> fifth(new Opengl::SquareTest2D());
+  fifth->SetTranslation(Opengl::math::Vector4({0, 0 , 1.0, 1.0}));
+  fourth->AddChild(fifth);
+
+  std::shared_ptr<Opengl::RenderNode> sixth(new Opengl::SquareTest2D());
+  sixth->SetRotation({std::cos(pi/4), std::sin(pi/4), 0, 0});
+  sixth->SetTranslation(Opengl::math::Vector4({-1, 0 , -1.0, 1.0}));
+  fifth->AddChild(sixth);
+
 	root_->UpdateData();
 
 	std::vector<std::unique_ptr<Opengl::Shader>> shaders;
@@ -60,8 +82,7 @@ void MyQtWidget::initializeGL() {
 	shaders.emplace_back(
 	    new Opengl::FragmentShader("/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag"));
 	program_.reset(new Opengl::ShaderProgram(std::move(shaders)));
-  auto builder = Opengl::Frustum::Build();
-  auto frust = builder->aspect(1)->fov(.5)->far(3)->near(1.5);
+  auto frust = Opengl::Frustum::Build()->aspect(1)->fov(.5)->far(3)->near(1.5);
   camera_.reset(new Opengl::Camera(frust));
 }
 

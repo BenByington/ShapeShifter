@@ -31,4 +31,14 @@ Matrix4 Quaternion::RotationMatrix() const {
 
 }
 
+Quaternion Quaternion::operator *(const Quaternion& other) const {
+  Quaternion ret;
+
+  ret.qw = qw*other.qw - qx*other.qx - qy*other.qy - qz*other.qz;
+  ret.qx = qw * other.qx + other.qw * qx + qy*other.qz - qz*other.qy;
+  ret.qy = qw * other.qy + other.qw * qy + qz*other.qx - qx*other.qz;
+  ret.qz = qw * other.qz + other.qw * qz + qx*other.qy - qy*other.qx;
+  return ret;
+}
+
 }}} // ShapeShifter::Opengl::math

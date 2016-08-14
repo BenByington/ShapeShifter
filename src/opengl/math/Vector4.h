@@ -31,8 +31,11 @@ public:
 	const Vector4& operator=(const Vector4& other);
   ~Vector4();
 
+  Vector4 operator+(const Vector4& other) const;
+
 	//TODO ensure idx is valid?
-	float operator[](int idx) const { return data_[idx];}
+	float& operator[](int idx) { return data_[idx];}
+	const float& operator[](int idx) const { return data_[idx];}
   const float* begin() const { return data_.begin(); }
   const float* end() const { return data_.end(); }
 
