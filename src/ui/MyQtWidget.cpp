@@ -54,7 +54,7 @@ void MyQtWidget::initializeGL() {
   float pi = 4*std::atan(1.0f);
 
   std::shared_ptr<Opengl::RenderNode> second(new Opengl::SquareTest2D());
-  second->SetRotation({std::cos(pi/4), 0 , std::sin(pi/4), 0});
+  second->SetRotation({pi/2, 0 , 1, 0});
   root_->AddChild(second);
 
   std::shared_ptr<Opengl::RenderNode> third(new Opengl::SquareTest2D());
@@ -62,7 +62,7 @@ void MyQtWidget::initializeGL() {
   second->AddChild(third);
 
   std::shared_ptr<Opengl::RenderNode> fourth(new Opengl::SquareTest2D());
-  fourth->SetRotation({std::cos(pi/4), 0, 0, std::sin(pi/4)});
+  fourth->SetRotation({pi/2, 0, 0, 1});
   third->AddChild(fourth);
 
   std::shared_ptr<Opengl::RenderNode> fifth(new Opengl::SquareTest2D());
@@ -70,9 +70,9 @@ void MyQtWidget::initializeGL() {
   fourth->AddChild(fifth);
 
   std::shared_ptr<Opengl::RenderNode> sixth(new Opengl::SquareTest2D());
-  sixth->SetRotation({std::cos(pi/4), std::sin(pi/4), 0, 0});
+  sixth->SetRotation({pi/2, 1, 0, 0});
   sixth->SetTranslation(Opengl::math::Vector4({-1, 0 , -1.0, 1.0}));
-  fifth->AddChild(sixth);
+  //fifth->AddChild(sixth);
 
 	root_->UpdateData();
 

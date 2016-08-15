@@ -15,12 +15,19 @@
 
 #include "opengl/math/Vector4.h"
 
+#include <cmath>
+
 namespace ShapeShifter {
 namespace Opengl {
 namespace math {
 
-Quaternion::Quaternion(float s, float x, float y, float z)
-  : qw(s), qx(x), qy(y), qz(z) {}
+Quaternion::Quaternion(float s, float x, float y, float z) {
+  qw = std::cos(s/2);
+  float sina = std::sin(s/2);
+  qx = sina*x;
+  qy = sina*y;
+  qz = sina*z;
+}
 
 Matrix4 Quaternion::RotationMatrix() const {
   // TODO This is row major returned as column major?

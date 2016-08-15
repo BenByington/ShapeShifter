@@ -23,7 +23,7 @@ namespace math {
 class Quaternion {
 public:
   Quaternion(float s, float x, float y, float z);
-  Quaternion() : Quaternion(1, 0, 0, 0) {} // TODO make matrix4 default to I as well?
+  Quaternion() : Quaternion(0, 0, 0, 0) {} // TODO make matrix4 default to I as well?
   Quaternion(const Quaternion& orig) = default;
 	Quaternion& operator=(const Quaternion& other) = default;
   virtual ~Quaternion() {}
@@ -34,6 +34,7 @@ public:
 
   //TODO encapsulate?
   //TODO add normalization function
+private:
   float qw;
   float qx;
   float qy;
