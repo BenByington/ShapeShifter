@@ -49,29 +49,29 @@ void MyQtWidget::initializeGL() {
   qDebug() << "Current Context:" << this->format();
 
 	root_.reset(new Opengl::SquareTest2D());
-  root_->SetTranslation(Opengl::math::Vector4({-.5, -.5, 2.5, 1}));
+  root_->SetTranslation(Opengl::math::Vector4({-.5, -.5, -2.5, 1}));
 
   float pi = 4*std::atan(1.0f);
 
   std::shared_ptr<Opengl::RenderNode> second(new Opengl::SquareTest2D());
-  second->SetRotation({pi/2, 0 , 1, 0});
+  second->SetRotation({-pi/2, 0 , 1, 0});
   root_->AddChild(second);
 
   std::shared_ptr<Opengl::RenderNode> third(new Opengl::SquareTest2D());
-  third->SetTranslation(Opengl::math::Vector4({0, 0 , 1.0, 1.0}));
+  third->SetTranslation(Opengl::math::Vector4({0, 0 , -1.0, 1.0}));
   second->AddChild(third);
 
   std::shared_ptr<Opengl::RenderNode> fourth(new Opengl::SquareTest2D());
-  fourth->SetRotation({pi/2, 0, 0, 1});
+  fourth->SetRotation({pi/2, 1, 0, 0});
   third->AddChild(fourth);
 
   std::shared_ptr<Opengl::RenderNode> fifth(new Opengl::SquareTest2D());
-  fifth->SetTranslation(Opengl::math::Vector4({0, 0 , 1.0, 1.0}));
+  fifth->SetTranslation(Opengl::math::Vector4({0, 0 , -1.0, 1.0}));
   fourth->AddChild(fifth);
 
   std::shared_ptr<Opengl::RenderNode> sixth(new Opengl::SquareTest2D());
-  sixth->SetRotation({pi/2, 1, 0, 0});
-  sixth->SetTranslation(Opengl::math::Vector4({-1, 0 , -1.0, 1.0}));
+  sixth->SetRotation({pi/2, 0, 1, 0});
+  sixth->SetTranslation(Opengl::math::Vector4({-1, 0 , 1, 1.0}));
   //fifth->AddChild(sixth);
 
 	root_->UpdateData();
@@ -84,6 +84,7 @@ void MyQtWidget::initializeGL() {
 	program_.reset(new Opengl::ShaderProgram(std::move(shaders)));
   auto frust = Opengl::Frustum::Build()->aspect(1)->fov(.5)->far(3)->near(1.5);
   camera_.reset(new Opengl::Camera(frust));
+  camera_->ChangePosition(Opengl::math::Vector4({0, 0, 0, 1.0f}));
 }
 
 void MyQtWidget::gluPerspective(double fovy,double aspect, double zNear, double zFar) {

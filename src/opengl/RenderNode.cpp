@@ -115,7 +115,7 @@ void RenderNode::DrawChildren(
     const math::Vector4& cumTrans,
     const ShaderProgram& shader) const {
 
-  auto localQuat = rotation_*cumRot;
+  auto localQuat = cumRot*rotation_;
   auto rot = localQuat.RotationMatrix();
   auto localTrans = rot * translation_ + cumTrans;
 	for (const auto& child : children) {

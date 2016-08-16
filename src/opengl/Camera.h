@@ -16,6 +16,8 @@
 
 #include "opengl/math/Vector4.h"
 #include "opengl/Frustum.h"
+#include "opengl/math/Vector4.h"
+#include "opengl/math/Quaternion.h"
 
 namespace ShapeShifter {
 namespace Opengl {
@@ -25,10 +27,17 @@ public:
   Camera(const Frustum& frust);
   virtual ~Camera();
 
-  math::Matrix4 ProjectionMatrix() const { return frust_.FrustTransform(); }
+  math::Matrix4 ProjectionMatrix() const;
+
+  void ChangeRollLeft(float rads);
+  void ChangePitchUp(float rads);
+  void ChangeYawLeft(float rads);
+  void ChangePosition(const math::Vector4& trans);
 
 private:
   Frustum frust_;
+  math::Vector4 translation_{{0, 0, 0, 1}};
+  math::Quaternion rotation_{0, 0, 0, 0};
 
 };
 

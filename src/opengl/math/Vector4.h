@@ -32,6 +32,7 @@ public:
   ~Vector4();
 
   Vector4 operator+(const Vector4& other) const;
+  Vector4 operator-(const Vector4& other) const;
 
 	//TODO ensure idx is valid?
 	float& operator[](int idx) { return data_[idx];}

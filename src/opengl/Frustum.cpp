@@ -23,7 +23,7 @@ math::Matrix4 Frustum::FrustTransform() const {
 
   return math::Matrix4 {{itana, 0, 0, 0,
                          0, aspect*itana, 0, 0,
-                         0, 0, (far + near) / (far - near), 1,
+                         0, 0, -(far + near) / (far - near), -1,
                          0, 0, -2*far*near/(far-near), 0}};
 }
 
