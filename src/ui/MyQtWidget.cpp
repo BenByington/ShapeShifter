@@ -87,31 +87,15 @@ void MyQtWidget::initializeGL() {
   camera_->ChangePosition(Opengl::math::Vector4({0, 0, 0, 1.0f}));
 }
 
-void MyQtWidget::gluPerspective(double fovy,double aspect, double zNear, double zFar) {
-    // Start in projection mode.
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    double xmin, xmax, ymin, ymax;
-    ymax = zNear * tan(fovy * M_PI / 360.0);
-    ymin = -ymax;
-    xmin = ymin * aspect;
-    xmax = ymax * aspect;
-    glFrustum(xmin, xmax, ymin, ymax, zNear, zFar);
-}
-
 void MyQtWidget::resizeGL(int width, int height) {
     height = height?height:1;
-
-    glViewport( 0, 0, (GLint)width, (GLint)height );
-
-    gluPerspective(45.0f,(GLfloat)width/(GLfloat)height,0.1f,100.0f);
-
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    float aspect = width / static_cast<float>(height);
+    camera_->SetAspectRatio(aspect);
 
 }
 
 void MyQtWidget::paintGL() {
+  // TODO not sure if this glClear is needed anymore
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
 

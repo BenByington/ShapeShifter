@@ -46,4 +46,10 @@ math::Matrix4 Camera::ProjectionMatrix() const {
   return frust_.FrustTransform() * rot;
 }
 
+void Camera::SetAspectRatio(float aspect) {
+  //TODO validation
+  frust_.SetAspect(aspect);
+}
+
+
 }} // ShapeShifter::Opengl

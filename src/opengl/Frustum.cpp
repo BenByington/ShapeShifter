@@ -27,12 +27,33 @@ math::Matrix4 Frustum::FrustTransform() const {
                          0, 0, -2*far*near/(far-near), 0}};
 }
 
+void Frustum::SetAspect(const float aspect) {
+  this->aspect = aspect;
+}
+
+void Frustum::SetFov(const float fov) {
+  this->fov = fov;
+}
+
+void Frustum::SetFar(const float far) {
+  this->far = far;
+}
+
+void Frustum::SetNear(const float near) {
+  this->near = near;
+}
+
+Frustum::Frustum(float near, float far, float fov, float aspect)
+  : near(near), far(far), fov(fov), aspect(aspect) {}
+
 namespace detail {
 
   FrustumFov* FrustumBuilder::aspect(float a) { aspect_ = a; return this; }
   FrustumFar* FrustumBuilder::fov(float f) { fov_ = f; return this; }
   FrustumNear* FrustumBuilder::far(float f) { far_ = f; return this; }
-  Frustum FrustumBuilder::near(float near) { return Frustum{near, far_, fov_, aspect_}; }
+  Frustum FrustumBuilder::near(float near) {
+    return Frustum(near, far_, fov_, aspect_);
+  }
 }
 
 }} // ShapeShifter::Opengl

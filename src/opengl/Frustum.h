@@ -57,16 +57,26 @@ private:
 }
 
 struct Frustum {
-  const float near;
-  const float far;
-  const float fov;
-  const float aspect;
-
   math::Matrix4 FrustTransform() const;
 
   static std::unique_ptr<detail::FrustumAspect> Build() {
     return std::unique_ptr<detail::FrustumAspect>(new detail::FrustumBuilder());
   }
+
+  // TODO add validation
+  void SetAspect(const float aspect);
+  void SetFov(const float fov);
+  void SetFar(const float far);
+  void SetNear(const float near);
+
+private:
+  friend class detail::FrustumBuilder;
+  Frustum(float near, float far, float fov, float aspect);
+
+  float near;
+  float far;
+  float fov;
+  float aspect;
 
 };
 

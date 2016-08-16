@@ -34,6 +34,8 @@ public:
   void ChangeYawLeft(float rads);
   void ChangePosition(const math::Vector4& trans);
 
+  void SetAspectRatio(float aspect);
+
 private:
   Frustum frust_;
   math::Vector4 translation_{{0, 0, 0, 1}};

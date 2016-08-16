@@ -35,7 +35,6 @@ private:
     Ui::MyQtWidget widget;
 protected:
     void initializeGL() override;
-    void gluPerspective(double fovy,double aspect, double zNear, double zFar);
     void resizeGL(int width, int height) override;
     void paintGL() override;
 
