@@ -15,6 +15,7 @@
 #define QUATERNION_H
 
 #include "opengl/math/Matrix4.h"
+#include "opengl/math/Vector3.h"
 
 namespace ShapeShifter {
 namespace Opengl {
@@ -23,6 +24,7 @@ namespace math {
 class Quaternion {
 public:
   Quaternion(float s, float x, float y, float z);
+  Quaternion(float s, const Vector3& dir);
   Quaternion() : Quaternion(0, 0, 0, 0) {} // TODO make matrix4 default to I as well?
   Quaternion(const Quaternion& orig) = default;
 	Quaternion& operator=(const Quaternion& other) = default;

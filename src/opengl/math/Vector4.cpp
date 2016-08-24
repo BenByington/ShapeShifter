@@ -43,6 +43,7 @@ Vector4 Vector4::operator +(const Vector4& other) const {
   __m128 right = _mm_load_ps(other.data_.begin());
   __m128 sum = _mm_add_ps(left, right);
   Vector4 ret(sum);
+  //TODO clean this up... Shouldn't have to force to 1.
   ret[3] = 1;
   return ret;
 }

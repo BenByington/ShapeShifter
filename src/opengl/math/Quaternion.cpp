@@ -29,6 +29,14 @@ Quaternion::Quaternion(float s, float x, float y, float z) {
   qz = sina*z;
 }
 
+Quaternion::Quaternion(float s, const Vector3& dir) {
+  qw = std::cos(s/2);
+  float sina = std::sin(s/2);
+  qx = sina*dir[0];
+  qy = sina*dir[1];
+  qz = sina*dir[2];
+}
+
 Matrix4 Quaternion::RotationMatrix() const {
   // TODO This is row major returned as column major?
   return {{1 - 2*qy*qy - 2*qz*qz, 2*qx*qy + 2*qz*qw, 2*qx*qz - 2*qy*qw, 0
