@@ -16,6 +16,7 @@
 #include "opengl/ShaderProgram.h"
 
 #include <QtCore/QDebug>
+#include <QtGui/QMouseEvent>
 #include <QtGui/QOpenGLContext>
 
 #include <memory>
@@ -82,8 +83,8 @@ void MyQtWidget::initializeGL() {
 	shaders.emplace_back(
 	    new Opengl::FragmentShader("/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag"));
 	program_.reset(new Opengl::ShaderProgram(std::move(shaders)));
-  auto frust = Opengl::Frustum::Build()->aspect(1)->fov(.5)->far(3)->near(1.5);
-  camera_.reset(new Opengl::Camera(frust));
+  auto frust = Opengl::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
+  camera_.reset(new Opengl::Camera(frust, 2.5));
   camera_->ChangePosition(Opengl::math::Vector4({0, 0, 0, 1.0f}));
 }
 
@@ -100,6 +101,35 @@ void MyQtWidget::paintGL() {
     glLoadIdentity();
 
 		root_->RenderTree(*camera_, *program_);
+}
+
+void PixelCoordToCameraProj(int x, int y) {
+
+}
+
+void MyQtWidget::mousePressEvent(QMouseEvent* event) {
+  if (Qt::MouseButton::LeftButton == event->button())
+  tracking_mouse = true;
+  last_mouse_coords_rel_ = PixelCoordToCameraProj(event->localPos());
+}
+
+void MyQtWidget::mouseReleaseEvent(QMouseEvent* event) {
+  tracking_mouse = false;
+}
+
+void MyQtWidget::mouseMoveEvent(QMouseEvent* event) {
+  if (tracking_mouse) {
+    auto next_mouse_coords_rel = PixelCoordToCameraProj(event->localPos());
+    camera_->PivotAroundLook(last_mouse_coords_rel_, next_mouse_coords_rel);
+    last_mouse_coords_rel_ = next_mouse_coords_rel;
+    update();
+  }
+}
+
+std::pair<float, float> MyQtWidget::PixelCoordToCameraProj(const QPointF& p) const {
+  return std::make_pair(
+        p.x()*2/static_cast<float>(width()) - 1.0f,
+        1.0f - p.y()*2/static_cast<float>(height()));
 }
 
 }} //ShapeShifter::ui

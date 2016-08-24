@@ -24,7 +24,7 @@ namespace Opengl {
 
 class Camera {
 public:
-  Camera(const Frustum& frust);
+  Camera(const Frustum& frust, float look_depth);
   virtual ~Camera();
 
   math::Matrix4 ProjectionMatrix() const;
@@ -33,13 +33,15 @@ public:
   void ChangePitchUp(float rads);
   void ChangeYawLeft(float rads);
   void ChangePosition(const math::Vector4& trans);
+  void PivotAroundLook(const std::pair<float, float>& start, const std::pair<float, float>& end);
 
   void SetAspectRatio(float aspect);
 
 private:
   Frustum frust_;
+  float look_depth_;
   math::Vector4 translation_{{0, 0, 0, 1}};
-  math::Quaternion rotation_{0, 0, 0, 0};
+  math::Quaternion rotation_{0, 0, 0, 1};
 
 };
 

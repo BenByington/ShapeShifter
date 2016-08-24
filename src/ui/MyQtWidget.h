@@ -27,22 +27,32 @@ namespace ShapeShifter {
 namespace ui {
 
 class MyQtWidget : public QOpenGLWidget {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    MyQtWidget();
-    virtual ~MyQtWidget();
+  MyQtWidget();
+  virtual ~MyQtWidget();
 private:
-    Ui::MyQtWidget widget;
+  Ui::MyQtWidget widget;
 protected:
-    void initializeGL() override;
-    void resizeGL(int width, int height) override;
-    void paintGL() override;
+  void initializeGL() override;
+  void resizeGL(int width, int height) override;
+  void paintGL() override;
+
+  void mousePressEvent(QMouseEvent* event) override;
+  void mouseReleaseEvent(QMouseEvent* event) override;
+  void mouseMoveEvent(QMouseEvent* event) override;
 
 private:
+
+  std::pair<float, float> PixelCoordToCameraProj(const QPointF& p) const;
+
 	GLuint vao = 0;
 	std::unique_ptr<Opengl::RenderNode> root_;
   std::unique_ptr<Opengl::ShaderProgram> program_;
   std::unique_ptr<Opengl::Camera> camera_;
+
+  bool tracking_mouse = false;
+  std::pair<float, float> last_mouse_coords_rel_;
 
 };
 
