@@ -69,14 +69,19 @@ struct Frustum {
   void SetFar(const float far);
   void SetNear(const float near);
 
+  float aspect() const { return aspect_; }
+  float fov() const { return fov_; }
+  float far() const { return far_; }
+  float near() const { return near_; }
+
 private:
   friend class detail::FrustumBuilder;
   Frustum(float near, float far, float fov, float aspect);
 
-  float near;
-  float far;
-  float fov;
-  float aspect;
+  float near_;
+  float far_;
+  float fov_;
+  float aspect_;
 
 };
 
