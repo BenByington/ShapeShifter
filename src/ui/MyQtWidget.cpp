@@ -49,14 +49,14 @@ void MyQtWidget::initializeGL() {
   qDebug() << "Shader Version String:" << shaderVersionString;
   qDebug() << "Current Context:" << this->format();
 
-	root_.reset(new Opengl::SquareTest2D());
-  root_->SetTranslation(Opengl::math::Vector4({-.5, -.5, -2.5, 1}));
+	std::unique_ptr<Opengl::RenderNode> root(new Opengl::SquareTest2D());
+  root->SetTranslation(Opengl::math::Vector4({-.5, -.5, -2.5, 1}));
 
   float pi = 4*std::atan(1.0f);
 
   std::shared_ptr<Opengl::RenderNode> second(new Opengl::SquareTest2D());
   second->SetRotation({-pi/2, 0 , 1, 0});
-  root_->AddChild(second);
+  root->AddChild(second);
 
   std::shared_ptr<Opengl::RenderNode> third(new Opengl::SquareTest2D());
   third->SetTranslation(Opengl::math::Vector4({0, 0 , -1.0, 1.0}));
@@ -75,32 +75,37 @@ void MyQtWidget::initializeGL() {
   sixth->SetTranslation(Opengl::math::Vector4({-1, 0 , 1, 1.0}));
   //fifth->AddChild(sixth);
 
-	root_->UpdateData();
+  //TODO ownership is very weird here.  World needs a complete object.  Can
+  //     provide mechanism to rotate/enable/disable nodes, but not add new
+  //     ones or change point locations.
+	root->UpdateData();
 
 	std::vector<std::unique_ptr<Opengl::Shader>> shaders;
 	shaders.emplace_back(
 	    new Opengl::VertexShader("/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert"));
 	shaders.emplace_back(
 	    new Opengl::FragmentShader("/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag"));
-	program_.reset(new Opengl::ShaderProgram(std::move(shaders)));
+	std::unique_ptr<Opengl::ShaderProgram> program(new Opengl::ShaderProgram(std::move(shaders)));
   auto frust = Opengl::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
-  camera_.reset(new Opengl::Camera(frust, 2.5));
-  camera_->ChangePosition(Opengl::math::Vector4({0, 0, 0, 1.0f}));
+  std::unique_ptr<Opengl::Camera> camera(new Opengl::Camera(frust, 2.5));
+  camera->ChangePosition(Opengl::math::Vector4({0, 0, 0, 1.0f}));
+  world_.reset(new Opengl::World(std::move(program), std::move(camera)));
+  world_->SetRenderTree(std::move(root));
 }
 
 void MyQtWidget::resizeGL(int width, int height) {
     height = height?height:1;
     float aspect = width / static_cast<float>(height);
-    camera_->SetAspectRatio(aspect);
+    world_->camera().SetAspectRatio(aspect);
 
 }
 
 void MyQtWidget::paintGL() {
-  // TODO not sure if this glClear is needed anymore
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glLoadIdentity();
+  // TODO remove or put into world objet
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glLoadIdentity();
 
-		root_->RenderTree(*camera_, *program_);
+  world_->Render();
 }
 
 void PixelCoordToCameraProj(int x, int y) {
@@ -120,7 +125,7 @@ void MyQtWidget::mouseReleaseEvent(QMouseEvent* event) {
 void MyQtWidget::mouseMoveEvent(QMouseEvent* event) {
   if (tracking_mouse) {
     auto next_mouse_coords_rel = PixelCoordToCameraProj(event->localPos());
-    camera_->PivotAroundLook(last_mouse_coords_rel_, next_mouse_coords_rel);
+    world_->camera().PivotAroundLook(last_mouse_coords_rel_, next_mouse_coords_rel);
     last_mouse_coords_rel_ = next_mouse_coords_rel;
     update();
   }
