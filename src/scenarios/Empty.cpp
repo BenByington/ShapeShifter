@@ -14,7 +14,7 @@
 #include "Empty.h"
 
 namespace ShapeShifter {
-namespace programs {
+namespace scenarios {
 
 std::unique_ptr<Opengl::World> Empty::Setup() {
 
@@ -32,4 +32,4 @@ std::unique_ptr<Opengl::World> Empty::Setup() {
   return world;
 }
 
-}} // namespace ShapeShifter::programs
+}} // namespace ShapeShifter::scenarios

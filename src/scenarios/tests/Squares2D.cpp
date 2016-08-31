@@ -11,13 +11,13 @@
  * Created on August 29, 2016, 8:47 AM
  */
 
-#include "programs/tests/Squares2D.h"
+#include "scenarios/tests/Squares2D.h"
 
 #include <cmath>
 #include <memory>
 
 namespace ShapeShifter {
-namespace programs {
+namespace scenarios{
 namespace tests {
 
 std::unique_ptr<Opengl::World> Squares2D::Setup() {
@@ -68,4 +68,4 @@ std::unique_ptr<Opengl::World> Squares2D::Setup() {
 }
 
 
-}}}  // ShapeShifter::programs::tests
+}}}  // ShapeShifter::scenarios::tests

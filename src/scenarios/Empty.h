@@ -14,12 +14,12 @@
 #ifndef EMPTY_H
 #define EMPTY_H
 
-#include "programs/Scenario.h"
+#include "scenarios/Scenario.h"
 
 #include <memory>
 
 namespace ShapeShifter {
-namespace programs {
+namespace scenarios {
 
 class Empty : public Scenario{
 public:
@@ -35,6 +35,6 @@ private:
 
 };
 
-}} // namespace ShapeShifter::programs
+}} // namespace ShapeShifter::scenarios
 #endif /* EMPTY_H */
 

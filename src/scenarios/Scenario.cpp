@@ -14,7 +14,7 @@
 #include "Scenario.h"
 
 namespace ShapeShifter {
-namespace programs {
+namespace scenarios {
 
 
-}} // namespace ShapeShifter::programs
+}} // namespace ShapeShifter::scenarios

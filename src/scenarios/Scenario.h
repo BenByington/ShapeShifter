@@ -19,7 +19,7 @@
 #include <memory>
 
 namespace ShapeShifter {
-namespace programs {
+namespace scenarios {
 
 class Scenario {
 public:
@@ -34,6 +34,6 @@ private:
 
 };
 
-}} //namespace ShapeShifter::programs
+}} //namespace ShapeShifter::scenarios
 #endif /* SCENARIO_H */
 

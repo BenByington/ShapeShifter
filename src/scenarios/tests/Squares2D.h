@@ -15,12 +15,12 @@
 #define SQUARES2D_H
 
 #include "opengl/World.h"
-#include "programs/Scenario.h"
+#include "scenarios/Scenario.h"
 
 #include <memory>
 
 namespace ShapeShifter {
-namespace programs {
+namespace scenarios {
 namespace tests {
 
 class Squares2D : public Scenario{
@@ -37,7 +37,7 @@ private:
 
 };
 
-}}} // ShapeShifter::programs::tests
+}}} // ShapeShifter::scenarios::tests
 
 #endif /* SQUARES2D_H */
 
