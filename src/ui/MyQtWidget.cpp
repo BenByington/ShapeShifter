@@ -14,6 +14,7 @@
 #include "ui/MyQtWidget.h"
 #include "opengl/Shader.h"
 #include "opengl/ShaderProgram.h"
+#include "programs/Empty.h"
 #include "programs/tests/Squares2D.h"
 
 #include <QtCore/QDebug>
@@ -50,7 +51,7 @@ void MyQtWidget::initializeGL() {
   qDebug() << "Shader Version String:" << shaderVersionString;
   qDebug() << "Current Context:" << this->format();
 
-  world_ = programs::tests::Squares2D().Setup();
+  world_ = programs::Empty().Setup();
 }
 
 void MyQtWidget::resizeGL(int width, int height) {
@@ -95,6 +96,16 @@ std::pair<float, float> MyQtWidget::PixelCoordToCameraProj(const QPointF& p) con
   return std::make_pair(
         p.x()*2/static_cast<float>(width()) - 1.0f,
         1.0f - p.y()*2/static_cast<float>(height()));
+}
+
+void MyQtWidget::EmptyScenario() {
+  world_ = programs::Empty().Setup();
+  update();
+}
+
+void MyQtWidget::Squares2DScenario() {
+  world_ = programs::tests::Squares2D().Setup();
+  update();
 }
 
 }} //ShapeShifter::ui

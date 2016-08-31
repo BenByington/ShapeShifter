@@ -17,20 +17,16 @@
 #include "ui/MainWindow.h"
 
 int main(int argc, char *argv[]) {
-    // initialize resources, if needed
-    // Q_INIT_RESOURCE(resfile);
+  QSurfaceFormat format;
+	format.setVersion(4,1);
+	format.setProfile(QSurfaceFormat::CoreProfile);
+	QSurfaceFormat::setDefaultFormat(format);
 
+  QApplication app(argc, argv);
 
-    QSurfaceFormat format;
-		format.setVersion(4,1);
-		format.setProfile(QSurfaceFormat::CoreProfile);
-		QSurfaceFormat::setDefaultFormat(format);
+  // create and show your widgets here
+  ShapeShifter::ui::MainWindow window;
+  window.show();
 
-    QApplication app(argc, argv);
-
-    // create and show your widgets here
-    ShapeShifter::ui::MainWindow window;
-    window.show();
-
-    return app.exec();
+  return app.exec();
 }

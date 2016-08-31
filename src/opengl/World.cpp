@@ -30,7 +30,9 @@ Camera& World::camera() {
 }
 
 void World::Render() const {
-  root_->RenderTree(*camera_, *program_);
+  if (root_) {
+    root_->RenderTree(*camera_, *program_);
+  }
 }
 
 }} // ShapeShifter::Opengl

@@ -31,6 +31,8 @@ public:
 private:
     Ui::MainWindow widget;
     std::unique_ptr<MyQtWidget> qtw_;
+
+    void LinkActions();
 };
 
 }} //ShapeShifter::ui

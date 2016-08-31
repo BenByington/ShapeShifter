@@ -86,7 +86,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuI_typed_some_things">
@@ -106,8 +106,22 @@
     <addaction name="actionCopy"/>
     <addaction name="actionPaste"/>
    </widget>
+   <widget class="QMenu" name="menuScenarios">
+    <property name="title">
+     <string>Scenarios</string>
+    </property>
+    <widget class="QMenu" name="menuTests">
+     <property name="title">
+      <string>Tests</string>
+     </property>
+     <addaction name="actionSquare2D"/>
+    </widget>
+    <addaction name="actionEmpty"/>
+    <addaction name="menuTests"/>
+   </widget>
    <addaction name="menuI_typed_some_things"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuScenarios"/>
   </widget>
   <action name="actionCut">
    <property name="text">
@@ -137,6 +151,16 @@
   <action name="actionQuit">
    <property name="text">
     <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionEmpty">
+   <property name="text">
+    <string>Empty</string>
+   </property>
+  </action>
+  <action name="actionSquare2D">
+   <property name="text">
+    <string>Square2D</string>
    </property>
   </action>
  </widget>

@@ -43,6 +43,11 @@ protected:
   void mouseReleaseEvent(QMouseEvent* event) override;
   void mouseMoveEvent(QMouseEvent* event) override;
 
+  // Can we make this not public?
+public slots:
+  void EmptyScenario();
+  void Squares2DScenario();
+
 private:
 
   std::pair<float, float> PixelCoordToCameraProj(const QPointF& p) const;
