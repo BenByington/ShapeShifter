@@ -14,6 +14,7 @@
 #ifndef SQUARES2D_H
 #define SQUARES2D_H
 
+#include "opengl/RenderNode.h"
 #include "opengl/World.h"
 #include "scenarios/Scenario.h"
 
@@ -36,6 +37,24 @@ public:
 private:
 
 };
+
+namespace detail {
+
+/**
+ * Simple test class that will draw a shaded square in the center of the screen
+ */
+class SquareTest2D : public Opengl::RenderNode {
+public:
+	SquareTest2D() {}
+	virtual ~SquareTest2D() {}
+protected:
+	virtual size_t ExclusiveBufferSizeRequired() const override;
+	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const override;
+	virtual void FillColorData(std::vector<float>& rawData, size_t start) const override;
+	virtual void DrawSelf() const override;
+};
+
+}
 
 }}} // ShapeShifter::scenarios::tests
 

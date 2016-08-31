@@ -76,21 +76,19 @@ void RenderNode::UpdateData() {
 	size_t end = PopulateBufferData(tri_vert, tri_col, 0);
 	assert(end == tri_vert.size());
 
+  glGenVertexArrays (1, &vao);
+  glBindVertexArray (vao);
+
   GLuint points_vbo = 0;
   glGenBuffers (1, &points_vbo);
   glBindBuffer (GL_ARRAY_BUFFER, points_vbo);
   glBufferData (GL_ARRAY_BUFFER, tri_vert.size() * sizeof (float), &tri_vert[0], GL_STATIC_DRAW);
+  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 	GLuint colours_vbo = 0;
   glGenBuffers (1, &colours_vbo);
   glBindBuffer (GL_ARRAY_BUFFER, colours_vbo);
   glBufferData (GL_ARRAY_BUFFER, tri_vert.size() * sizeof (float), &tri_col[0], GL_STATIC_DRAW);
-
-  glGenVertexArrays (1, &vao);
-  glBindVertexArray (vao);
-  glBindBuffer (GL_ARRAY_BUFFER, points_vbo);
-  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-  glBindBuffer (GL_ARRAY_BUFFER, colours_vbo);
   glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 	glEnableVertexAttribArray (0);
@@ -125,94 +123,6 @@ void RenderNode::DrawChildren(
   shader.uploadMatrix(camera.ProjectionMatrix()*rot);
 
 	this->DrawSelf();
-}
-
-size_t SquareTest2D::ExclusiveBufferSizeRequired() const { return 12; }
-
-void SquareTest2D::FillColorData(std::vector<float>& data, size_t start) const {
-	data[start+0] = 1.0;
-	data[start+1] = 0.0;
-	data[start+2] = 0.0;
-
-	data[start+3] = 1.0;
-	data[start+4] = 1.0;
-	data[start+5] = 0.0;
-
-	data[start+6] = 0.0;
-	data[start+7] = 0.0;
-	data[start+8] = 1.0;
-
-	data[start+9] = 0.0;
-	data[start+10] = 1.0;
-	data[start+11] = 0.0;
-}
-
-void SquareTest2D::FillVertexData(std::vector<float>& data, size_t start) const {
-	data[start+0] = 0;
-	data[start+1] = 0;
-	data[start+2] = 0;
-
-	data[start+3] = 0;
-	data[start+4] = 1;
-	data[start+5] = 0;
-
-	data[start+6]  =  1;
-	data[start+7] = 0;
-	data[start+8] = 0;
-
-	data[start+9] =  1;
-	data[start+10] =  1;
-	data[start+11] = 0;
-}
-
-size_t TriangleTest2D::ExclusiveBufferSizeRequired() const { return 12; }
-
-void TriangleTest2D::FillColorData(std::vector<float>& data, size_t start) const {
-	data[start+0] = 1.0;
-	data[start+1] = 0.0;
-	data[start+2] = 0.0;
-
-	data[start+3] = 1.0;
-	data[start+4] = 1.0;
-	data[start+5] = 0.0;
-
-	data[start+6] = 0.0;
-	data[start+7] = 0.0;
-	data[start+8] = 1.0;
-
-	data[start+9] = 1.0;
-	data[start+10] = 0.0;
-	data[start+11] = 0.0;
-}
-
-void TriangleTest2D::FillVertexData(std::vector<float>& data, size_t start) const {
-	data[start+0] = -0.6;
-	data[start+1] = -0.6;
-	data[start+2] = 0.0;
-
-	data[start+3] = -0.6;
-	data[start+4] =  0.6;
-	data[start+5] = 0.0;
-
-	data[start+6]  =  0.6;
-	data[start+7] = -0.6;
-	data[start+8] = 0.0;
-
-	data[start+9] = -0.6;
-	data[start+10] = -0.6;
-	data[start+11] = 0.0;
-}
-
-void TriangleTest2D::DrawSelf() const {
-	assert(start_vertex() % 3 == 0);
-	assert(this->ExclusiveBufferSizeRequired() % 3 == 0);
-  glDrawArrays (GL_LINE_STRIP, start_vertex()/3, this->ExclusiveBufferSizeRequired()/3);
-}
-
-void SquareTest2D::DrawSelf() const {
-	assert(start_vertex() % 3 == 0);
-	assert(this->ExclusiveBufferSizeRequired() % 3 == 0);
-  glDrawArrays (GL_TRIANGLE_STRIP, start_vertex()/3, this->ExclusiveBufferSizeRequired()/3);
 }
 
 void RenderNode::DebugRotation(const math::Matrix4& mat) const {

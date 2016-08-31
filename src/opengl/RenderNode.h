@@ -130,35 +130,6 @@ protected:
 	virtual size_t ExclusiveBufferSizeRequired() const override { return 0; }
 };
 
-/**
- * Simple test class that will draw a shaded square in the center of the screen
- */
-class SquareTest2D : public RenderNode {
-public:
-	SquareTest2D() {}
-	virtual ~SquareTest2D() {}
-protected:
-	virtual size_t ExclusiveBufferSizeRequired() const override;
-	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const override;
-	virtual void FillColorData(std::vector<float>& rawData, size_t start) const override;
-	virtual void DrawSelf() const override;
-};
-
-/**
- * Simple test class that will draw a triangle (lines only) in the center of
- * the screen
- */
-class TriangleTest2D : public RenderNode {
-public:
-	TriangleTest2D() {}
-	virtual ~TriangleTest2D() {}
-protected:
-	virtual size_t ExclusiveBufferSizeRequired() const override;
-	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const override;
-	virtual void FillColorData(std::vector<float>& rawData, size_t start) const override;
-	virtual void DrawSelf() const override;
-};
-
 }} // ShapeShifter::Opengl
 
 #endif /* RENDERNODE_H */
