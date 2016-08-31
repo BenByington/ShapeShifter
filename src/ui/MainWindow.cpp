@@ -21,9 +21,16 @@ MainWindow::MainWindow() {
     qtw_.reset(new MyQtWidget());
     widget.DisplayFrame->layout()->addWidget(qtw_.get());
     //QMainWindow::showMaximized();
+
+    LinkActions();
 }
 
 MainWindow::~MainWindow() {
+}
+
+void MainWindow::LinkActions() {
+  connect(widget.actionEmpty, &QAction::triggered, qtw_.get(), &MyQtWidget::EmptyScenario);
+  connect(widget.actionSquare2D, &QAction::triggered, qtw_.get(), &MyQtWidget::Squares2DScenario);
 }
 
 }} //ShapeShifter::ui

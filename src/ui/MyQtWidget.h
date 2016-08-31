@@ -22,6 +22,7 @@
 #include "ui_MyQtWidget.h"
 
 #include "opengl/RenderNode.h"
+#include "opengl/World.h"
 
 namespace ShapeShifter {
 namespace ui {
@@ -42,14 +43,16 @@ protected:
   void mouseReleaseEvent(QMouseEvent* event) override;
   void mouseMoveEvent(QMouseEvent* event) override;
 
+  // Can we make this not public?
+public slots:
+  void EmptyScenario();
+  void Squares2DScenario();
+
 private:
 
   std::pair<float, float> PixelCoordToCameraProj(const QPointF& p) const;
 
-	GLuint vao = 0;
-	std::unique_ptr<Opengl::RenderNode> root_;
-  std::unique_ptr<Opengl::ShaderProgram> program_;
-  std::unique_ptr<Opengl::Camera> camera_;
+  std::unique_ptr<Opengl::World> world_;
 
   bool tracking_mouse = false;
   std::pair<float, float> last_mouse_coords_rel_;
