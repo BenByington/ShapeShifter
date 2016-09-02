@@ -16,7 +16,7 @@
 
 //TODO change my own opengl directory to not be the same as system
 #include "opengl/math/Quaternion.h"
-#include "opengl/ShaderProgram.h"
+#include "opengl/shaders/ShaderProgram.h"
 #include "opengl/Camera.h"
 
 #include <opengl/gl3.h>
@@ -63,7 +63,7 @@ public:
 	/**
 	 * Walks down the tree, applies rotation matrices, and calls opengl to render
    */
-	void RenderTree(const Camera& camera, const ShaderProgram& shader) const;
+	void RenderTree(const Camera& camera, const Shaders::ShaderProgram& shader) const;
 
   void SetRotation(const math::Quaternion& rot);
   void SetTranslation(const math::Vector4& trans);
@@ -88,7 +88,7 @@ private:
   size_t PopulateBufferData(std::vector<float>& vert, std::vector<float>& color, size_t start) ;
 	// Renders all children in the tree.
 	// TODO see how framerate is affected by the number/size of each child
-	void DrawChildren(const Camera& camera, const math::Quaternion& cumRot, const math::Vector4& cumTrans, const ShaderProgram& shader) const;
+	void DrawChildren(const Camera& camera, const math::Quaternion& cumRot, const math::Vector4& cumTrans, const Shaders::ShaderProgram& shader) const;
 
   void CleanupBuffer();
 

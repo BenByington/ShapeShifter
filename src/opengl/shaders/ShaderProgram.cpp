@@ -21,6 +21,7 @@
 
 namespace ShapeShifter {
 namespace Opengl {
+namespace Shaders {
 
 ShaderProgram::ShaderProgram(std::vector<std::unique_ptr<Shader>> shaders)
   : shaders_(std::move(shaders)) {
@@ -74,5 +75,5 @@ void ShaderProgram::uploadMatrix(const math::Matrix4& mat) const {
   glUniformMatrix4fv(transform_location, 1, GL_FALSE, mat.data());
 }
 
-}} // ShapeShifter::Opengl
+}}} // ShapeShifter::Opengl::Shaders
 

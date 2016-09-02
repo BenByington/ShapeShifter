@@ -16,7 +16,7 @@
 namespace ShapeShifter {
 namespace Opengl {
 
-World::World(std::unique_ptr<ShaderProgram> prog, std::unique_ptr<Camera> cam)
+World::World(std::unique_ptr<Shaders::ShaderProgram> prog, std::unique_ptr<Camera> cam)
   : program_(std::move(prog))
   , camera_(std::move(cam))
 {}

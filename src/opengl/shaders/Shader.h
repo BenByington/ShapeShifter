@@ -19,6 +19,7 @@
 
 namespace ShapeShifter {
 namespace Opengl {
+namespace Shaders {
 
 /*
  * Class that wraps an opengl shader resource.  It expects the shader to
@@ -61,6 +62,6 @@ public:
 	virtual ~FragmentShader() {}
 };
 
-}} // ShapeShifter::Opengl
+}}} // ShapeShifter::Opengl::Shaders
 #endif /* SHADER_H */
 

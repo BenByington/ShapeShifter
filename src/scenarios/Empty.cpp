@@ -19,13 +19,13 @@ namespace scenarios {
 std::unique_ptr<Opengl::World> Empty::Setup() {
 
   // TODO factor this out.  There should be pre-set shader programs to select.
-	std::vector<std::unique_ptr<Opengl::Shader>> shaders;
+	std::vector<std::unique_ptr<Opengl::Shaders::Shader>> shaders;
 	shaders.emplace_back(
-	    new Opengl::VertexShader("/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert"));
+	    new Opengl::Shaders::VertexShader("/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert"));
 	shaders.emplace_back(
-	    new Opengl::FragmentShader("/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag"));
+	    new Opengl::Shaders::FragmentShader("/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag"));
 
-	std::unique_ptr<Opengl::ShaderProgram> program(new Opengl::ShaderProgram(std::move(shaders)));
+	std::unique_ptr<Opengl::Shaders::ShaderProgram> program(new Opengl::Shaders::ShaderProgram(std::move(shaders)));
   auto frust = Opengl::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
   std::unique_ptr<Opengl::Camera> camera(new Opengl::Camera(frust, 2.5));
   std::unique_ptr<Opengl::World> world(new Opengl::World(std::move(program), std::move(camera)));

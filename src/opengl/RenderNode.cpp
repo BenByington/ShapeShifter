@@ -101,7 +101,7 @@ void RenderNode::CleanupBuffer() {
 	vao = 0;
 }
 
-void RenderNode::RenderTree(const Camera& camera, const ShaderProgram& shader) const {
+void RenderNode::RenderTree(const Camera& camera, const Shaders::ShaderProgram& shader) const {
   glBindVertexArray(vao);
   shader.UseProgram();
   DrawChildren(camera, math::Quaternion(), math::Vector4({0, 0, 0, 1}), shader);
@@ -111,7 +111,7 @@ void RenderNode::DrawChildren(
     const Camera& camera,
     const math::Quaternion& cumRot,
     const math::Vector4& cumTrans,
-    const ShaderProgram& shader) const {
+    const Shaders::ShaderProgram& shader) const {
 
   auto localQuat = cumRot*rotation_;
   auto rot = localQuat.RotationMatrix();

@@ -11,7 +11,7 @@
  * Created on July 29, 2016, 8:38 AM
  */
 
-#include "opengl/Shader.h"
+#include "opengl/shaders/Shader.h"
 
 #include <cassert>
 #include <iostream>
@@ -21,6 +21,7 @@
 
 namespace ShapeShifter {
 namespace Opengl {
+namespace Shaders {
 
 Shader::Shader(const std::string& filename, ShaderType t) {
 	std::ifstream f;
@@ -67,4 +68,4 @@ Shader::~Shader() {
 	glDeleteShader(shader);
 }
 
-}} // ShapeShifter::Opengl
+}}} // ShapeShifter::Opengl::Shaders

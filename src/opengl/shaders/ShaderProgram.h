@@ -18,10 +18,11 @@
 #include <memory>
 
 #include "opengl/math/Matrix4.h"
-#include "opengl/Shader.h"
+#include "opengl/shaders/Shader.h"
 
 namespace ShapeShifter {
 namespace Opengl {
+namespace Shaders {
 
 class ShaderProgram {
 public:
@@ -37,7 +38,7 @@ private:
 	GLuint program_;
 };
 
-}} // ShapeShifter::Opengl
+}}} // ShapeShifter::Opengl::Shaders
 
 #endif /* SHADERPROGRAM_H */
 
