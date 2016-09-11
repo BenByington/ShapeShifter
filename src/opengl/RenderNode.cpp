@@ -58,10 +58,10 @@ size_t RenderNode::PopulateBufferData(
 	idx += this->ExclusiveBufferSizeRequired();
 
 	end_vertex_ = idx;
-	return end_vertex_;
+	return end_vertex_ - start;
 }
 
-void RenderNode::UpdateData() {
+void RootNode::UpdateData() {
 
   // Note, this function essentially recurses the tree twice, once to figure
 	// out how big the tree is, and then again to actually populate the VAO.
@@ -95,13 +95,13 @@ void RenderNode::UpdateData() {
   glEnableVertexAttribArray (1);
 }
 
-void RenderNode::CleanupBuffer() {
+void RootNode::CleanupBuffer() {
 	//TODO check to make sure this is correct
 	glDeleteVertexArrays(1, &vao);
 	vao = 0;
 }
 
-void RenderNode::RenderTree(const Camera& camera, const Shaders::ShaderProgram& shader) const {
+void RootNode::RenderTree(const Camera& camera, const Shaders::ShaderProgram& shader) const {
   glBindVertexArray(vao);
   shader.UseProgram();
   DrawChildren(camera, math::Quaternion(), math::Vector4({0, 0, 0, 1}), shader);

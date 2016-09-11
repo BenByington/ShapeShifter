@@ -23,14 +23,17 @@ namespace tests {
 
 std::unique_ptr<Opengl::World> Squares2D::Setup() {
 
-	std::unique_ptr<Opengl::RenderNode> root(new detail::SquareTest2D());
-  root->SetTranslation(Opengl::math::Vector4({-.5, -.5, -2.5, 1}));
+	std::unique_ptr<Opengl::RootNode> root(new Opengl::RootNode());
+
+	std::shared_ptr<Opengl::RenderNode> first(new detail::SquareTest2D());
+  first->SetTranslation(Opengl::math::Vector4({-.5, -.5, -2.5, 1}));
+  root->AddChild(first);
 
   float pi = 4*std::atan(1.0f);
 
   std::shared_ptr<Opengl::RenderNode> second(new detail::SquareTest2D());
   second->SetRotation({-pi/2, 0 , 1, 0});
-  root->AddChild(second);
+  first->AddChild(second);
 
   std::shared_ptr<Opengl::RenderNode> third(new detail::SquareTest2D());
   third->SetTranslation(Opengl::math::Vector4({0, 0 , -1.0, 1.0}));

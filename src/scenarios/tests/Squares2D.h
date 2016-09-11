@@ -45,7 +45,7 @@ namespace detail {
  */
 class SquareTest2D : public Opengl::RenderNode {
 public:
-	SquareTest2D() {}
+	SquareTest2D() = default;
 	virtual ~SquareTest2D() {}
 protected:
 	virtual size_t ExclusiveBufferSizeRequired() const override;

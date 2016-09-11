@@ -31,13 +31,13 @@ public:
   World& operator=(const World& other) = delete;
   ~World() {};
 
-  void SetRenderTree(std::unique_ptr<RenderNode> root);
+  void SetRenderTree(std::unique_ptr<RootNode> root);
   Camera& camera();
 
   void Render() const;
 
 private:
-	std::unique_ptr<RenderNode> root_;
+	std::unique_ptr<RootNode> root_;
   std::unique_ptr<Shaders::ShaderProgram> program_;
   std::unique_ptr<Camera> camera_;
 };

@@ -23,6 +23,7 @@
 
 #include <cstdlib>
 #include <memory>
+#include <set>
 #include <vector>
 
 namespace ShapeShifter {
@@ -35,7 +36,7 @@ namespace Opengl {
  */
 class RenderNode {
 public:
-  virtual ~RenderNode() { CleanupBuffer(); }
+  virtual ~RenderNode() {}
 
 	/**
 	 * Adds a child to this node.
@@ -49,21 +50,6 @@ public:
    * @param child subtree to add to this node.
    */
 	void AddChild(std::shared_ptr<RenderNode> child);
-
-	/**
-	 * Generates the actual VAO for this tree.  This should only be called on the
-	 * root of the tree, and after you call this function on a node it can no
-	 * longer be added as a subtree to another node.  This function can be called
-	 * multiple times (perhaps you've added more children to the tree since the
-	 * last call)
-	 * TODO fixup so that only root can be rendered
-   */
-	void UpdateData();
-
-	/**
-	 * Walks down the tree, applies rotation matrices, and calls opengl to render
-   */
-	void RenderTree(const Camera& camera, const Shaders::ShaderProgram& shader) const;
 
   void SetRotation(const math::Quaternion& rot);
   void SetTranslation(const math::Vector4& trans);
@@ -81,7 +67,7 @@ protected:
 	size_t start_vertex() const {return start_vertex_; }
 	size_t end_vertex() const {return end_vertex_; }
 
-private:
+protected:
 	// Compute how big the VAO should be
 	size_t BufferSizeRequired() const;
 	// Fill the VAO with data and push to card
@@ -90,8 +76,7 @@ private:
 	// TODO see how framerate is affected by the number/size of each child
 	void DrawChildren(const Camera& camera, const math::Quaternion& cumRot, const math::Vector4& cumTrans, const Shaders::ShaderProgram& shader) const;
 
-  void CleanupBuffer();
-
+private:
   /**
 	 * Functions that must be implemented by any concrete child implementations.
 	 * These are used to figure out how much space each child needs in the VAO
@@ -111,12 +96,11 @@ private:
   size_t start_vertex_ = 0;
 	size_t end_vertex_ = 0;
 
-	// TODO need resource cleanup function
-	GLuint vao = 0;
 	std::vector<std::shared_ptr<RenderNode>> children;
 
   math::Quaternion rotation_;
   math::Vector4 translation_;
+  size_t type_;
 };
 
 /**
@@ -124,10 +108,36 @@ private:
  */
 class PureNode : public RenderNode {
 public:
-	PureNode() {}
+	PureNode() = default;
 	virtual ~PureNode() {}
 protected:
 	virtual size_t ExclusiveBufferSizeRequired() const override { return 0; }
+	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const override {};
+	virtual void FillColorData(std::vector<float>& rawData, size_t start) const override {};
+  virtual void DrawSelf() const override {}
+};
+
+class RootNode : public PureNode {
+public:
+  RootNode() {};
+  virtual ~RootNode() { CleanupBuffer(); }
+
+	/**
+	 * Generates the actual VAO for this tree.  This function can be called
+	 * multiple times (perhaps you've added more children to the tree since the
+	 * last call)
+   */
+	void UpdateData();
+
+	/**
+	 * Walks down the tree, applies rotation matrices, and calls opengl to render
+   */
+	void RenderTree(const Camera& camera, const Shaders::ShaderProgram& shader) const;
+
+private:
+  void CleanupBuffer();
+
+  GLuint vao = 0;
 };
 
 }} // ShapeShifter::Opengl
