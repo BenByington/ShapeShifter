@@ -23,31 +23,33 @@ namespace tests {
 
 std::unique_ptr<Opengl::World> Squares2D::Setup() {
 
-	std::unique_ptr<Opengl::RootNode> root(new Opengl::RootNode());
+  typedef Opengl::TypedRenderNode<Opengl::SupportedBuffers::COLORS> TypedRenderNode;
 
-	std::shared_ptr<Opengl::RenderNode> first(new detail::SquareTest2D());
+	std::unique_ptr<Opengl::RootNode<Opengl::SupportedBuffers::COLORS>> root(new Opengl::RootNode<Opengl::SupportedBuffers::COLORS>());
+
+	std::shared_ptr<TypedRenderNode> first(new detail::SquareTest2D());
   first->SetTranslation(Opengl::math::Vector4({-.5, -.5, -2.5, 1}));
   root->AddChild(first);
 
   float pi = 4*std::atan(1.0f);
 
-  std::shared_ptr<Opengl::RenderNode> second(new detail::SquareTest2D());
+  std::shared_ptr<TypedRenderNode> second(new detail::SquareTest2D());
   second->SetRotation({-pi/2, 0 , 1, 0});
   first->AddChild(second);
 
-  std::shared_ptr<Opengl::RenderNode> third(new detail::SquareTest2D());
+  std::shared_ptr<TypedRenderNode> third(new detail::SquareTest2D());
   third->SetTranslation(Opengl::math::Vector4({0, 0 , -1.0, 1.0}));
   second->AddChild(third);
 
-  std::shared_ptr<Opengl::RenderNode> fourth(new detail::SquareTest2D());
+  std::shared_ptr<TypedRenderNode> fourth(new detail::SquareTest2D());
   fourth->SetRotation({pi/2, 1, 0, 0});
   third->AddChild(fourth);
 
-  std::shared_ptr<Opengl::RenderNode> fifth(new detail::SquareTest2D());
+  std::shared_ptr<TypedRenderNode> fifth(new detail::SquareTest2D());
   fifth->SetTranslation(Opengl::math::Vector4({0, 0 , -1.0, 1.0}));
   fourth->AddChild(fifth);
 
-  std::shared_ptr<Opengl::RenderNode> sixth(new detail::SquareTest2D());
+  std::shared_ptr<TypedRenderNode> sixth(new detail::SquareTest2D());
   sixth->SetRotation({pi/2, 0, 1, 0});
   sixth->SetTranslation(Opengl::math::Vector4({-1, 0 , 1, 1.0}));
   //fifth->AddChild(sixth);

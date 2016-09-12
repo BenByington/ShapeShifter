@@ -29,6 +29,15 @@
 namespace ShapeShifter {
 namespace Opengl {
 
+namespace SupportedBuffers {
+
+static const size_t COLORS = 1;
+static const size_t TEXTURES = 2;
+static const size_t INDICES = 4;
+static const size_t END_VALUE = 8;
+
+}
+
 /**
  * Basic vertex for a tree of objects to render.  The entire tree will share
  * a vertex array object, though each node can have it's own rotation relative
@@ -38,22 +47,12 @@ class RenderNode {
 public:
   virtual ~RenderNode() {}
 
-	/**
-	 * Adds a child to this node.
-	 * TODO actually make that an error
-	 * Note: It is an error to add a child that is already established as the
-	 *       root of another tree (by calling UpdateData)
-	 * Note: These are intentionally shared, and external code may keep a
-	 *       reference to do things like tweak the rotation matrix.  Tweaking the
-	 *       actual vertex count or absolute position will not be supported.
-	 *
-   * @param child subtree to add to this node.
-   */
-	void AddChild(std::shared_ptr<RenderNode> child);
-
   void SetRotation(const math::Quaternion& rot);
   void SetTranslation(const math::Vector4& trans);
 
+  virtual void FillTextureData(std::vector<float>& rawData, size_t start) const = 0;
+	virtual void FillColorData(std::vector<float>& rawData, size_t start) const = 0;
+	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const = 0;
 protected:
 	// Prevent any duplication so we can easier avoid conflicts over opengl
 	// resources.
@@ -76,6 +75,8 @@ protected:
 	// TODO see how framerate is affected by the number/size of each child
 	void DrawChildren(const Camera& camera, const math::Quaternion& cumRot, const math::Vector4& cumTrans, const Shaders::ShaderProgram& shader) const;
 
+	std::vector<std::shared_ptr<RenderNode>> children;
+
 private:
   /**
 	 * Functions that must be implemented by any concrete child implementations.
@@ -84,8 +85,6 @@ private:
 	 * your own vertices.
    */
 	virtual size_t ExclusiveBufferSizeRequired() const = 0;
-	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const = 0;
-	virtual void FillColorData(std::vector<float>& rawData, size_t start) const = 0;
 	virtual void DrawSelf() const = 0;
 
   void DebugRotation(const math::Matrix4& mat) const;
@@ -96,28 +95,73 @@ private:
   size_t start_vertex_ = 0;
 	size_t end_vertex_ = 0;
 
-	std::vector<std::shared_ptr<RenderNode>> children;
-
   math::Quaternion rotation_;
   math::Vector4 translation_;
   size_t type_;
+};
+/*
+ * Sets up a configurable interface.  Depending on what value is handed in for
+ * the Flags template parameter, extending from the BaseNode class below will
+ * require children to implement different combinations of abstract virtual
+ * functions.  Valid values of 'Flags' are determined by using the above
+ * definitions in namespace SupportedBuffers as bitflags.
+ */
+namespace detail {
+
+template <bool Enabled> struct TextureInterface : public RenderNode {};
+template <>
+struct TextureInterface<false> : public RenderNode {
+  virtual void FillTextureData(std::vector<float>& rawData, size_t start) const override {}
+};
+template <size_t Flags> using TextureNode = TextureInterface<Flags & SupportedBuffers::TEXTURES>;
+
+template <size_t Flags, bool enabled> struct ColorInterface : public TextureNode<Flags> {};
+template <size_t Flags>
+struct ColorInterface<Flags, false> : public TextureNode<Flags> {
+public:
+	virtual void FillColorData(std::vector<float>& rawData, size_t start) override {}
+};
+template <size_t Flags> using ColorNode = ColorInterface<Flags, Flags & SupportedBuffers::COLORS>;
+
+}
+
+template <size_t Flags>
+class TypedRenderNode : public detail::ColorNode<Flags> {
+public:
+  TypedRenderNode() = default;
+  virtual ~TypedRenderNode() {}
+
+	/**
+	 * Adds a child to this node.
+	 * TODO actually make that an error
+	 * Note: These are intentionally shared, and external code may keep a
+	 *       reference to do things like tweak the rotation matrix.  Tweaking the
+	 *       actual vertex count or absolute position will not be supported.
+	 *
+   * @param child subtree to add to this node.
+   */
+	void AddChild(std::shared_ptr<RenderNode> child);
 };
 
 /**
  * Basic implementation for nodes that only hold other nodes
  */
-class PureNode : public RenderNode {
+template <size_t Flags>
+class PureNode : public TypedRenderNode<Flags> {
 public:
 	PureNode() = default;
 	virtual ~PureNode() {}
 protected:
-	virtual size_t ExclusiveBufferSizeRequired() const override { return 0; }
-	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const override {};
-	virtual void FillColorData(std::vector<float>& rawData, size_t start) const override {};
-  virtual void DrawSelf() const override {}
+  // TODO fix this.  Had to remove 'override' keyword because we can't tell
+  // up front which functions need to be supported.
+	virtual size_t ExclusiveBufferSizeRequired() const { return 0; }
+	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const {};
+	virtual void FillColorData(std::vector<float>& rawData, size_t start) const {};
+  virtual void DrawSelf() const {}
 };
 
-class RootNode : public PureNode {
+template <size_t Flags>
+class RootNode : public PureNode<Flags> {
 public:
   RootNode() {};
   virtual ~RootNode() { CleanupBuffer(); }

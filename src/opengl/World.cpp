@@ -21,7 +21,7 @@ World::World(std::unique_ptr<Shaders::ShaderProgram> prog, std::unique_ptr<Camer
   , camera_(std::move(cam))
 {}
 
-void World::SetRenderTree(std::unique_ptr<RootNode> root) {
+void World::SetRenderTree(std::unique_ptr<RootNode<SupportedBuffers::COLORS>> root) {
   root_ = std::move(root);
 }
 

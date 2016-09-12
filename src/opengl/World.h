@@ -31,13 +31,14 @@ public:
   World& operator=(const World& other) = delete;
   ~World() {};
 
-  void SetRenderTree(std::unique_ptr<RootNode> root);
+  // TODO break this typing.  Should accept generic root.
+  void SetRenderTree(std::unique_ptr<RootNode<SupportedBuffers::COLORS>> root);
   Camera& camera();
 
   void Render() const;
 
 private:
-	std::unique_ptr<RootNode> root_;
+	std::unique_ptr<RootNode<SupportedBuffers::COLORS>> root_;
   std::unique_ptr<Shaders::ShaderProgram> program_;
   std::unique_ptr<Camera> camera_;
 };

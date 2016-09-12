@@ -20,8 +20,9 @@
 namespace ShapeShifter {
 namespace Opengl {
 
-void RenderNode::AddChild(std::shared_ptr<RenderNode> child) {
-	children.push_back(child);
+template <size_t Flags>
+void TypedRenderNode<Flags>::AddChild(std::shared_ptr<RenderNode> child) {
+	this->children.push_back(child);
 }
 
 void RenderNode::SetRotation(const math::Quaternion& rot) {
@@ -40,8 +41,6 @@ size_t RenderNode::BufferSizeRequired() const {
 	return ret;
 }
 
-//TODO let things reallocate the buffer
-
 size_t RenderNode::PopulateBufferData(
     std::vector<float>& vert,
 		std::vector<float>& color,
@@ -53,15 +52,16 @@ size_t RenderNode::PopulateBufferData(
 
 	start_vertex_ = idx;
 
-	FillVertexData(vert, idx);
-	FillColorData(color, idx);
+	this->FillVertexData(vert, idx);
+	this->FillColorData(color, idx);
 	idx += this->ExclusiveBufferSizeRequired();
 
 	end_vertex_ = idx;
 	return end_vertex_ - start;
 }
 
-void RootNode::UpdateData() {
+template <size_t Flags>
+void RootNode<Flags>::UpdateData() {
 
   // Note, this function essentially recurses the tree twice, once to figure
 	// out how big the tree is, and then again to actually populate the VAO.
@@ -73,7 +73,7 @@ void RootNode::UpdateData() {
   std::vector<float> tri_vert(size, 0);
 	std::vector<float> tri_col(size, 0);
 
-	size_t end = PopulateBufferData(tri_vert, tri_col, 0);
+	size_t end = this->PopulateBufferData(tri_vert, tri_col, 0);
 	assert(end == tri_vert.size());
 
   glGenVertexArrays (1, &vao);
@@ -95,16 +95,18 @@ void RootNode::UpdateData() {
   glEnableVertexAttribArray (1);
 }
 
-void RootNode::CleanupBuffer() {
+template <size_t Flags>
+void RootNode<Flags>::CleanupBuffer() {
 	//TODO check to make sure this is correct
 	glDeleteVertexArrays(1, &vao);
 	vao = 0;
 }
 
-void RootNode::RenderTree(const Camera& camera, const Shaders::ShaderProgram& shader) const {
+template <size_t Flags>
+void RootNode<Flags>::RenderTree(const Camera& camera, const Shaders::ShaderProgram& shader) const {
   glBindVertexArray(vao);
   shader.UseProgram();
-  DrawChildren(camera, math::Quaternion(), math::Vector4({0, 0, 0, 1}), shader);
+  this->DrawChildren(camera, math::Quaternion(), math::Vector4({0, 0, 0, 1}), shader);
 }
 
 void RenderNode::DrawChildren(
@@ -140,5 +142,9 @@ void RenderNode::DebugRotation(const math::Matrix4& mat) const {
     result.print();
   }
 }
+
+// TODO clean up this so it's less manual
+template class TypedRenderNode<SupportedBuffers::COLORS>;
+template class RootNode<SupportedBuffers::COLORS>;
 
 }} // ShapeShifter::Opengl

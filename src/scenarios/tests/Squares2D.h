@@ -43,7 +43,7 @@ namespace detail {
 /**
  * Simple test class that will draw a shaded square in the center of the screen
  */
-class SquareTest2D : public Opengl::RenderNode {
+class SquareTest2D : public Opengl::TypedRenderNode<Opengl::SupportedBuffers::COLORS> {
 public:
 	SquareTest2D() = default;
 	virtual ~SquareTest2D() {}
