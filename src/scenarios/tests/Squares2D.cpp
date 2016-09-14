@@ -25,7 +25,7 @@ std::unique_ptr<Opengl::World> Squares2D::Setup() {
 
   typedef Opengl::TypedRenderNode<Opengl::SupportedBuffers::COLORS> TypedRenderNode;
 
-	std::unique_ptr<Opengl::RootNode<Opengl::SupportedBuffers::COLORS>> root(new Opengl::RootNode<Opengl::SupportedBuffers::COLORS>());
+	std::unique_ptr<Opengl::RootNode> root(new Opengl::RootNode());
 
 	std::shared_ptr<TypedRenderNode> first(new detail::SquareTest2D());
   first->SetTranslation(Opengl::math::Vector4({-.5, -.5, -2.5, 1}));

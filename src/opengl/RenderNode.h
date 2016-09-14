@@ -119,14 +119,23 @@ template <size_t Flags, bool enabled> struct ColorInterface : public TextureNode
 template <size_t Flags>
 struct ColorInterface<Flags, false> : public TextureNode<Flags> {
 public:
-	virtual void FillColorData(std::vector<float>& rawData, size_t start) override {}
+	virtual void FillColorData(std::vector<float>& rawData, size_t start) const override {}
 };
 template <size_t Flags> using ColorNode = ColorInterface<Flags, Flags & SupportedBuffers::COLORS>;
+
+template <size_t Flags> struct SubsetInterface : public ColorNode<Flags> {};
+template <>
+struct SubsetInterface<0> : public ColorNode<0> {
+	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const override {}
+private:
+	virtual size_t ExclusiveBufferSizeRequired() const override { return 0; }
+  virtual void DrawSelf() const override {}
+};
 
 }
 
 template <size_t Flags>
-class TypedRenderNode : public detail::ColorNode<Flags> {
+class TypedRenderNode : public detail::SubsetInterface<Flags> {
 public:
   TypedRenderNode() = default;
   virtual ~TypedRenderNode() {}
@@ -160,10 +169,9 @@ protected:
   virtual void DrawSelf() const {}
 };
 
-template <size_t Flags>
-class RootNode : public PureNode<Flags> {
+class RootNode : public TypedRenderNode<0> {
 public:
-  RootNode() {};
+  RootNode() = default;
   virtual ~RootNode() { CleanupBuffer(); }
 
 	/**
@@ -178,10 +186,17 @@ public:
    */
 	void RenderTree(const Camera& camera, const Shaders::ShaderProgram& shader) const;
 
+  template <size_t Flags>
+  void AddChild(std::shared_ptr<TypedRenderNode<Flags>> tree) {
+    this->children.resize(0);
+    this->children.push_back(tree);
+  }
+
 private:
   void CleanupBuffer();
 
   GLuint vao = 0;
+  size_t RenderFlags = 0;
 };
 
 }} // ShapeShifter::Opengl

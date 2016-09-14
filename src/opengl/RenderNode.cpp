@@ -60,8 +60,7 @@ size_t RenderNode::PopulateBufferData(
 	return end_vertex_ - start;
 }
 
-template <size_t Flags>
-void RootNode<Flags>::UpdateData() {
+void RootNode::UpdateData() {
 
   // Note, this function essentially recurses the tree twice, once to figure
 	// out how big the tree is, and then again to actually populate the VAO.
@@ -95,15 +94,13 @@ void RootNode<Flags>::UpdateData() {
   glEnableVertexAttribArray (1);
 }
 
-template <size_t Flags>
-void RootNode<Flags>::CleanupBuffer() {
+void RootNode::CleanupBuffer() {
 	//TODO check to make sure this is correct
 	glDeleteVertexArrays(1, &vao);
 	vao = 0;
 }
 
-template <size_t Flags>
-void RootNode<Flags>::RenderTree(const Camera& camera, const Shaders::ShaderProgram& shader) const {
+void RootNode::RenderTree(const Camera& camera, const Shaders::ShaderProgram& shader) const {
   glBindVertexArray(vao);
   shader.UseProgram();
   this->DrawChildren(camera, math::Quaternion(), math::Vector4({0, 0, 0, 1}), shader);
@@ -145,6 +142,5 @@ void RenderNode::DebugRotation(const math::Matrix4& mat) const {
 
 // TODO clean up this so it's less manual
 template class TypedRenderNode<SupportedBuffers::COLORS>;
-template class RootNode<SupportedBuffers::COLORS>;
 
 }} // ShapeShifter::Opengl
