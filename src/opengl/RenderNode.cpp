@@ -20,11 +20,6 @@
 namespace ShapeShifter {
 namespace Opengl {
 
-template <size_t Flags>
-void TypedRenderNode<Flags>::AddChild(std::shared_ptr<RenderNode> child) {
-	this->children.push_back(child);
-}
-
 void RenderNode::SetRotation(const math::Quaternion& rot) {
   this->rotation_ = rot;
 }

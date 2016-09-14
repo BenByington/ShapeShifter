@@ -149,7 +149,11 @@ public:
 	 *
    * @param child subtree to add to this node.
    */
-	void AddChild(std::shared_ptr<RenderNode> child);
+  template <size_t OtherFlags>
+	typename std::enable_if<OtherFlags & Flags == Flags>::type
+  AddChild(std::shared_ptr<TypedRenderNode<OtherFlags>> child) {
+    this->children.push_back(child);
+  }
 };
 
 /**
