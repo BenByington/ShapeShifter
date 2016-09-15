@@ -48,7 +48,7 @@ public:
 	SquareTest2D() = default;
 	virtual ~SquareTest2D() {}
 protected:
-	virtual size_t ExclusiveBufferSizeRequired() const override;
+	virtual size_t ExclusiveNodeVertexCount() const override;
 	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const override;
 	virtual void FillColorData(std::vector<float>& rawData, size_t start) const override;
 	virtual void DrawSelf() const override;

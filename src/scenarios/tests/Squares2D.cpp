@@ -76,48 +76,48 @@ std::unique_ptr<Opengl::World> Squares2D::Setup() {
 
 namespace detail {
 
-size_t SquareTest2D::ExclusiveBufferSizeRequired() const { return 12; }
+size_t SquareTest2D::ExclusiveNodeVertexCount() const { return 4; }
 
-void SquareTest2D::FillColorData(std::vector<float>& data, size_t start) const {
-	data[start+0] = 1.0;
-	data[start+1] = 0.0;
-	data[start+2] = 0.0;
+void SquareTest2D::FillColorData(std::vector<float>& data, size_t start_vert) const {
+  size_t start_idx = start_vert * floats_per_color;
+	data[start_idx+0] = 1.0;
+	data[start_idx+1] = 0.0;
+	data[start_idx+2] = 0.0;
 
-	data[start+3] = 1.0;
-	data[start+4] = 1.0;
-	data[start+5] = 0.0;
+	data[start_idx+3] = 1.0;
+	data[start_idx+4] = 1.0;
+	data[start_idx+5] = 0.0;
 
-	data[start+6] = 0.0;
-	data[start+7] = 0.0;
-	data[start+8] = 1.0;
+	data[start_idx+6] = 0.0;
+	data[start_idx+7] = 0.0;
+	data[start_idx+8] = 1.0;
 
-	data[start+9] = 0.0;
-	data[start+10] = 1.0;
-	data[start+11] = 0.0;
+	data[start_idx+9] = 0.0;
+	data[start_idx+10] = 1.0;
+	data[start_idx+11] = 0.0;
 }
 
-void SquareTest2D::FillVertexData(std::vector<float>& data, size_t start) const {
-	data[start+0] = 0;
-	data[start+1] = 0;
-	data[start+2] = 0;
+void SquareTest2D::FillVertexData(std::vector<float>& data, size_t start_vert) const {
+  size_t start_idx = start_vert * floats_per_vert_;
+	data[start_idx+0] = 0;
+	data[start_idx+1] = 0;
+	data[start_idx+2] = 0;
 
-	data[start+3] = 0;
-	data[start+4] = 1;
-	data[start+5] = 0;
+	data[start_idx+3] = 0;
+	data[start_idx+4] = 1;
+	data[start_idx+5] = 0;
 
-	data[start+6]  =  1;
-	data[start+7] = 0;
-	data[start+8] = 0;
+	data[start_idx+6]  =  1;
+	data[start_idx+7] = 0;
+	data[start_idx+8] = 0;
 
-	data[start+9] =  1;
-	data[start+10] =  1;
-	data[start+11] = 0;
+	data[start_idx+9] =  1;
+	data[start_idx+10] =  1;
+	data[start_idx+11] = 0;
 }
 
 void SquareTest2D::DrawSelf() const {
-	assert(start_vertex() % 3 == 0);
-	assert(this->ExclusiveBufferSizeRequired() % 3 == 0);
-  glDrawArrays (GL_TRIANGLE_STRIP, start_vertex()/3, this->ExclusiveBufferSizeRequired()/3);
+  glDrawArrays (GL_TRIANGLE_STRIP, start_vertex(), this->ExclusiveNodeVertexCount());
 }
 
 }

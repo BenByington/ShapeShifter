@@ -61,7 +61,7 @@ protected:
   size_t Flags = 0;
 protected:
 	// Compute how big the VAO should be
-	size_t BufferSizeRequired() const;
+	size_t SubtreeVertexCount() const;
 	// Fill the VAO with data and push to card
   size_t PopulateBufferData(std::map<SupportedBuffers, std::vector<float>>& data, size_t start);
 	// Renders all children in the tree.
@@ -70,6 +70,12 @@ protected:
 
 	std::vector<std::shared_ptr<RenderNode>> children;
 
+  // TODO find better home?
+  static const size_t floats_per_vert_ = 3;
+  static const size_t floats_per_color = 3;
+  static const size_t floats_per_text = 2;
+  static const size_t floats_per_ind = 1;
+
 private:
   /**
 	 * Functions that must be implemented by any concrete child implementations.
@@ -77,14 +83,11 @@ private:
 	 * (3x number of vertices) and to actually populate the data and render
 	 * your own vertices.
    */
-	virtual size_t ExclusiveBufferSizeRequired() const = 0;
+	virtual size_t ExclusiveNodeVertexCount() const = 0;
 	virtual void DrawSelf() const = 0;
 
   void DebugRotation(const math::Matrix4& mat) const;
 
-	// TODO this is currently inconsistent.  I'd prefer the code to think in terms
-	//      of vertices, but right now these actually record number of floats in
-	//      the buffer (3x vertices);
   size_t start_vertex_ = 0;
 	size_t end_vertex_ = 0;
 
@@ -185,7 +188,7 @@ public:
 private:
   // TODO comment
 	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const override {}
-	virtual size_t ExclusiveBufferSizeRequired() const override { return 0; }
+	virtual size_t ExclusiveNodeVertexCount() const override { return 0; }
   virtual void DrawSelf() const override {}
   void CleanupBuffer();
 

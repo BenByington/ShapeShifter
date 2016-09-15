@@ -28,10 +28,10 @@ void RenderNode::SetTranslation(const math::Vector4& trans) {
   this->translation_ = trans;
 }
 
-size_t RenderNode::BufferSizeRequired() const {
-	size_t ret = ExclusiveBufferSizeRequired();
+size_t RenderNode::SubtreeVertexCount() const {
+	size_t ret = ExclusiveNodeVertexCount();
 	for (const auto& child : children) {
-		ret += child->BufferSizeRequired();
+		ret += child->SubtreeVertexCount();
 	}
 	return ret;
 }
@@ -66,7 +66,7 @@ size_t RenderNode::PopulateBufferData(
     }
   }
 
-	idx += this->ExclusiveBufferSizeRequired();
+	idx += this->ExclusiveNodeVertexCount();
 
 	end_vertex_ = idx;
 	return end_vertex_ - start;
@@ -79,11 +79,24 @@ void RootNode::UpdateData(const std::map<SupportedBuffers, size_t>& idx_map) {
 	// Could potentially recurse once, filling pre-allocated buffers and adding
 	// more as necessary?
 	CleanupBuffer();
-	size_t size = this->BufferSizeRequired();
+	size_t size = this->SubtreeVertexCount();
 
   std::map<SupportedBuffers, std::vector<float>> data;
   for (const auto& kv: idx_map) {
-    data[kv.first].resize(size);
+    switch (kv.first) {
+      case SupportedBuffers::COLORS:
+        data[kv.first].resize(size*floats_per_color);
+        break;
+      case SupportedBuffers::INDICES:
+        data[kv.first].resize(size*floats_per_ind);
+        break;
+      case SupportedBuffers::TEXTURES:
+        data[kv.first].resize(size*floats_per_text);
+        break;
+      case SupportedBuffers::VERTICES:
+        data[kv.first].resize(size*floats_per_vert_);
+        break;
+    }
   }
 
 	size_t end = this->PopulateBufferData(data, 0);
@@ -134,7 +147,7 @@ void RenderNode::DrawChildren(
 }
 
 void RenderNode::DebugRotation(const math::Matrix4& mat) const {
-  std::vector<float> data(this->ExclusiveBufferSizeRequired());
+  std::vector<float> data(this->ExclusiveNodeVertexCount()*floats_per_vert_);
   this->FillVertexData(data, 0);
   std::cerr << "Matrix: " << std::endl;
   mat.print();
