@@ -18,6 +18,7 @@
 #include "opengl/math/Quaternion.h"
 #include "opengl/shaders/ShaderProgram.h"
 #include "opengl/Camera.h"
+#include "opengl/BufferTypes.h"
 
 #include <opengl/gl3.h>
 
@@ -28,15 +29,6 @@
 
 namespace ShapeShifter {
 namespace Opengl {
-
-namespace SupportedBuffers {
-
-static const size_t COLORS = 1;
-static const size_t TEXTURES = 2;
-static const size_t INDICES = 4;
-static const size_t END_VALUE = 8;
-
-}
 
 /**
  * Basic vertex for a tree of objects to render.  The entire tree will share
@@ -66,11 +58,12 @@ protected:
 	size_t start_vertex() const {return start_vertex_; }
 	size_t end_vertex() const {return end_vertex_; }
 
+  size_t Flags = 0;
 protected:
 	// Compute how big the VAO should be
 	size_t BufferSizeRequired() const;
 	// Fill the VAO with data and push to card
-  size_t PopulateBufferData(std::vector<float>& vert, std::vector<float>& color, size_t start) ;
+  size_t PopulateBufferData(std::map<SupportedBuffers, std::vector<float>>& data, size_t start);
 	// Renders all children in the tree.
 	// TODO see how framerate is affected by the number/size of each child
 	void DrawChildren(const Camera& camera, const math::Quaternion& cumRot, const math::Vector4& cumTrans, const Shaders::ShaderProgram& shader) const;
@@ -99,6 +92,7 @@ private:
   math::Vector4 translation_;
   size_t type_;
 };
+
 /*
  * Sets up a configurable interface.  Depending on what value is handed in for
  * the Flags template parameter, extending from the BaseNode class below will
@@ -113,7 +107,7 @@ template <>
 struct TextureInterface<false> : public RenderNode {
   virtual void FillTextureData(std::vector<float>& rawData, size_t start) const override {}
 };
-template <size_t Flags> using TextureNode = TextureInterface<Flags & SupportedBuffers::TEXTURES>;
+template <size_t Flags> using TextureNode = TextureInterface<Flags & SupportedBufferFlags::TEXTURES>;
 
 template <size_t Flags, bool enabled> struct ColorInterface : public TextureNode<Flags> {};
 template <size_t Flags>
@@ -121,23 +115,15 @@ struct ColorInterface<Flags, false> : public TextureNode<Flags> {
 public:
 	virtual void FillColorData(std::vector<float>& rawData, size_t start) const override {}
 };
-template <size_t Flags> using ColorNode = ColorInterface<Flags, Flags & SupportedBuffers::COLORS>;
-
-template <size_t Flags> struct SubsetInterface : public ColorNode<Flags> {};
-template <>
-struct SubsetInterface<0> : public ColorNode<0> {
-	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const override {}
-private:
-	virtual size_t ExclusiveBufferSizeRequired() const override { return 0; }
-  virtual void DrawSelf() const override {}
-};
+template <size_t Flags> using ColorNode = ColorInterface<Flags, Flags & SupportedBufferFlags::COLORS>;
 
 }
 
 template <size_t Flags>
-class TypedRenderNode : public detail::SubsetInterface<Flags> {
+class TypedRenderNode : public detail::ColorNode<Flags> {
+  static_assert(Flags < SupportedBufferFlags::END_VALUE, "Invalid flags for buffer support");
 public:
-  TypedRenderNode() = default;
+  TypedRenderNode() { this->Flags = Flags; }
   virtual ~TypedRenderNode() {}
 
 	/**
@@ -173,7 +159,7 @@ protected:
   virtual void DrawSelf() const {}
 };
 
-class RootNode : public TypedRenderNode<0> {
+class RootNode : private TypedRenderNode<0> {
 public:
   RootNode() = default;
   virtual ~RootNode() { CleanupBuffer(); }
@@ -183,7 +169,7 @@ public:
 	 * multiple times (perhaps you've added more children to the tree since the
 	 * last call)
    */
-	void UpdateData();
+	void UpdateData(const std::map<SupportedBuffers, size_t>& idx_map);
 
 	/**
 	 * Walks down the tree, applies rotation matrices, and calls opengl to render
@@ -197,6 +183,10 @@ public:
   }
 
 private:
+  // TODO comment
+	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const override {}
+	virtual size_t ExclusiveBufferSizeRequired() const override { return 0; }
+  virtual void DrawSelf() const override {}
   void CleanupBuffer();
 
   GLuint vao = 0;

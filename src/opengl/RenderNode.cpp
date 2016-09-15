@@ -37,25 +37,42 @@ size_t RenderNode::BufferSizeRequired() const {
 }
 
 size_t RenderNode::PopulateBufferData(
-    std::vector<float>& vert,
-		std::vector<float>& color,
+    std::map<SupportedBuffers, std::vector<float>>& data,
 		const size_t start) {
 	size_t idx = start;
 	for (const auto& child : children) {
-		idx += child->PopulateBufferData(vert, color, idx);
+		idx += child->PopulateBufferData(data, idx);
 	}
 
 	start_vertex_ = idx;
 
-	this->FillVertexData(vert, idx);
-	this->FillColorData(color, idx);
+  for(auto& kv: data) {
+    switch (kv.first) {
+      case SupportedBuffers::COLORS:
+        assert(Flags & SupportedBufferFlags::COLORS || Flags == 0);
+        this->FillColorData(kv.second, idx);
+        break;
+      case SupportedBuffers::VERTICES:
+        this->FillVertexData(kv.second, idx);
+        break;
+      case SupportedBuffers::INDICES:
+        assert(Flags & SupportedBufferFlags::INDICES || Flags == 0);
+        assert(false);
+        break;
+      case SupportedBuffers::TEXTURES:
+        assert(Flags & SupportedBufferFlags::TEXTURES || Flags == 0);
+        this->FillTextureData(kv.second, idx);
+        break;
+    }
+  }
+
 	idx += this->ExclusiveBufferSizeRequired();
 
 	end_vertex_ = idx;
 	return end_vertex_ - start;
 }
 
-void RootNode::UpdateData() {
+void RootNode::UpdateData(const std::map<SupportedBuffers, size_t>& idx_map) {
 
   // Note, this function essentially recurses the tree twice, once to figure
 	// out how big the tree is, and then again to actually populate the VAO.
@@ -64,29 +81,26 @@ void RootNode::UpdateData() {
 	CleanupBuffer();
 	size_t size = this->BufferSizeRequired();
 
-  std::vector<float> tri_vert(size, 0);
-	std::vector<float> tri_col(size, 0);
+  std::map<SupportedBuffers, std::vector<float>> data;
+  for (const auto& kv: idx_map) {
+    data[kv.first].resize(size);
+  }
 
-	size_t end = this->PopulateBufferData(tri_vert, tri_col, 0);
-	assert(end == tri_vert.size());
+	size_t end = this->PopulateBufferData(data, 0);
+	assert(end == size);
 
   glGenVertexArrays (1, &vao);
   glBindVertexArray (vao);
 
-  GLuint points_vbo = 0;
-  glGenBuffers (1, &points_vbo);
-  glBindBuffer (GL_ARRAY_BUFFER, points_vbo);
-  glBufferData (GL_ARRAY_BUFFER, tri_vert.size() * sizeof (float), &tri_vert[0], GL_STATIC_DRAW);
-  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-	GLuint colours_vbo = 0;
-  glGenBuffers (1, &colours_vbo);
-  glBindBuffer (GL_ARRAY_BUFFER, colours_vbo);
-  glBufferData (GL_ARRAY_BUFFER, tri_vert.size() * sizeof (float), &tri_col[0], GL_STATIC_DRAW);
-  glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-	glEnableVertexAttribArray (0);
-  glEnableVertexAttribArray (1);
+  for (const auto& kv: data) {
+    GLuint vbo = 0;
+    const std::vector<float>& buffer_dat = kv.second;
+    glGenBuffers (1, &vbo);
+    glBindBuffer (GL_ARRAY_BUFFER, vbo);
+    glBufferData (GL_ARRAY_BUFFER, buffer_dat.size() * sizeof (float), buffer_dat.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer (idx_map.at(kv.first), 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(idx_map.at(kv.first));
+  }
 }
 
 void RootNode::CleanupBuffer() {
@@ -136,6 +150,6 @@ void RenderNode::DebugRotation(const math::Matrix4& mat) const {
 }
 
 // TODO clean up this so it's less manual
-template class TypedRenderNode<SupportedBuffers::COLORS>;
+template class TypedRenderNode<SupportedBufferFlags::COLORS>;
 
 }} // ShapeShifter::Opengl

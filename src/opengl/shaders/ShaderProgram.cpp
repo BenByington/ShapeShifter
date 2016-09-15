@@ -75,5 +75,13 @@ void ShaderProgram::uploadMatrix(const math::Matrix4& mat) const {
   glUniformMatrix4fv(transform_location, 1, GL_FALSE, mat.data());
 }
 
+std::map<SupportedBuffers, size_t> ShaderProgram::BufferMapping() const {
+  std::map<SupportedBuffers, size_t> ret;
+  // TODO make this less hard coded...
+  ret[SupportedBuffers::VERTICES] = 0;
+  ret[SupportedBuffers::COLORS] = 1;
+  return ret;
+}
+
 }}} // ShapeShifter::Opengl::Shaders
 

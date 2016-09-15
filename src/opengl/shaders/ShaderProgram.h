@@ -14,9 +14,11 @@
 #ifndef SHADERPROGRAM_H
 #define SHADERPROGRAM_H
 
-#include <vector>
+#include <map>
 #include <memory>
+#include <vector>
 
+#include "opengl/BufferTypes.h"
 #include "opengl/math/Matrix4.h"
 #include "opengl/shaders/Shader.h"
 
@@ -33,6 +35,8 @@ public:
 
 	void UseProgram() const { glUseProgram(program_); }
   void uploadMatrix(const math::Matrix4& mat) const;
+
+  std::map<SupportedBuffers, size_t> BufferMapping() const;
 private:
 	std::vector<std::unique_ptr<Shader>> shaders_;
 	GLuint program_;
