@@ -25,10 +25,9 @@ std::unique_ptr<Opengl::World> Empty::Setup() {
 	shaders.emplace_back(
 	    new Opengl::Shaders::FragmentShader("/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag"));
 
-	std::unique_ptr<Opengl::Shaders::ShaderProgram> program(new Opengl::Shaders::ShaderProgram(std::move(shaders)));
   auto frust = Opengl::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
   std::unique_ptr<Opengl::Camera> camera(new Opengl::Camera(frust, 2.5));
-  std::unique_ptr<Opengl::World> world(new Opengl::World(std::move(program), std::move(camera)));
+  std::unique_ptr<Opengl::World> world(new Opengl::World(std::move(camera)));
   return world;
 }
 

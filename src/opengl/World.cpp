@@ -16,9 +16,8 @@
 namespace ShapeShifter {
 namespace Opengl {
 
-World::World(std::unique_ptr<Shaders::ShaderProgram> prog, std::unique_ptr<Camera> cam)
-  : program_(std::move(prog))
-  , camera_(std::move(cam))
+World::World(std::unique_ptr<Camera> cam)
+  : camera_(std::move(cam))
 {}
 
 void World::SetRenderTree(std::unique_ptr<RootNode> root) {
@@ -31,7 +30,7 @@ Camera& World::camera() {
 
 void World::Render() const {
   if (root_) {
-    root_->RenderTree(*camera_, *program_);
+    root_->RenderTree(*camera_);
   }
 }
 

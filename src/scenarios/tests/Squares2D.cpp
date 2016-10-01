@@ -25,11 +25,8 @@ std::unique_ptr<Opengl::World> Squares2D::Setup() {
 
   typedef Opengl::TypedRenderNode<Opengl::SupportedBufferFlags::COLORS> TypedRenderNode;
 
-	std::unique_ptr<Opengl::RootNode> root(new Opengl::RootNode());
-
 	std::shared_ptr<TypedRenderNode> first(new detail::SquareTest2D());
   first->SetTranslation(Opengl::math::Vector4({-.5, -.5, -2.5, 1}));
-  root->AddChild(first);
 
   float pi = 4*std::atan(1.0f);
 
@@ -55,21 +52,23 @@ std::unique_ptr<Opengl::World> Squares2D::Setup() {
   //fifth->AddChild(sixth);
 
 	std::vector<std::unique_ptr<Opengl::Shaders::Shader>> shaders;
-	shaders.emplace_back(
+	std::unique_ptr<Opengl::Shaders::VertexShader> vert(
 	    new Opengl::Shaders::VertexShader("/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert"));
-	shaders.emplace_back(
+	std::unique_ptr<Opengl::Shaders::FragmentShader> frag(
 	    new Opengl::Shaders::FragmentShader("/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag"));
-	std::unique_ptr<Opengl::Shaders::ShaderProgram> program(new Opengl::Shaders::ShaderProgram(std::move(shaders)));
+	std::shared_ptr<Opengl::Shaders::ShaderProgram> program(
+      new Opengl::Shaders::ShaderProgram(std::move(vert), std::move(frag)));
 
   //TODO ownership is very weird here.  World needs a complete object.  Can
   //     provide mechanism to rotate/enable/disable nodes, but not add new
   //     ones or change point locations.
-	root->UpdateData(program->BufferMapping());
+	std::unique_ptr<Opengl::RootNode> root(new Opengl::RootNode(first, program));
+	root->UpdateData();
 
   auto frust = Opengl::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
   std::unique_ptr<Opengl::Camera> camera(new Opengl::Camera(frust, 2.5));
   camera->ChangePosition(Opengl::math::Vector4({0, 0, 0, 1.0f}));
-  std::unique_ptr<Opengl::World> world(new Opengl::World(std::move(program), std::move(camera)));
+  std::unique_ptr<Opengl::World> world(new Opengl::World(std::move(camera)));
   world->SetRenderTree(std::move(root));
   return world;
 }

@@ -58,7 +58,7 @@ protected:
 	size_t start_vertex() const {return start_vertex_; }
 	size_t end_vertex() const {return end_vertex_; }
 
-  size_t Flags = 0;
+  //size_t Flags = 0;
 protected:
 	// Compute how big the VAO should be
 	size_t SubtreeVertexCount() const;
@@ -126,7 +126,7 @@ template <size_t Flags>
 class TypedRenderNode : public detail::ColorNode<Flags> {
   static_assert(Flags < SupportedBufferFlags::END_VALUE, "Invalid flags for buffer support");
 public:
-  TypedRenderNode() { this->Flags = Flags; }
+  TypedRenderNode() {}
   virtual ~TypedRenderNode() {}
 
 	/**
@@ -164,7 +164,13 @@ protected:
 
 class RootNode : private TypedRenderNode<0> {
 public:
-  RootNode() = default;
+  template <size_t Flags>
+  RootNode(std::shared_ptr<TypedRenderNode<Flags>> tree, std::shared_ptr<Shaders::ShaderProgram> program)
+    : program_(program) {
+    this->children.push_back(tree);
+    idx_map = program->BufferMapping<Flags>();
+  }
+
   virtual ~RootNode() { CleanupBuffer(); }
 
 	/**
@@ -172,28 +178,22 @@ public:
 	 * multiple times (perhaps you've added more children to the tree since the
 	 * last call)
    */
-	void UpdateData(const std::map<SupportedBuffers, size_t>& idx_map);
+	void UpdateData();
 
 	/**
 	 * Walks down the tree, applies rotation matrices, and calls opengl to render
    */
-	void RenderTree(const Camera& camera, const Shaders::ShaderProgram& shader) const;
-
-  template <size_t Flags>
-  void AddChild(std::shared_ptr<TypedRenderNode<Flags>> tree) {
-    this->children.resize(0);
-    this->children.push_back(tree);
-  }
+	void RenderTree(const Camera& camera) const;
 
 private:
-  // TODO comment
 	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const override {}
 	virtual size_t ExclusiveNodeVertexCount() const override { return 0; }
   virtual void DrawSelf() const override {}
   void CleanupBuffer();
 
   GLuint vao = 0;
-  size_t RenderFlags = 0;
+  std::shared_ptr<Shaders::ShaderProgram> program_;
+  std::map<SupportedBuffers, size_t> idx_map;
 };
 
 }} // ShapeShifter::Opengl

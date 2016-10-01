@@ -28,7 +28,7 @@ namespace Shaders {
 
 class ShaderProgram {
 public:
-  ShaderProgram(std::vector<std::unique_ptr<Shader>> shaders);
+  ShaderProgram(std::unique_ptr<VertexShader> vert, std::unique_ptr<FragmentShader> frag);
   ShaderProgram(const ShaderProgram&) = delete;
 	ShaderProgram& operator()(ShaderProgram&) = delete;
   virtual ~ShaderProgram();
@@ -36,9 +36,11 @@ public:
 	void UseProgram() const { glUseProgram(program_); }
   void uploadMatrix(const math::Matrix4& mat) const;
 
+  template <size_t Flags>
   std::map<SupportedBuffers, size_t> BufferMapping() const;
 private:
-	std::vector<std::unique_ptr<Shader>> shaders_;
+	std::unique_ptr<VertexShader> vert_shader_;
+	std::unique_ptr<FragmentShader> frag_shader_;
 	GLuint program_;
 };
 

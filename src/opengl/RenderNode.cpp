@@ -46,6 +46,7 @@ size_t RenderNode::PopulateBufferData(
 
 	start_vertex_ = idx;
 
+  // TODO automate this mapping somehow...
   for(auto& kv: data) {
     switch (kv.first) {
       case SupportedBuffers::COLORS:
@@ -72,7 +73,7 @@ size_t RenderNode::PopulateBufferData(
 	return end_vertex_ - start;
 }
 
-void RootNode::UpdateData(const std::map<SupportedBuffers, size_t>& idx_map) {
+void RootNode::UpdateData() {
 
   // Note, this function essentially recurses the tree twice, once to figure
 	// out how big the tree is, and then again to actually populate the VAO.
@@ -81,6 +82,7 @@ void RootNode::UpdateData(const std::map<SupportedBuffers, size_t>& idx_map) {
 	CleanupBuffer();
 	size_t size = this->SubtreeVertexCount();
 
+  // TODO automate this mapping somehow...
   std::map<SupportedBuffers, std::vector<float>> data;
   for (const auto& kv: idx_map) {
     switch (kv.first) {
@@ -122,10 +124,10 @@ void RootNode::CleanupBuffer() {
 	vao = 0;
 }
 
-void RootNode::RenderTree(const Camera& camera, const Shaders::ShaderProgram& shader) const {
+void RootNode::RenderTree(const Camera& camera) const {
   glBindVertexArray(vao);
-  shader.UseProgram();
-  this->DrawChildren(camera, math::Quaternion(), math::Vector4({0, 0, 0, 1}), shader);
+  program_->UseProgram();
+  this->DrawChildren(camera, math::Quaternion(), math::Vector4({0, 0, 0, 1}), *program_);
 }
 
 void RenderNode::DrawChildren(

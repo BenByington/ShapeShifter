@@ -51,7 +51,8 @@ void MyQtWidget::initializeGL() {
   qDebug() << "Shader Version String:" << shaderVersionString;
   qDebug() << "Current Context:" << this->format();
 
-  world_ = scenarios::Empty().Setup();
+  //world_ = scenarios::Empty().Setup();
+  world_ = scenarios::tests::Squares2D().Setup();
 }
 
 void MyQtWidget::resizeGL(int width, int height) {

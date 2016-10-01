@@ -25,7 +25,7 @@ namespace Opengl {
 
 class World final{
 public:
-  World(std::unique_ptr<Shaders::ShaderProgram> prog, std::unique_ptr<Camera> cam);
+  World(std::unique_ptr<Camera> cam);
   World(const World& orig) = delete;
   World(World&& orig) = delete;
   World& operator=(const World& other) = delete;
@@ -38,7 +38,6 @@ public:
 
 private:
 	std::unique_ptr<RootNode> root_;
-  std::unique_ptr<Shaders::ShaderProgram> program_;
   std::unique_ptr<Camera> camera_;
 };
 
