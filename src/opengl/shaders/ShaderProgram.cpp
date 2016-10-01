@@ -21,21 +21,18 @@
 
 namespace ShapeShifter {
 namespace Opengl {
+namespace Shaders {
 
-ShaderProgram::ShaderProgram(std::vector<std::unique_ptr<Shader>> shaders)
-  : shaders_(std::move(shaders)) {
+ShaderProgram::ShaderProgram(std::unique_ptr<VertexShader> vert, std::unique_ptr<FragmentShader> frag)
+  : vert_shader_(std::move(vert))
+  , frag_shader_(std::move(frag)) {
 
 	program_ = glCreateProgram();
 	assert(program_ != 0);
 
 	//TODO check on various error conditions that can be caused.
-	//TODO understand what happens when two of the same shader type are added.
-	//TODO understand if the call ordering here affects things.
-	for (const auto& shader : shaders_) {
-		//TODO Should be impossible to get uncompiled program, but maybe at least
-		//add debug build routine to check?
-		glAttachShader(program_, *shader);
-	}
+	glAttachShader(program_, *vert_shader_);
+	glAttachShader(program_, *frag_shader_);
 
 	//TODO Again check for errors
 	//TODO can link programs already in use.  Current RAII implementation will
@@ -74,5 +71,41 @@ void ShaderProgram::uploadMatrix(const math::Matrix4& mat) const {
   glUniformMatrix4fv(transform_location, 1, GL_FALSE, mat.data());
 }
 
-}} // ShapeShifter::Opengl
+template <size_t Flags>
+std::map<SupportedBuffers, size_t> ShaderProgram::BufferMapping() const {
+  auto ret = vert_shader_->layout_map();
+
+  auto validate = [] (size_t in, SupportedBufferFlags flag) {
+    if (!in & flag) throw std::runtime_error("Shader requires input buffer not supplied");
+    return in xor flag;
+  };
+  // TODO make this less hard coded...
+  size_t check = Flags;
+  bool found_vertex = false;
+  for (const auto& kv : ret) {
+    switch (kv.first) {
+      case SupportedBuffers::COLORS:
+        check = validate(check, SupportedBufferFlags::COLORS);
+        break;
+      case SupportedBuffers::INDICES:
+        check = validate(check, SupportedBufferFlags::INDICES);
+        break;
+      case SupportedBuffers::VERTICES:
+        found_vertex = true;
+        break;
+      case SupportedBuffers::TEXTURES:
+        check = validate(check, SupportedBufferFlags::TEXTURES);
+        break;
+    }
+  }
+  if (check != 0 || !found_vertex) {
+    throw std::runtime_error("Shader program does not take the requested inputs");
+  }
+  return ret;
+}
+
+// TODO cleanup
+template std::map<SupportedBuffers, size_t> ShaderProgram::BufferMapping<SupportedBufferFlags::COLORS>() const;
+
+}}} // ShapeShifter::Opengl::Shaders
 

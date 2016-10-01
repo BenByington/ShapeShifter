@@ -20,10 +20,6 @@
 namespace ShapeShifter {
 namespace Opengl {
 
-void RenderNode::AddChild(std::shared_ptr<RenderNode> child) {
-	children.push_back(child);
-}
-
 void RenderNode::SetRotation(const math::Quaternion& rot) {
   this->rotation_ = rot;
 }
@@ -32,86 +28,113 @@ void RenderNode::SetTranslation(const math::Vector4& trans) {
   this->translation_ = trans;
 }
 
-size_t RenderNode::BufferSizeRequired() const {
-	size_t ret = ExclusiveBufferSizeRequired();
+size_t RenderNode::SubtreeVertexCount() const {
+	size_t ret = ExclusiveNodeVertexCount();
 	for (const auto& child : children) {
-		ret += child->BufferSizeRequired();
+		ret += child->SubtreeVertexCount();
 	}
 	return ret;
 }
 
-//TODO let things reallocate the buffer
-
 size_t RenderNode::PopulateBufferData(
-    std::vector<float>& vert,
-		std::vector<float>& color,
+    std::map<SupportedBuffers, std::vector<float>>& data,
 		const size_t start) {
 	size_t idx = start;
 	for (const auto& child : children) {
-		idx += child->PopulateBufferData(vert, color, idx);
+		idx += child->PopulateBufferData(data, idx);
 	}
 
 	start_vertex_ = idx;
 
-	FillVertexData(vert, idx);
-	FillColorData(color, idx);
-	idx += this->ExclusiveBufferSizeRequired();
+  // TODO automate this mapping somehow...
+  for(auto& kv: data) {
+    switch (kv.first) {
+      case SupportedBuffers::COLORS:
+        assert(Flags & SupportedBufferFlags::COLORS || Flags == 0);
+        this->FillColorData(kv.second, idx);
+        break;
+      case SupportedBuffers::VERTICES:
+        this->FillVertexData(kv.second, idx);
+        break;
+      case SupportedBuffers::INDICES:
+        assert(Flags & SupportedBufferFlags::INDICES || Flags == 0);
+        assert(false);
+        break;
+      case SupportedBuffers::TEXTURES:
+        assert(Flags & SupportedBufferFlags::TEXTURES || Flags == 0);
+        this->FillTextureData(kv.second, idx);
+        break;
+    }
+  }
+
+	idx += this->ExclusiveNodeVertexCount();
 
 	end_vertex_ = idx;
-	return end_vertex_;
+	return end_vertex_ - start;
 }
 
-void RenderNode::UpdateData() {
+void RootNode::UpdateData() {
 
   // Note, this function essentially recurses the tree twice, once to figure
 	// out how big the tree is, and then again to actually populate the VAO.
 	// Could potentially recurse once, filling pre-allocated buffers and adding
 	// more as necessary?
 	CleanupBuffer();
-	size_t size = this->BufferSizeRequired();
+	size_t size = this->SubtreeVertexCount();
 
-  std::vector<float> tri_vert(size, 0);
-	std::vector<float> tri_col(size, 0);
+  // TODO automate this mapping somehow...
+  std::map<SupportedBuffers, std::vector<float>> data;
+  for (const auto& kv: idx_map) {
+    switch (kv.first) {
+      case SupportedBuffers::COLORS:
+        data[kv.first].resize(size*floats_per_color);
+        break;
+      case SupportedBuffers::INDICES:
+        data[kv.first].resize(size*floats_per_ind);
+        break;
+      case SupportedBuffers::TEXTURES:
+        data[kv.first].resize(size*floats_per_text);
+        break;
+      case SupportedBuffers::VERTICES:
+        data[kv.first].resize(size*floats_per_vert_);
+        break;
+    }
+  }
 
-	size_t end = PopulateBufferData(tri_vert, tri_col, 0);
-	assert(end == tri_vert.size());
+	size_t end = this->PopulateBufferData(data, 0);
+	assert(end == size);
 
   glGenVertexArrays (1, &vao);
   glBindVertexArray (vao);
 
-  GLuint points_vbo = 0;
-  glGenBuffers (1, &points_vbo);
-  glBindBuffer (GL_ARRAY_BUFFER, points_vbo);
-  glBufferData (GL_ARRAY_BUFFER, tri_vert.size() * sizeof (float), &tri_vert[0], GL_STATIC_DRAW);
-  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-	GLuint colours_vbo = 0;
-  glGenBuffers (1, &colours_vbo);
-  glBindBuffer (GL_ARRAY_BUFFER, colours_vbo);
-  glBufferData (GL_ARRAY_BUFFER, tri_vert.size() * sizeof (float), &tri_col[0], GL_STATIC_DRAW);
-  glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-
-	glEnableVertexAttribArray (0);
-  glEnableVertexAttribArray (1);
+  for (const auto& kv: data) {
+    GLuint vbo = 0;
+    const std::vector<float>& buffer_dat = kv.second;
+    glGenBuffers (1, &vbo);
+    glBindBuffer (GL_ARRAY_BUFFER, vbo);
+    glBufferData (GL_ARRAY_BUFFER, buffer_dat.size() * sizeof (float), buffer_dat.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer (idx_map.at(kv.first), 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(idx_map.at(kv.first));
+  }
 }
 
-void RenderNode::CleanupBuffer() {
+void RootNode::CleanupBuffer() {
 	//TODO check to make sure this is correct
 	glDeleteVertexArrays(1, &vao);
 	vao = 0;
 }
 
-void RenderNode::RenderTree(const Camera& camera, const ShaderProgram& shader) const {
+void RootNode::RenderTree(const Camera& camera) const {
   glBindVertexArray(vao);
-  shader.UseProgram();
-  DrawChildren(camera, math::Quaternion(), math::Vector4({0, 0, 0, 1}), shader);
+  program_->UseProgram();
+  this->DrawChildren(camera, math::Quaternion(), math::Vector4({0, 0, 0, 1}), *program_);
 }
 
 void RenderNode::DrawChildren(
     const Camera& camera,
     const math::Quaternion& cumRot,
     const math::Vector4& cumTrans,
-    const ShaderProgram& shader) const {
+    const Shaders::ShaderProgram& shader) const {
 
   auto localQuat = cumRot*rotation_;
   auto rot = localQuat.RotationMatrix();
@@ -126,7 +149,7 @@ void RenderNode::DrawChildren(
 }
 
 void RenderNode::DebugRotation(const math::Matrix4& mat) const {
-  std::vector<float> data(this->ExclusiveBufferSizeRequired());
+  std::vector<float> data(this->ExclusiveNodeVertexCount()*floats_per_vert_);
   this->FillVertexData(data, 0);
   std::cerr << "Matrix: " << std::endl;
   mat.print();
@@ -140,5 +163,8 @@ void RenderNode::DebugRotation(const math::Matrix4& mat) const {
     result.print();
   }
 }
+
+// TODO clean up this so it's less manual
+template class TypedRenderNode<SupportedBufferFlags::COLORS>;
 
 }} // ShapeShifter::Opengl

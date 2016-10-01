@@ -16,13 +16,15 @@
 
 //TODO change my own opengl directory to not be the same as system
 #include "opengl/math/Quaternion.h"
-#include "opengl/ShaderProgram.h"
+#include "opengl/shaders/ShaderProgram.h"
 #include "opengl/Camera.h"
+#include "opengl/BufferTypes.h"
 
 #include <opengl/gl3.h>
 
 #include <cstdlib>
 #include <memory>
+#include <set>
 #include <vector>
 
 namespace ShapeShifter {
@@ -35,39 +37,14 @@ namespace Opengl {
  */
 class RenderNode {
 public:
-  virtual ~RenderNode() { CleanupBuffer(); }
-
-	/**
-	 * Adds a child to this node.
-	 * TODO actually make that an error
-	 * Note: It is an error to add a child that is already established as the
-	 *       root of another tree (by calling UpdateData)
-	 * Note: These are intentionally shared, and external code may keep a
-	 *       reference to do things like tweak the rotation matrix.  Tweaking the
-	 *       actual vertex count or absolute position will not be supported.
-	 *
-   * @param child subtree to add to this node.
-   */
-	void AddChild(std::shared_ptr<RenderNode> child);
-
-	/**
-	 * Generates the actual VAO for this tree.  This should only be called on the
-	 * root of the tree, and after you call this function on a node it can no
-	 * longer be added as a subtree to another node.  This function can be called
-	 * multiple times (perhaps you've added more children to the tree since the
-	 * last call)
-	 * TODO fixup so that only root can be rendered
-   */
-	void UpdateData();
-
-	/**
-	 * Walks down the tree, applies rotation matrices, and calls opengl to render
-   */
-	void RenderTree(const Camera& camera, const ShaderProgram& shader) const;
+  virtual ~RenderNode() {}
 
   void SetRotation(const math::Quaternion& rot);
   void SetTranslation(const math::Vector4& trans);
 
+  virtual void FillTextureData(std::vector<float>& rawData, size_t start) const = 0;
+	virtual void FillColorData(std::vector<float>& rawData, size_t start) const = 0;
+	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const = 0;
 protected:
 	// Prevent any duplication so we can easier avoid conflicts over opengl
 	// resources.
@@ -81,53 +58,142 @@ protected:
 	size_t start_vertex() const {return start_vertex_; }
 	size_t end_vertex() const {return end_vertex_; }
 
-private:
+  //size_t Flags = 0;
+protected:
 	// Compute how big the VAO should be
-	size_t BufferSizeRequired() const;
+	size_t SubtreeVertexCount() const;
 	// Fill the VAO with data and push to card
-  size_t PopulateBufferData(std::vector<float>& vert, std::vector<float>& color, size_t start) ;
+  size_t PopulateBufferData(std::map<SupportedBuffers, std::vector<float>>& data, size_t start);
 	// Renders all children in the tree.
 	// TODO see how framerate is affected by the number/size of each child
-	void DrawChildren(const Camera& camera, const math::Quaternion& cumRot, const math::Vector4& cumTrans, const ShaderProgram& shader) const;
+	void DrawChildren(const Camera& camera, const math::Quaternion& cumRot, const math::Vector4& cumTrans, const Shaders::ShaderProgram& shader) const;
 
-  void CleanupBuffer();
+	std::vector<std::shared_ptr<RenderNode>> children;
 
+  // TODO find better home?
+  static const size_t floats_per_vert_ = 3;
+  static const size_t floats_per_color = 3;
+  static const size_t floats_per_text = 2;
+  static const size_t floats_per_ind = 1;
+
+private:
   /**
 	 * Functions that must be implemented by any concrete child implementations.
 	 * These are used to figure out how much space each child needs in the VAO
 	 * (3x number of vertices) and to actually populate the data and render
 	 * your own vertices.
    */
-	virtual size_t ExclusiveBufferSizeRequired() const = 0;
-	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const = 0;
-	virtual void FillColorData(std::vector<float>& rawData, size_t start) const = 0;
+	virtual size_t ExclusiveNodeVertexCount() const = 0;
 	virtual void DrawSelf() const = 0;
 
   void DebugRotation(const math::Matrix4& mat) const;
 
-	// TODO this is currently inconsistent.  I'd prefer the code to think in terms
-	//      of vertices, but right now these actually record number of floats in
-	//      the buffer (3x vertices);
   size_t start_vertex_ = 0;
 	size_t end_vertex_ = 0;
 
-	// TODO need resource cleanup function
-	GLuint vao = 0;
-	std::vector<std::shared_ptr<RenderNode>> children;
-
   math::Quaternion rotation_;
   math::Vector4 translation_;
+  size_t type_;
+};
+
+/*
+ * Sets up a configurable interface.  Depending on what value is handed in for
+ * the Flags template parameter, extending from the BaseNode class below will
+ * require children to implement different combinations of abstract virtual
+ * functions.  Valid values of 'Flags' are determined by using the above
+ * definitions in namespace SupportedBuffers as bitflags.
+ */
+namespace detail {
+
+template <bool Enabled> struct TextureInterface : public RenderNode {};
+template <>
+struct TextureInterface<false> : public RenderNode {
+  virtual void FillTextureData(std::vector<float>& rawData, size_t start) const override {}
+};
+template <size_t Flags> using TextureNode = TextureInterface<Flags & SupportedBufferFlags::TEXTURES>;
+
+template <size_t Flags, bool enabled> struct ColorInterface : public TextureNode<Flags> {};
+template <size_t Flags>
+struct ColorInterface<Flags, false> : public TextureNode<Flags> {
+public:
+	virtual void FillColorData(std::vector<float>& rawData, size_t start) const override {}
+};
+template <size_t Flags> using ColorNode = ColorInterface<Flags, Flags & SupportedBufferFlags::COLORS>;
+
+}
+
+template <size_t Flags>
+class TypedRenderNode : public detail::ColorNode<Flags> {
+  static_assert(Flags < SupportedBufferFlags::END_VALUE, "Invalid flags for buffer support");
+public:
+  TypedRenderNode() {}
+  virtual ~TypedRenderNode() {}
+
+	/**
+	 * Adds a child to this node.
+	 * TODO actually make that an error
+	 * Note: These are intentionally shared, and external code may keep a
+	 *       reference to do things like tweak the rotation matrix.  Tweaking the
+	 *       actual vertex count or absolute position will not be supported.
+	 *
+   * @param child subtree to add to this node.
+   */
+  template <size_t OtherFlags>
+	typename std::enable_if<OtherFlags & Flags == Flags>::type
+  AddChild(std::shared_ptr<TypedRenderNode<OtherFlags>> child) {
+    this->children.push_back(child);
+  }
 };
 
 /**
  * Basic implementation for nodes that only hold other nodes
  */
-class PureNode : public RenderNode {
+template <size_t Flags>
+class PureNode : public TypedRenderNode<Flags> {
 public:
-	PureNode() {}
+	PureNode() = default;
 	virtual ~PureNode() {}
 protected:
-	virtual size_t ExclusiveBufferSizeRequired() const override { return 0; }
+  // TODO fix this.  Had to remove 'override' keyword because we can't tell
+  // up front which functions need to be supported.
+	virtual size_t ExclusiveBufferSizeRequired() const { return 0; }
+	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const {};
+	virtual void FillColorData(std::vector<float>& rawData, size_t start) const {};
+  virtual void DrawSelf() const {}
+};
+
+class RootNode : private TypedRenderNode<0> {
+public:
+  template <size_t Flags>
+  RootNode(std::shared_ptr<TypedRenderNode<Flags>> tree, std::shared_ptr<Shaders::ShaderProgram> program)
+    : program_(program) {
+    this->children.push_back(tree);
+    idx_map = program->BufferMapping<Flags>();
+  }
+
+  virtual ~RootNode() { CleanupBuffer(); }
+
+	/**
+	 * Generates the actual VAO for this tree.  This function can be called
+	 * multiple times (perhaps you've added more children to the tree since the
+	 * last call)
+   */
+	void UpdateData();
+
+	/**
+	 * Walks down the tree, applies rotation matrices, and calls opengl to render
+   */
+	void RenderTree(const Camera& camera) const;
+
+private:
+	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const override {}
+	virtual size_t ExclusiveNodeVertexCount() const override { return 0; }
+  virtual void DrawSelf() const override {}
+  void CleanupBuffer();
+
+  GLuint vao = 0;
+  std::shared_ptr<Shaders::ShaderProgram> program_;
+  std::map<SupportedBuffers, size_t> idx_map;
 };
 
 }} // ShapeShifter::Opengl

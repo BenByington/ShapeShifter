@@ -14,11 +14,16 @@
 #ifndef SHADER_H
 #define SHADER_H
 
+#include <map>
 #include <string>
+
 #include <opengl/gl3.h>
+
+#include <opengl/BufferTypes.h>
 
 namespace ShapeShifter {
 namespace Opengl {
+namespace Shaders {
 
 /*
  * Class that wraps an opengl shader resource.  It expects the shader to
@@ -34,15 +39,21 @@ protected:
 
   Shader(const std::string& filename, ShaderType t);
   Shader(const Shader&) = delete;
-	Shader& operator()(const Shader&) = delete;
+	Shader& operator=(const Shader&) = delete;
 public:
   virtual ~Shader();
 
 public:
 	operator GLuint() const {return shader;}
+  const std::map<SupportedBuffers, size_t>& layout_map() {
+    return layout_map_;
+  }
 private:
   GLuint shader = 0;
-	bool valid = false;
+
+  void ParseLayouts(const std::string& data);
+
+  std::map<SupportedBuffers, size_t> layout_map_;
 };
 
 class VertexShader : public Shader {
@@ -61,6 +72,6 @@ public:
 	virtual ~FragmentShader() {}
 };
 
-}} // ShapeShifter::Opengl
+}}} // ShapeShifter::Opengl::Shaders
 #endif /* SHADER_H */
 

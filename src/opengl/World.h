@@ -15,7 +15,7 @@
 #define WORLD_H
 
 #include "opengl/Camera.h"
-#include "opengl/ShaderProgram.h"
+#include "opengl/shaders/ShaderProgram.h"
 #include "opengl/RenderNode.h"
 
 #include <memory>
@@ -25,20 +25,19 @@ namespace Opengl {
 
 class World final{
 public:
-  World(std::unique_ptr<ShaderProgram> prog, std::unique_ptr<Camera> cam);
+  World(std::unique_ptr<Camera> cam);
   World(const World& orig) = delete;
   World(World&& orig) = delete;
   World& operator=(const World& other) = delete;
   ~World() {};
 
-  void SetRenderTree(std::unique_ptr<RenderNode> root);
+  void SetRenderTree(std::unique_ptr<RootNode> root);
   Camera& camera();
 
   void Render() const;
 
 private:
-	std::unique_ptr<RenderNode> root_;
-  std::unique_ptr<ShaderProgram> program_;
+	std::unique_ptr<RootNode> root_;
   std::unique_ptr<Camera> camera_;
 };
 

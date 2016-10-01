@@ -14,30 +14,37 @@
 #ifndef SHADERPROGRAM_H
 #define SHADERPROGRAM_H
 
-#include <vector>
+#include <map>
 #include <memory>
+#include <vector>
 
+#include "opengl/BufferTypes.h"
 #include "opengl/math/Matrix4.h"
-#include "opengl/Shader.h"
+#include "opengl/shaders/Shader.h"
 
 namespace ShapeShifter {
 namespace Opengl {
+namespace Shaders {
 
 class ShaderProgram {
 public:
-  ShaderProgram(std::vector<std::unique_ptr<Shader>> shaders);
+  ShaderProgram(std::unique_ptr<VertexShader> vert, std::unique_ptr<FragmentShader> frag);
   ShaderProgram(const ShaderProgram&) = delete;
 	ShaderProgram& operator()(ShaderProgram&) = delete;
   virtual ~ShaderProgram();
 
 	void UseProgram() const { glUseProgram(program_); }
   void uploadMatrix(const math::Matrix4& mat) const;
+
+  template <size_t Flags>
+  std::map<SupportedBuffers, size_t> BufferMapping() const;
 private:
-	std::vector<std::unique_ptr<Shader>> shaders_;
+	std::unique_ptr<VertexShader> vert_shader_;
+	std::unique_ptr<FragmentShader> frag_shader_;
 	GLuint program_;
 };
 
-}} // ShapeShifter::Opengl
+}}} // ShapeShifter::Opengl::Shaders
 
 #endif /* SHADERPROGRAM_H */
 

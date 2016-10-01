@@ -12,8 +12,8 @@
  */
 
 #include "ui/MyQtWidget.h"
-#include "opengl/Shader.h"
-#include "opengl/ShaderProgram.h"
+#include "opengl/shaders/Shader.h"
+#include "opengl/shaders/ShaderProgram.h"
 #include "scenarios/Empty.h"
 #include "scenarios/tests/Squares2D.h"
 
@@ -51,7 +51,8 @@ void MyQtWidget::initializeGL() {
   qDebug() << "Shader Version String:" << shaderVersionString;
   qDebug() << "Current Context:" << this->format();
 
-  world_ = scenarios::Empty().Setup();
+  //world_ = scenarios::Empty().Setup();
+  world_ = scenarios::tests::Squares2D().Setup();
 }
 
 void MyQtWidget::resizeGL(int width, int height) {

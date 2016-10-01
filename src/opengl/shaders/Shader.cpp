@@ -11,7 +11,7 @@
  * Created on July 29, 2016, 8:38 AM
  */
 
-#include "opengl/Shader.h"
+#include "opengl/shaders/Shader.h"
 
 #include <cassert>
 #include <iostream>
@@ -21,12 +21,15 @@
 
 namespace ShapeShifter {
 namespace Opengl {
+namespace Shaders {
 
 Shader::Shader(const std::string& filename, ShaderType t) {
 	std::ifstream f;
   f.open(filename);
 	std::string data((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
 	assert(data.size() > 0);
+
+  ParseLayouts(data);
 
 	// TODO make debug check only?
 	GLint can_compile = GL_FALSE;
@@ -67,4 +70,34 @@ Shader::~Shader() {
 	glDeleteShader(shader);
 }
 
-}} // ShapeShifter::Opengl
+void Shader::ParseLayouts(const std::string& data) {
+
+  std::istringstream stream(data);
+  std::string line;
+  while (std::getline(stream, line)) {
+    if (line.find("layout") != std::string::npos && line.find(" in ") != std::string::npos) {
+      // TODO:
+      // Horrible manual parsing...  Need to find a better way...
+      size_t start = line.find('(');
+      size_t end = line.find(')');
+      assert(start != std::string::npos);
+      assert(end != std::string::npos);
+      std::istringstream temp(line.substr(start+1, end-start-1));
+      std::string trash;
+      char op;
+      size_t location;
+      temp >> trash >> op >> location;
+
+      if (line.find("inPosition") != std::string::npos) {
+        layout_map_[SupportedBuffers::VERTICES] = location;
+      } else if (line.find("inColor") != std::string::npos) {
+        layout_map_[SupportedBuffers::COLORS] = location;
+      } else {
+        throw std::runtime_error("Unsupported input buffer type:\n" + line);
+      }
+    }
+  }
+}
+
+
+}}} // ShapeShifter::Opengl::Shaders
