@@ -42,9 +42,6 @@ public:
   void SetRotation(const math::Quaternion& rot);
   void SetTranslation(const math::Vector4& trans);
 
-  virtual void FillTextureData(std::vector<float>& rawData, size_t start) const = 0;
-	virtual void FillColorData(std::vector<float>& rawData, size_t start) const = 0;
-	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const = 0;
 protected:
 	// Prevent any duplication so we can easier avoid conflicts over opengl
 	// resources.
@@ -58,8 +55,6 @@ protected:
 	size_t start_vertex() const {return start_vertex_; }
 	size_t end_vertex() const {return end_vertex_; }
 
-  //size_t Flags = 0;
-protected:
 	// Compute how big the VAO should be
 	size_t SubtreeVertexCount() const;
 	// Fill the VAO with data and push to card
@@ -84,6 +79,9 @@ private:
 	 * your own vertices.
    */
 	virtual size_t ExclusiveNodeVertexCount() const = 0;
+  virtual void FillTextureData(std::vector<float>& rawData, size_t start) const = 0;
+	virtual void FillColorData(std::vector<float>& rawData, size_t start) const = 0;
+	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const = 0;
 	virtual void DrawSelf() const = 0;
 
   void DebugRotation(const math::Matrix4& mat) const;
@@ -107,15 +105,14 @@ namespace detail {
 
 template <bool Enabled> struct TextureInterface : public RenderNode {};
 template <>
-struct TextureInterface<false> : public RenderNode {
+class TextureInterface<false> : public RenderNode {
   virtual void FillTextureData(std::vector<float>& rawData, size_t start) const override {}
 };
 template <size_t Flags> using TextureNode = TextureInterface<Flags & SupportedBufferFlags::TEXTURES>;
 
 template <size_t Flags, bool enabled> struct ColorInterface : public TextureNode<Flags> {};
 template <size_t Flags>
-struct ColorInterface<Flags, false> : public TextureNode<Flags> {
-public:
+class ColorInterface<Flags, false> : public TextureNode<Flags> {
 	virtual void FillColorData(std::vector<float>& rawData, size_t start) const override {}
 };
 template <size_t Flags> using ColorNode = ColorInterface<Flags, Flags & SupportedBufferFlags::COLORS>;
@@ -157,7 +154,7 @@ class PureNode : public TypedRenderNode<Flags> {
 public:
 	PureNode() = default;
 	virtual ~PureNode() {}
-protected:
+private:
   // TODO fix this.  Had to remove 'override' keyword because we can't tell
   // up front which functions need to be supported.
 	virtual size_t ExclusiveBufferSizeRequired() const { return 0; }
