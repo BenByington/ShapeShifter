@@ -66,13 +66,12 @@ Matrix4 Matrix4::Translate(float x, float y, float z) {
 
 //TODO check all assembly generated in this file for good SIMD use
 Vector4 Matrix4::operator*(const Vector4& right) const {
-  const __m128& r = right;
-	__m128 ret = _mm_setzero_ps();
+	auto ret = _mm_setzero_ps();
 
 	for (size_t i = 0; i < 4; ++i) {
-    float temp2 = right[i];
-	  __m128 temp = _mm_set1_ps(temp2);
-    __m128 col = _mm_load_ps(data_.begin() + i*DIM);
+    auto temp2 = right[i];
+	  auto temp = _mm_set1_ps(temp2);
+    auto col = _mm_load_ps(data_.begin() + i*DIM);
 	  temp = _mm_mul_ps(temp, col);
 		ret = _mm_add_ps(ret, temp);
 		// TODO look into xsave error about fused multiply add operations
@@ -83,11 +82,11 @@ Vector4 Matrix4::operator*(const Vector4& right) const {
 }
 
 Matrix4 Matrix4::operator *(const Matrix4& right) const {
-	Matrix4 ret;
+	auto ret = Matrix4{};
   assert(alignof(data_) == 4);
 
   for (size_t i = 0; i < DIM; ++i) {
-    __m128 col = _mm_load_ps(right.data_.begin() + i*DIM);
+    auto col = _mm_load_ps(right.data_.begin() + i*DIM);
     auto vec = (*this)*col;
     ret.WriteColumn(i, vec);
   }

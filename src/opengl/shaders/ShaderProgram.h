@@ -28,9 +28,12 @@ namespace Shaders {
 
 class ShaderProgram {
 public:
-  ShaderProgram(std::unique_ptr<VertexShader> vert, std::unique_ptr<FragmentShader> frag);
   ShaderProgram(const ShaderProgram&) = delete;
 	ShaderProgram& operator()(ShaderProgram&) = delete;
+  ShaderProgram(
+      std::unique_ptr<VertexShader> vert,
+      std::unique_ptr<FragmentShader> frag);
+
   virtual ~ShaderProgram();
 
 	void UseProgram() const { glUseProgram(program_); }

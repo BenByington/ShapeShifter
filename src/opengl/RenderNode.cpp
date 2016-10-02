@@ -29,7 +29,7 @@ void RenderNode::SetTranslation(const math::Vector4& trans) {
 }
 
 size_t RenderNode::SubtreeVertexCount() const {
-	size_t ret = ExclusiveNodeVertexCount();
+	auto ret = ExclusiveNodeVertexCount();
 	for (const auto& child : children) {
 		ret += child->SubtreeVertexCount();
 	}
@@ -39,7 +39,7 @@ size_t RenderNode::SubtreeVertexCount() const {
 size_t RenderNode::PopulateBufferData(
     std::map<SupportedBuffers, std::vector<float>>& data,
 		const size_t start) {
-	size_t idx = start;
+	auto idx = start;
 	for (const auto& child : children) {
 		idx += child->PopulateBufferData(data, idx);
 	}
@@ -50,18 +50,15 @@ size_t RenderNode::PopulateBufferData(
   for(auto& kv: data) {
     switch (kv.first) {
       case SupportedBuffers::COLORS:
-        assert(Flags & SupportedBufferFlags::COLORS || Flags == 0);
         this->FillColorData(kv.second, idx);
         break;
       case SupportedBuffers::VERTICES:
         this->FillVertexData(kv.second, idx);
         break;
       case SupportedBuffers::INDICES:
-        assert(Flags & SupportedBufferFlags::INDICES || Flags == 0);
         assert(false);
         break;
       case SupportedBuffers::TEXTURES:
-        assert(Flags & SupportedBufferFlags::TEXTURES || Flags == 0);
         this->FillTextureData(kv.second, idx);
         break;
     }
@@ -80,7 +77,7 @@ void RootNode::UpdateData() {
 	// Could potentially recurse once, filling pre-allocated buffers and adding
 	// more as necessary?
 	CleanupBuffer();
-	size_t size = this->SubtreeVertexCount();
+	auto size = this->SubtreeVertexCount();
 
   // TODO automate this mapping somehow...
   std::map<SupportedBuffers, std::vector<float>> data;
@@ -101,15 +98,15 @@ void RootNode::UpdateData() {
     }
   }
 
-	size_t end = this->PopulateBufferData(data, 0);
+	auto end = this->PopulateBufferData(data, 0);
 	assert(end == size);
 
   glGenVertexArrays (1, &vao);
   glBindVertexArray (vao);
 
   for (const auto& kv: data) {
-    GLuint vbo = 0;
-    const std::vector<float>& buffer_dat = kv.second;
+    auto vbo = GLuint{0};
+    const auto& buffer_dat = kv.second;
     glGenBuffers (1, &vbo);
     glBindBuffer (GL_ARRAY_BUFFER, vbo);
     glBufferData (GL_ARRAY_BUFFER, buffer_dat.size() * sizeof (float), buffer_dat.data(), GL_STATIC_DRAW);
@@ -149,13 +146,13 @@ void RenderNode::DrawChildren(
 }
 
 void RenderNode::DebugRotation(const math::Matrix4& mat) const {
-  std::vector<float> data(this->ExclusiveNodeVertexCount()*floats_per_vert_);
+  auto data = std::vector<float>(this->ExclusiveNodeVertexCount()*floats_per_vert_);
   this->FillVertexData(data, 0);
   std::cerr << "Matrix: " << std::endl;
   mat.print();
   for (size_t i = 0; i < data.size(); i += 3) {
     // TODO figure out how to make Vector4 constructor less verbose...
-    math::Vector4 vec(std::array<float,4>{{data[i], data[i+1], data[i+2], 1}});
+    auto vec = math::Vector4(std::array<float,4>{{data[i], data[i+1], data[i+2], 1}});
     std::cerr << "Before: " << std::endl;
     vec.print();
     auto result = mat * vec;

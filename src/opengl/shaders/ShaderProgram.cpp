@@ -23,7 +23,9 @@ namespace ShapeShifter {
 namespace Opengl {
 namespace Shaders {
 
-ShaderProgram::ShaderProgram(std::unique_ptr<VertexShader> vert, std::unique_ptr<FragmentShader> frag)
+ShaderProgram::ShaderProgram(
+    std::unique_ptr<VertexShader> vert,
+    std::unique_ptr<FragmentShader> frag)
   : vert_shader_(std::move(vert))
   , frag_shader_(std::move(frag)) {
 
@@ -41,15 +43,16 @@ ShaderProgram::ShaderProgram(std::unique_ptr<VertexShader> vert, std::unique_ptr
 	glLinkProgram(program_);
 
 	//TODO this is mostly copy/paste.  Factor out?
-	GLint linked = GL_FALSE;
+	auto linked = GL_FALSE;
 	glGetProgramiv(program_, GL_LINK_STATUS, &linked);
 	if (linked == GL_FALSE) {
-		GLint logLength = 0;
+		auto logLength = GLint {0};
 		glGetProgramiv(program_, GL_INFO_LOG_LENGTH, &logLength);
-		char * log = new char[logLength+1];
-		glGetProgramInfoLog(program_, logLength, nullptr, log);
-		std::string slog(log);
-		delete [] log;
+
+		auto log = std::unique_ptr<char[]>(new char[logLength+1]);
+		glGetProgramInfoLog(program_, logLength, nullptr, log.get());
+
+		auto slog = std::string(log.get());
 
 		//TODO need error handling on this as well.
 		glDeleteProgram(program_);
@@ -66,7 +69,7 @@ ShaderProgram::~ShaderProgram() {
 }
 
 void ShaderProgram::uploadMatrix(const math::Matrix4& mat) const {
-  GLint transform_location = glGetUniformLocation(program_, "transform");
+  auto transform_location = glGetUniformLocation(program_, "transform");
   // TODO decipher this
   glUniformMatrix4fv(transform_location, 1, GL_FALSE, mat.data());
 }
@@ -75,13 +78,18 @@ template <size_t Flags>
 std::map<SupportedBuffers, size_t> ShaderProgram::BufferMapping() const {
   auto ret = vert_shader_->layout_map();
 
-  auto validate = [] (size_t in, SupportedBufferFlags flag) {
+  auto validate = [] (auto in, auto flag) {
+    static_assert(std::is_integral<decltype(in)>::value,"Need integral type for lambda");
+    static_assert(std::is_same<
+        decltype(in),
+        typename std::underlying_type<decltype(flag)>::type
+        >::value,"Need same type parameters for lambda");
     if (!in & flag) throw std::runtime_error("Shader requires input buffer not supplied");
     return in xor flag;
   };
-  // TODO make this less hard coded...
-  size_t check = Flags;
-  bool found_vertex = false;
+
+  auto check = Flags;
+  auto found_vertex = false;
   for (const auto& kv : ret) {
     switch (kv.first) {
       case SupportedBuffers::COLORS:
@@ -98,6 +106,7 @@ std::map<SupportedBuffers, size_t> ShaderProgram::BufferMapping() const {
         break;
     }
   }
+
   if (check != 0 || !found_vertex) {
     throw std::runtime_error("Shader program does not take the requested inputs");
   }

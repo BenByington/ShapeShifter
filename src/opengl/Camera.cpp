@@ -48,18 +48,18 @@ void Camera::ChangePosition(const math::Vector4& trans) {
 
 void Camera::PivotAroundLook(const std::pair<float,float>& start, const std::pair<float,float>& end) {
   if (start == end) return;
-  float proj_width = look_depth_*tan(frust_.aspect());
+  auto proj_width = look_depth_*tan(frust_.aspect());
   // TODO make this configurable?
   // TODO this might behave oddly with tall narrow windows
-  float ball_rad = proj_width;
-  float ball_rad2 = ball_rad * ball_rad;
+  auto ball_rad = proj_width;
+  auto ball_rad2 = ball_rad * ball_rad;
 
   auto convert  = [&](const std::pair<float, float>& in) {
-    math::Vector3 coord;
+    auto coord = math::Vector3 {};
     coord[0] = in.first*proj_width;
     coord[1] = in.second * proj_width / frust_.aspect();
-    float rad2 = coord[0]*coord[0] + coord[1]*coord[1];
-    float rad = sqrt(rad2);
+    auto rad2 = coord[0]*coord[0] + coord[1]*coord[1];
+    auto rad = sqrt(rad2);
 
     if (rad2 < ball_rad2/2) {
       coord[2] = sqrt(ball_rad2 - rad2);
@@ -69,15 +69,15 @@ void Camera::PivotAroundLook(const std::pair<float,float>& start, const std::pai
     return coord;
   };
 
-  math::Vector3 first = convert(start);
-  math::Vector3 second = convert(end);
+  auto first = convert(start);
+  auto second = convert(end);
 
   auto rot_dir = first.cross(second);
   rot_dir.Normalize();
-  float dot = first.dot(second);
-  float theta = acos(dot / first.Magnitude() / second.Magnitude());
+  auto dot = first.dot(second);
+  auto theta = acos(dot / first.Magnitude() / second.Magnitude());
 
-  math::Quaternion q(theta, rot_dir);
+  auto q = math::Quaternion(theta, rot_dir);
   rotation_ = q * rotation_;
   translation_[2] += look_depth_;
   translation_ = q.RotationMatrix()*translation_;
@@ -86,7 +86,7 @@ void Camera::PivotAroundLook(const std::pair<float,float>& start, const std::pai
 }
 
 math::Matrix4 Camera::ProjectionMatrix() const {
-  math::Matrix4 rot = rotation_.RotationMatrix();
+  auto rot = rotation_.RotationMatrix();
   // TODO this write column is too brittle for adding translation.  Find more
   // robust solution
   rot.WriteColumn(3, translation_);

@@ -126,6 +126,7 @@ template <size_t Flags>
 class TypedRenderNode : public detail::ColorNode<Flags> {
   static_assert(Flags < SupportedBufferFlags::END_VALUE, "Invalid flags for buffer support");
 public:
+  constexpr static size_t Flags_t = Flags;
   TypedRenderNode() {}
   virtual ~TypedRenderNode() {}
 
@@ -138,9 +139,12 @@ public:
 	 *
    * @param child subtree to add to this node.
    */
-  template <size_t OtherFlags>
-	typename std::enable_if<OtherFlags & Flags == Flags>::type
-  AddChild(std::shared_ptr<TypedRenderNode<OtherFlags>> child) {
+  template <typename Other>
+	typename std::enable_if<
+      Other::Flags_t & Flags == Flags
+      && std::is_base_of<TypedRenderNode<Other::Flags_t>, Other>::value
+  >::type
+  AddChild(std::shared_ptr<Other> child) {
     this->children.push_back(child);
   }
 };
@@ -164,11 +168,17 @@ protected:
 
 class RootNode : private TypedRenderNode<0> {
 public:
-  template <size_t Flags>
-  RootNode(std::shared_ptr<TypedRenderNode<Flags>> tree, std::shared_ptr<Shaders::ShaderProgram> program)
+  template <typename Other>
+  RootNode(
+      std::shared_ptr<Other> tree,
+      std::shared_ptr<Shaders::ShaderProgram> program,
+	    typename std::enable_if<
+          std::is_base_of<TypedRenderNode<Other::Flags_t>, Other>::value
+      >::type* dummy = 0 // Only here for SFINAE
+      )
     : program_(program) {
     this->children.push_back(tree);
-    idx_map = program->BufferMapping<Flags>();
+    idx_map = program->BufferMapping<Other::Flags_t>();
   }
 
   virtual ~RootNode() { CleanupBuffer(); }
