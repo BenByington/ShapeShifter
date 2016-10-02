@@ -47,7 +47,7 @@ class SquareTest2D : public Opengl::TypedRenderNode<Opengl::SupportedBufferFlags
 public:
 	SquareTest2D() = default;
 	virtual ~SquareTest2D() {}
-protected:
+private:
 	virtual size_t ExclusiveNodeVertexCount() const override;
 	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const override;
 	virtual void FillColorData(std::vector<float>& rawData, size_t start) const override;

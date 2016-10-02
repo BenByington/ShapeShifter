@@ -42,9 +42,6 @@ public:
   void SetRotation(const math::Quaternion& rot);
   void SetTranslation(const math::Vector4& trans);
 
-  virtual void FillTextureData(std::vector<float>& rawData, size_t start) const = 0;
-	virtual void FillColorData(std::vector<float>& rawData, size_t start) const = 0;
-	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const = 0;
 protected:
 	// Prevent any duplication so we can easier avoid conflicts over opengl
 	// resources.
@@ -58,8 +55,6 @@ protected:
 	size_t start_vertex() const {return start_vertex_; }
 	size_t end_vertex() const {return end_vertex_; }
 
-  //size_t Flags = 0;
-protected:
 	// Compute how big the VAO should be
 	size_t SubtreeVertexCount() const;
 	// Fill the VAO with data and push to card
@@ -84,6 +79,9 @@ private:
 	 * your own vertices.
    */
 	virtual size_t ExclusiveNodeVertexCount() const = 0;
+  virtual void FillTextureData(std::vector<float>& rawData, size_t start) const = 0;
+	virtual void FillColorData(std::vector<float>& rawData, size_t start) const = 0;
+	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const = 0;
 	virtual void DrawSelf() const = 0;
 
   void DebugRotation(const math::Matrix4& mat) const;
@@ -107,15 +105,14 @@ namespace detail {
 
 template <bool Enabled> struct TextureInterface : public RenderNode {};
 template <>
-struct TextureInterface<false> : public RenderNode {
+class TextureInterface<false> : public RenderNode {
   virtual void FillTextureData(std::vector<float>& rawData, size_t start) const override {}
 };
 template <size_t Flags> using TextureNode = TextureInterface<Flags & SupportedBufferFlags::TEXTURES>;
 
 template <size_t Flags, bool enabled> struct ColorInterface : public TextureNode<Flags> {};
 template <size_t Flags>
-struct ColorInterface<Flags, false> : public TextureNode<Flags> {
-public:
+class ColorInterface<Flags, false> : public TextureNode<Flags> {
 	virtual void FillColorData(std::vector<float>& rawData, size_t start) const override {}
 };
 template <size_t Flags> using ColorNode = ColorInterface<Flags, Flags & SupportedBufferFlags::COLORS>;
@@ -140,12 +137,16 @@ public:
    * @param child subtree to add to this node.
    */
   template <typename Other>
-	typename std::enable_if<
-      Other::Flags_t & Flags == Flags
-      && std::is_base_of<TypedRenderNode<Other::Flags_t>, Other>::value
-  >::type
-  AddChild(std::shared_ptr<Other> child) {
-    this->children.push_back(child);
+  std::shared_ptr<RenderNode> AddChild(
+      std::unique_ptr<Other> child,
+	    typename std::enable_if<
+          Other::Flags_t & Flags == Flags
+          && std::is_base_of<TypedRenderNode<Other::Flags_t>, Other>::value
+      >::type* dummy = 0
+      ) {
+    this->children.emplace_back(child.release());
+    return this->children.back();
+
   }
 };
 
@@ -157,7 +158,7 @@ class PureNode : public TypedRenderNode<Flags> {
 public:
 	PureNode() = default;
 	virtual ~PureNode() {}
-protected:
+private:
   // TODO fix this.  Had to remove 'override' keyword because we can't tell
   // up front which functions need to be supported.
 	virtual size_t ExclusiveBufferSizeRequired() const { return 0; }
@@ -170,25 +171,26 @@ class RootNode : private TypedRenderNode<0> {
 public:
   template <typename Other>
   RootNode(
-      std::shared_ptr<Other> tree,
+      std::unique_ptr<Other> tree,
       std::shared_ptr<Shaders::ShaderProgram> program,
 	    typename std::enable_if<
           std::is_base_of<TypedRenderNode<Other::Flags_t>, Other>::value
       >::type* dummy = 0 // Only here for SFINAE
       )
     : program_(program) {
-    this->children.push_back(tree);
+    children.emplace_back(tree.release());
     idx_map = program->BufferMapping<Other::Flags_t>();
+    UpdateData();
+  }
+
+  void SetRotation(const math::Quaternion& rot) {
+    children.back()->SetRotation(rot);
+  }
+  void SetTranslation(const math::Vector4& trans) {
+    children.back()->SetTranslation(trans);
   }
 
   virtual ~RootNode() { CleanupBuffer(); }
-
-	/**
-	 * Generates the actual VAO for this tree.  This function can be called
-	 * multiple times (perhaps you've added more children to the tree since the
-	 * last call)
-   */
-	void UpdateData();
 
 	/**
 	 * Walks down the tree, applies rotation matrices, and calls opengl to render
@@ -200,6 +202,13 @@ private:
 	virtual size_t ExclusiveNodeVertexCount() const override { return 0; }
   virtual void DrawSelf() const override {}
   void CleanupBuffer();
+
+
+	/**
+	 * Generates the actual VAO for this tree.  This function is called once
+   * upon construction of the object.
+   */
+	void UpdateData();
 
   GLuint vao = 0;
   std::shared_ptr<Shaders::ShaderProgram> program_;
