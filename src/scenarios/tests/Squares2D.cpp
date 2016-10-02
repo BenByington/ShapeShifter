@@ -23,34 +23,36 @@ namespace tests {
 
 std::unique_ptr<Opengl::World> Squares2D::Setup() {
 
-  typedef Opengl::TypedRenderNode<Opengl::SupportedBufferFlags::COLORS> TypedRenderNode;
   using detail::SquareTest2D;
-
-	auto first = std::make_shared<SquareTest2D>();
-  first->SetTranslation(Opengl::math::Vector4({-.5, -.5, -2.5, 1}));
 
   auto pi = 4*std::atan(1.0f);
 
-  auto second = std::make_shared<SquareTest2D>();
-  second->SetRotation({-pi/2, 0 , 1, 0});
-  first->AddChild(second);
+  auto sixth = std::make_unique<SquareTest2D>();
 
-  auto third = std::make_shared<SquareTest2D>();
-  third->SetTranslation(Opengl::math::Vector4({0, 0 , -1.0, 1.0}));
-  second->AddChild(third);
+  // Could set the rotation/translation of sixth before adding it to fifth, but
+  // this way we make sure that when adding a child, we get back a pointer
+  // that allows us to manipulate the node (but not add/remove points or entire
+  // new nodes)
+  auto fifth = std::make_unique<SquareTest2D>();
+  auto manipulator = fifth->AddChild(std::move(sixth));
+  manipulator->SetRotation({pi/2, 0, 1, 0});
+  manipulator->SetTranslation(Opengl::math::Vector4({-1, 0 , 1, 1.0}));
 
-  auto fourth = std::make_shared<SquareTest2D>();
-  fourth->SetRotation({pi/2, 1, 0, 0});
-  third->AddChild(fourth);
+  auto fourth = std::make_unique<SquareTest2D>();
+  manipulator = fourth->AddChild(std::move(fifth));
+  manipulator->SetTranslation(Opengl::math::Vector4({0, 0 , -1.0, 1.0}));
 
-  auto fifth = std::make_shared<SquareTest2D>();
-  fifth->SetTranslation(Opengl::math::Vector4({0, 0 , -1.0, 1.0}));
-  fourth->AddChild(fifth);
+  auto third = std::make_unique<SquareTest2D>();
+  manipulator = third->AddChild(std::move(fourth));
+  manipulator->SetRotation({pi/2, 1, 0, 0});
 
-  auto sixth = std::make_shared<SquareTest2D>();
-  sixth->SetRotation({pi/2, 0, 1, 0});
-  sixth->SetTranslation(Opengl::math::Vector4({-1, 0 , 1, 1.0}));
-  //fifth->AddChild(sixth);
+  auto second = std::make_unique<SquareTest2D>();
+  manipulator = second->AddChild(std::move(third));
+  manipulator->SetTranslation(Opengl::math::Vector4({0, 0 , -1.0, 1.0}));
+
+	auto first = std::make_unique<SquareTest2D>();
+  manipulator = first->AddChild(std::move(second));
+  manipulator->SetRotation({-pi/2, 0 , 1, 0});
 
 	auto vert = std::make_unique<Opengl::Shaders::VertexShader>(
 	    "/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert");
@@ -59,11 +61,8 @@ std::unique_ptr<Opengl::World> Squares2D::Setup() {
 	auto program = std::make_shared<Opengl::Shaders::ShaderProgram>(
       std::move(vert), std::move(frag));
 
-  //TODO ownership is very weird here.  World needs a complete object.  Can
-  //     provide mechanism to rotate/enable/disable nodes, but not add new
-  //     ones or change point locations.
-	auto root = std::make_unique<Opengl::RootNode>(first,  program);
-	root->UpdateData();
+	auto root = std::make_unique<Opengl::RootNode>(std::move(first),  program);
+  root->SetTranslation(Opengl::math::Vector4({-.5, -.5, -2.5, 1}));
 
   auto frust = Opengl::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
   auto camera = std::make_unique<Opengl::Camera>(frust, 2.5);

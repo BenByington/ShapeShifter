@@ -137,12 +137,16 @@ public:
    * @param child subtree to add to this node.
    */
   template <typename Other>
-	typename std::enable_if<
-      Other::Flags_t & Flags == Flags
-      && std::is_base_of<TypedRenderNode<Other::Flags_t>, Other>::value
-  >::type
-  AddChild(std::shared_ptr<Other> child) {
-    this->children.push_back(child);
+  std::shared_ptr<RenderNode> AddChild(
+      std::unique_ptr<Other> child,
+	    typename std::enable_if<
+          Other::Flags_t & Flags == Flags
+          && std::is_base_of<TypedRenderNode<Other::Flags_t>, Other>::value
+      >::type* dummy = 0
+      ) {
+    this->children.emplace_back(child.release());
+    return this->children.back();
+
   }
 };
 
@@ -167,25 +171,26 @@ class RootNode : private TypedRenderNode<0> {
 public:
   template <typename Other>
   RootNode(
-      std::shared_ptr<Other> tree,
+      std::unique_ptr<Other> tree,
       std::shared_ptr<Shaders::ShaderProgram> program,
 	    typename std::enable_if<
           std::is_base_of<TypedRenderNode<Other::Flags_t>, Other>::value
       >::type* dummy = 0 // Only here for SFINAE
       )
     : program_(program) {
-    this->children.push_back(tree);
+    children.emplace_back(tree.release());
     idx_map = program->BufferMapping<Other::Flags_t>();
+    UpdateData();
+  }
+
+  void SetRotation(const math::Quaternion& rot) {
+    children.back()->SetRotation(rot);
+  }
+  void SetTranslation(const math::Vector4& trans) {
+    children.back()->SetTranslation(trans);
   }
 
   virtual ~RootNode() { CleanupBuffer(); }
-
-	/**
-	 * Generates the actual VAO for this tree.  This function can be called
-	 * multiple times (perhaps you've added more children to the tree since the
-	 * last call)
-   */
-	void UpdateData();
 
 	/**
 	 * Walks down the tree, applies rotation matrices, and calls opengl to render
@@ -197,6 +202,13 @@ private:
 	virtual size_t ExclusiveNodeVertexCount() const override { return 0; }
   virtual void DrawSelf() const override {}
   void CleanupBuffer();
+
+
+	/**
+	 * Generates the actual VAO for this tree.  This function is called once
+   * upon construction of the object.
+   */
+	void UpdateData();
 
   GLuint vao = 0;
   std::shared_ptr<Shaders::ShaderProgram> program_;
