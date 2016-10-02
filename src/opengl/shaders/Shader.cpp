@@ -16,6 +16,7 @@
 #include <cassert>
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include <sstream>
 #include <stdexcept>
 
@@ -24,34 +25,34 @@ namespace Opengl {
 namespace Shaders {
 
 Shader::Shader(const std::string& filename, ShaderType t) {
-	std::ifstream f;
-  f.open(filename);
-	std::string data((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+	auto input_stream = std::ifstream(filename);
+	auto data = std::string((std::istreambuf_iterator<char>(input_stream)), std::istreambuf_iterator<char>());
 	assert(data.size() > 0);
 
   ParseLayouts(data);
 
 	// TODO make debug check only?
-	GLint can_compile = GL_FALSE;
+	auto can_compile = GLint{GL_FALSE};
   glGetIntegerv(GL_SHADER_COMPILER, &can_compile);
 	assert(can_compile == GL_TRUE);
 
   shader = glCreateShader(t == ShaderType::VERTEX ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER);
 	auto source = data.c_str();
-	int source_len = data.length();
+	auto source_len = static_cast<GLint>(data.length());
 	glShaderSource(shader, 1, &source, &source_len);
 	glCompileShader(shader);
 
-  GLint compiled = false;
+  auto compiled = GL_FALSE;
 
   glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
   if (!compiled) {
-		GLint logLength = 0;
+		auto logLength = GLint {0};
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
-		char * log = new char[logLength+1];
-		glGetShaderInfoLog(shader, logLength, nullptr, log);
-		std::string slog(log);
-		delete [] log;
+
+		auto log = std::unique_ptr<char[]>(new char[logLength+1]);
+		glGetShaderInfoLog(shader, logLength, nullptr, log.get());
+
+		auto slog = std::string(log.get());
 
 		//TODO need error handling on this as well.
 		glDeleteShader(shader);
@@ -72,14 +73,14 @@ Shader::~Shader() {
 
 void Shader::ParseLayouts(const std::string& data) {
 
-  std::istringstream stream(data);
-  std::string line;
+  auto stream = std::istringstream(data);
+  auto line = std::string{};
   while (std::getline(stream, line)) {
     if (line.find("layout") != std::string::npos && line.find(" in ") != std::string::npos) {
       // TODO:
       // Horrible manual parsing...  Need to find a better way...
-      size_t start = line.find('(');
-      size_t end = line.find(')');
+      auto start = line.find('(');
+      auto end = line.find(')');
       assert(start != std::string::npos);
       assert(end != std::string::npos);
       std::istringstream temp(line.substr(start+1, end-start-1));

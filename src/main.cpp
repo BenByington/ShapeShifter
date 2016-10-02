@@ -17,12 +17,12 @@
 #include "ui/MainWindow.h"
 
 int main(int argc, char *argv[]) {
-  QSurfaceFormat format;
+  auto format = QSurfaceFormat{};
 	format.setVersion(4,1);
 	format.setProfile(QSurfaceFormat::CoreProfile);
 	QSurfaceFormat::setDefaultFormat(format);
 
-  QApplication app(argc, argv);
+  auto&& app = QApplication(argc, argv);
 
   // create and show your widgets here
   ShapeShifter::ui::MainWindow window;

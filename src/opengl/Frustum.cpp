@@ -19,7 +19,7 @@ namespace ShapeShifter {
 namespace Opengl {
 
 math::Matrix4 Frustum::FrustTransform() const {
-  float itana = 1.0 / std::tan(fov_);
+  auto itana = 1.0f / std::tan(fov_);
 
   return math::Matrix4 {{itana, 0, 0, 0,
                          0, aspect_*itana, 0, 0,

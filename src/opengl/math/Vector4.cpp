@@ -39,20 +39,20 @@ void Vector4::print() const {
 }
 
 Vector4 Vector4::operator +(const Vector4& other) const {
-  __m128 left = _mm_load_ps(data_.begin());
-  __m128 right = _mm_load_ps(other.data_.begin());
-  __m128 sum = _mm_add_ps(left, right);
-  Vector4 ret(sum);
+  auto left = _mm_load_ps(data_.begin());
+  auto right = _mm_load_ps(other.data_.begin());
+  auto sum = _mm_add_ps(left, right);
+  auto ret = Vector4(sum);
   //TODO clean this up... Shouldn't have to force to 1.
   ret[3] = 1;
   return ret;
 }
 
 Vector4 Vector4::operator -(const Vector4& other) const {
-  __m128 left = _mm_load_ps(data_.begin());
-  __m128 right = _mm_load_ps(other.data_.begin());
-  __m128 sub = _mm_sub_ps(left, right);
-  Vector4 ret(sub);
+  auto left = _mm_load_ps(data_.begin());
+  auto right = _mm_load_ps(other.data_.begin());
+  auto sub = _mm_sub_ps(left, right);
+  auto ret = Vector4{sub};
   ret[3] = 1;
   return ret;
 }

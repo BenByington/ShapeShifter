@@ -22,7 +22,7 @@ namespace Opengl {
 namespace math {
 
 Vector3 Vector3::cross(const Vector3& other) const {
-  Vector3 ret;
+  auto ret = Vector3 {};
   ret[0] = data_[1] * other.data_[2] - data_[2]*other.data_[1];
   ret[1] = data_[2] * other.data_[0] - data_[0]*other.data_[2];
   ret[2] = data_[0] * other.data_[1] - data_[1]*other.data_[0];
@@ -30,7 +30,7 @@ Vector3 Vector3::cross(const Vector3& other) const {
 }
 
 float Vector3::dot(const Vector3& other) const {
-  float ret = 0;
+  auto ret = 0.0f;
   for (size_t i = 0; i < 3; ++i) {
     ret += data_[i] * other[i];
   }
@@ -38,7 +38,7 @@ float Vector3::dot(const Vector3& other) const {
 }
 
 float Vector3::Magnitude() const {
-  float mag = 0;
+  auto mag = 0.0f;
   for (size_t i = 0; i < 3; ++i) {
     mag += data_[i]*data_[i];
   }
@@ -47,7 +47,7 @@ float Vector3::Magnitude() const {
 }
 
 void Vector3::Normalize() {
-  float mag = Magnitude();
+  auto mag = Magnitude();
   for (size_t i = 0; i < 3; ++i) {
     data_[i] /= mag;
   }

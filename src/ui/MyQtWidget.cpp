@@ -57,7 +57,7 @@ void MyQtWidget::initializeGL() {
 
 void MyQtWidget::resizeGL(int width, int height) {
     height = height?height:1;
-    float aspect = width / static_cast<float>(height);
+    auto aspect = width / static_cast<float>(height);
     world_->camera().SetAspectRatio(aspect);
 
 }

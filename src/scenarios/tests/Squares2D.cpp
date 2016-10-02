@@ -24,51 +24,52 @@ namespace tests {
 std::unique_ptr<Opengl::World> Squares2D::Setup() {
 
   typedef Opengl::TypedRenderNode<Opengl::SupportedBufferFlags::COLORS> TypedRenderNode;
+  using detail::SquareTest2D;
 
-	std::shared_ptr<TypedRenderNode> first(new detail::SquareTest2D());
+	auto first = std::make_shared<SquareTest2D>();
   first->SetTranslation(Opengl::math::Vector4({-.5, -.5, -2.5, 1}));
 
-  float pi = 4*std::atan(1.0f);
+  auto pi = 4*std::atan(1.0f);
 
-  std::shared_ptr<TypedRenderNode> second(new detail::SquareTest2D());
+  auto second = std::make_shared<SquareTest2D>();
   second->SetRotation({-pi/2, 0 , 1, 0});
   first->AddChild(second);
 
-  std::shared_ptr<TypedRenderNode> third(new detail::SquareTest2D());
+  auto third = std::make_shared<SquareTest2D>();
   third->SetTranslation(Opengl::math::Vector4({0, 0 , -1.0, 1.0}));
   second->AddChild(third);
 
-  std::shared_ptr<TypedRenderNode> fourth(new detail::SquareTest2D());
+  auto fourth = std::make_shared<SquareTest2D>();
   fourth->SetRotation({pi/2, 1, 0, 0});
   third->AddChild(fourth);
 
-  std::shared_ptr<TypedRenderNode> fifth(new detail::SquareTest2D());
+  auto fifth = std::make_shared<SquareTest2D>();
   fifth->SetTranslation(Opengl::math::Vector4({0, 0 , -1.0, 1.0}));
   fourth->AddChild(fifth);
 
-  std::shared_ptr<TypedRenderNode> sixth(new detail::SquareTest2D());
+  auto sixth = std::make_shared<SquareTest2D>();
   sixth->SetRotation({pi/2, 0, 1, 0});
   sixth->SetTranslation(Opengl::math::Vector4({-1, 0 , 1, 1.0}));
   //fifth->AddChild(sixth);
 
-	std::vector<std::unique_ptr<Opengl::Shaders::Shader>> shaders;
-	std::unique_ptr<Opengl::Shaders::VertexShader> vert(
-	    new Opengl::Shaders::VertexShader("/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert"));
-	std::unique_ptr<Opengl::Shaders::FragmentShader> frag(
-	    new Opengl::Shaders::FragmentShader("/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag"));
-	std::shared_ptr<Opengl::Shaders::ShaderProgram> program(
-      new Opengl::Shaders::ShaderProgram(std::move(vert), std::move(frag)));
+	auto vert = std::make_unique<Opengl::Shaders::VertexShader>(
+	    "/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert");
+	auto frag = std::make_unique<Opengl::Shaders::FragmentShader>(
+	    "/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag");
+	auto program = std::make_shared<Opengl::Shaders::ShaderProgram>(
+      std::move(vert), std::move(frag));
 
   //TODO ownership is very weird here.  World needs a complete object.  Can
   //     provide mechanism to rotate/enable/disable nodes, but not add new
   //     ones or change point locations.
-	std::unique_ptr<Opengl::RootNode> root(new Opengl::RootNode(first, program));
+	auto root = std::make_unique<Opengl::RootNode>(first,  program);
 	root->UpdateData();
 
   auto frust = Opengl::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
-  std::unique_ptr<Opengl::Camera> camera(new Opengl::Camera(frust, 2.5));
+  auto camera = std::make_unique<Opengl::Camera>(frust, 2.5);
   camera->ChangePosition(Opengl::math::Vector4({0, 0, 0, 1.0f}));
-  std::unique_ptr<Opengl::World> world(new Opengl::World(std::move(camera)));
+
+  auto world = std::make_unique<Opengl::World>(std::move(camera));
   world->SetRenderTree(std::move(root));
   return world;
 }
