@@ -45,28 +45,29 @@ size_t RenderNode::PopulateBufferData(
 	}
 
 	start_vertex_ = idx;
+	end_vertex_ = start_vertex_ + ExclusiveNodeVertexCount();
 
   // TODO automate this mapping somehow...
   for(auto& kv: data) {
     switch (kv.first) {
       case SupportedBuffers::COLORS:
-        this->FillColorData(kv.second, idx);
+        FillColorData(VectorSlice<float>(
+            kv.second, start_vertex_, end_vertex_, floats_per_color_));
         break;
       case SupportedBuffers::VERTICES:
-        this->FillVertexData(kv.second, idx);
+        FillVertexData(VectorSlice<float>(
+            kv.second, start_vertex_, end_vertex_, floats_per_vert_));
         break;
       case SupportedBuffers::INDICES:
         assert(false);
         break;
       case SupportedBuffers::TEXTURES:
-        this->FillTextureData(kv.second, idx);
+        FillTextureData(VectorSlice<float>(
+            kv.second, start_vertex_, end_vertex_, floats_per_text_));
         break;
     }
   }
 
-	idx += this->ExclusiveNodeVertexCount();
-
-	end_vertex_ = idx;
 	return end_vertex_ - start;
 }
 
@@ -84,13 +85,13 @@ void RootNode::UpdateData() {
   for (const auto& kv: idx_map) {
     switch (kv.first) {
       case SupportedBuffers::COLORS:
-        data[kv.first].resize(size*floats_per_color);
+        data[kv.first].resize(size*floats_per_color_);
         break;
       case SupportedBuffers::INDICES:
         data[kv.first].resize(size*floats_per_ind);
         break;
       case SupportedBuffers::TEXTURES:
-        data[kv.first].resize(size*floats_per_text);
+        data[kv.first].resize(size*floats_per_text_);
         break;
       case SupportedBuffers::VERTICES:
         data[kv.first].resize(size*floats_per_vert_);
@@ -147,7 +148,7 @@ void RenderNode::DrawChildren(
 
 void RenderNode::DebugRotation(const math::Matrix4& mat) const {
   auto data = std::vector<float>(this->ExclusiveNodeVertexCount()*floats_per_vert_);
-  this->FillVertexData(data, 0);
+  FillVertexData(VectorSlice<float>(data, 0, ExclusiveNodeVertexCount(), floats_per_vert_));
   std::cerr << "Matrix: " << std::endl;
   mat.print();
   for (size_t i = 0; i < data.size(); i += 3) {
