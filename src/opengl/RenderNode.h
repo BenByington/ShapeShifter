@@ -22,6 +22,7 @@
 
 #include <opengl/gl3.h>
 
+#include <cassert>
 #include <cstdlib>
 #include <memory>
 #include <set>
@@ -67,9 +68,39 @@ protected:
 
   // TODO find better home?
   static const size_t floats_per_vert_ = 3;
-  static const size_t floats_per_color = 3;
-  static const size_t floats_per_text = 2;
+  static const size_t floats_per_color_ = 3;
+  static const size_t floats_per_text_ = 2;
   static const size_t floats_per_ind = 1;
+
+  // Helper class to help make sure nodes don't overwrite each other's data
+  // TODO: Should live elsewhere?
+  template <typename T>
+  class VectorSlice final{
+  public:
+    VectorSlice(const VectorSlice& other) = delete;
+    VectorSlice(VectorSlice<float>&& other) = delete;
+    VectorSlice(std::vector<T>& v, size_t start, size_t end, size_t elem_size)
+      : data_(v.data() + start*elem_size)
+      , size_(elem_size * (end-start)) {
+      assert(v.size() > 0);
+      assert(end >= start);
+      assert(start*elem_size <= v.size());
+      assert(end*elem_size <= v.size());
+      assert(elem_size > 0);
+    }
+
+    VectorSlice& operator=(const VectorSlice& other) = delete;
+    VectorSlice& operator=(VectorSlice<float>&& other) = delete;
+
+    T& operator[](size_t idx) {
+      assert(idx < size_);
+      return data_[idx];
+    }
+    size_t size() const { return size_; }
+  private:
+    T* data_;
+    size_t size_;
+  };
 
 private:
   /**
@@ -79,9 +110,9 @@ private:
 	 * your own vertices.
    */
 	virtual size_t ExclusiveNodeVertexCount() const = 0;
-  virtual void FillTextureData(std::vector<float>& rawData, size_t start) const = 0;
-	virtual void FillColorData(std::vector<float>& rawData, size_t start) const = 0;
-	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const = 0;
+  virtual void FillTextureData(VectorSlice<float>&& data) const = 0;
+	virtual void FillColorData(VectorSlice<float>&& data) const = 0;
+	virtual void FillVertexData(VectorSlice<float>&& data) const = 0;
 	virtual void DrawSelf() const = 0;
 
   void DebugRotation(const math::Matrix4& mat) const;
@@ -106,14 +137,14 @@ namespace detail {
 template <bool Enabled> struct TextureInterface : public RenderNode {};
 template <>
 class TextureInterface<false> : public RenderNode {
-  virtual void FillTextureData(std::vector<float>& rawData, size_t start) const override {}
+  virtual void FillTextureData(VectorSlice<float>&& data) const override {}
 };
 template <size_t Flags> using TextureNode = TextureInterface<Flags & SupportedBufferFlags::TEXTURES>;
 
 template <size_t Flags, bool enabled> struct ColorInterface : public TextureNode<Flags> {};
 template <size_t Flags>
 class ColorInterface<Flags, false> : public TextureNode<Flags> {
-	virtual void FillColorData(std::vector<float>& rawData, size_t start) const override {}
+	virtual void FillColorData(RenderNode::VectorSlice<float>&& data) const override {}
 };
 template <size_t Flags> using ColorNode = ColorInterface<Flags, Flags & SupportedBufferFlags::COLORS>;
 
@@ -162,8 +193,8 @@ private:
   // TODO fix this.  Had to remove 'override' keyword because we can't tell
   // up front which functions need to be supported.
 	virtual size_t ExclusiveBufferSizeRequired() const { return 0; }
-	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const {};
-	virtual void FillColorData(std::vector<float>& rawData, size_t start) const {};
+	virtual void FillVertexData(RenderNode::VectorSlice<float>&& data) const {};
+	virtual void FillColorData(RenderNode::VectorSlice<float>&& data) const {};
   virtual void DrawSelf() const {}
 };
 
@@ -198,7 +229,7 @@ public:
 	void RenderTree(const Camera& camera) const;
 
 private:
-	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const override {}
+	virtual void FillVertexData(VectorSlice<float>&& data) const override {}
 	virtual size_t ExclusiveNodeVertexCount() const override { return 0; }
   virtual void DrawSelf() const override {}
   void CleanupBuffer();
