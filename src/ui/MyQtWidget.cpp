@@ -16,6 +16,7 @@
 #include "opengl/shaders/ShaderProgram.h"
 #include "scenarios/Empty.h"
 #include "scenarios/tests/Squares2D.h"
+#include "scenarios/tests/IndexBuffers.h"
 
 #include <QtCore/QDebug>
 #include <QtGui/QMouseEvent>
@@ -52,7 +53,7 @@ void MyQtWidget::initializeGL() {
   qDebug() << "Current Context:" << this->format();
 
   //world_ = scenarios::Empty().Setup();
-  world_ = scenarios::tests::Squares2D().Setup();
+  world_ = scenarios::tests::IndexBuffers().Setup();
 }
 
 void MyQtWidget::resizeGL(int width, int height) {
@@ -106,6 +107,11 @@ void MyQtWidget::EmptyScenario() {
 
 void MyQtWidget::Squares2DScenario() {
   world_ = scenarios::tests::Squares2D().Setup();
+  update();
+}
+
+void MyQtWidget::IndexBufferScenario() {
+  world_ = scenarios::tests::IndexBuffers().Setup();
   update();
 }
 
