@@ -110,6 +110,8 @@ private:
 	 * your own vertices.
    */
 	virtual size_t ExclusiveNodeVertexCount() const = 0;
+  virtual size_t ExclusiveNodeIndexCount() const = 0;
+  virtual void FillIndexData(VectorSlice<uint32_t>&& data) const = 0;
   virtual void FillTextureData(VectorSlice<float>&& data) const = 0;
 	virtual void FillColorData(VectorSlice<float>&& data) const = 0;
 	virtual void FillVertexData(VectorSlice<float>&& data) const = 0;
@@ -148,10 +150,18 @@ class ColorInterface<Flags, false> : public TextureNode<Flags> {
 };
 template <size_t Flags> using ColorNode = ColorInterface<Flags, Flags & SupportedBufferFlags::COLORS>;
 
+template <size_t Flags, bool enabled> struct IndexInterface : public ColorNode<Flags> {};
+template <size_t Flags>
+class IndexInterface<Flags, false> : public ColorNode<Flags> {
+  virtual size_t ExclusiveNodeIndexCount() const override { return 0; }
+	virtual void FillIndexData(RenderNode::VectorSlice<uint32_t>&& data) const override {}
+};
+template <size_t Flags> using IndexNode = IndexInterface<Flags, Flags & SupportedBufferFlags::INDICES>;
+
 }
 
 template <size_t Flags>
-class TypedRenderNode : public detail::ColorNode<Flags> {
+class TypedRenderNode : public detail::IndexNode<Flags> {
   static_assert(Flags < SupportedBufferFlags::END_VALUE, "Invalid flags for buffer support");
 public:
   constexpr static size_t Flags_t = Flags;
@@ -171,8 +181,9 @@ public:
   std::shared_ptr<RenderNode> AddChild(
       std::unique_ptr<Other> child,
 	    typename std::enable_if<
-          Other::Flags_t & Flags == Flags
+          (Other::Flags_t & Flags) == Flags
           && std::is_base_of<TypedRenderNode<Other::Flags_t>, Other>::value
+          && (Other::Flags_t & SupportedBufferFlags::INDICES) == (Flags & SupportedBufferFlags::INDICES)
       >::type* dummy = 0
       ) {
     this->children.emplace_back(child.release());
