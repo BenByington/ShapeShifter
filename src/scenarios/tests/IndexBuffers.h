@@ -38,24 +38,6 @@ private:
 
 };
 
-namespace detail {
-
-/**
- * Simple test class that will draw a shaded square in the center of the screen
- */
-class Dummy : public Opengl::TypedRenderNode<Opengl::SupportedBufferFlags::COLORS> {
-public:
-	Dummy() = default;
-	virtual ~Dummy() {}
-private:
-	virtual size_t ExclusiveNodeVertexCount() const override;
-	virtual void FillVertexData(std::vector<float>& rawData, size_t start) const override;
-	virtual void FillColorData(std::vector<float>& rawData, size_t start) const override;
-	virtual void DrawSelf() const override;
-};
-
-}
-
 }}} // ShapeShifter::scenarios::tests
 
 #endif /* TESTS_INDEXED_BUFFERS_H */
