@@ -77,7 +77,7 @@ namespace detail {
 
 size_t SquareTest2D::ExclusiveNodeVertexCount() const { return 4; }
 
-void SquareTest2D::FillColorData(Opengl::RenderNode::VectorSlice<float>&& data) const {
+void SquareTest2D::FillColorData(Opengl::VectorSlice<float>&& data) const {
 	data[0] = 1.0;
 	data[1] = 0.0;
 	data[2] = 0.0;
@@ -95,7 +95,7 @@ void SquareTest2D::FillColorData(Opengl::RenderNode::VectorSlice<float>&& data) 
 	data[11] = 0.0;
 }
 
-void SquareTest2D::FillVertexData(Opengl::RenderNode::VectorSlice<float>&& data) const {
+void SquareTest2D::FillVertexData(Opengl::VectorSlice<float>&& data) const {
 	data[0] = 0;
 	data[1] = 0;
 	data[2] = 0;

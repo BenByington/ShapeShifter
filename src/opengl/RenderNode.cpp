@@ -20,26 +20,6 @@
 namespace ShapeShifter {
 namespace Opengl {
 
-template <>
-std::vector<float>& MixedDataMap::get_dispatch<SupportedBuffers::COLORS>() {
-  return colors_;
-}
-
-template <>
-std::vector<float>& MixedDataMap::get_dispatch<SupportedBuffers::TEXTURES>() {
-  return textures_;
-}
-
-template <>
-std::vector<float>& MixedDataMap::get_dispatch<SupportedBuffers::VERTICES>() {
-  return vertices_;
-}
-
-template <>
-std::vector<uint32_t>& MixedDataMap::get_dispatch<SupportedBuffers::INDICES>() {
-  return indices_;
-}
-
 void RenderNode::SetRotation(const math::Quaternion& rot) {
   this->rotation_ = rot;
 }

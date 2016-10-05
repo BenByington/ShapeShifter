@@ -41,17 +41,51 @@ struct traits<SupportedBuffers::INDICES> {
   using type = uint32_t;
 };
 
-// TODO move elsewhere
-class MixedDataMap final {
+// Helper class to help make sure nodes don't overwrite each other's data
+// TODO: Should live elsewhere?
+template <typename T>
+class VectorSlice final{
 public:
-  MixedDataMap() = default;
-  MixedDataMap(const MixedDataMap&) = delete;
-  MixedDataMap(MixedDataMap&&) = default;
-  MixedDataMap& operator=(const MixedDataMap&) = delete;
-  MixedDataMap& operator=(MixedDataMap&&) = default;
+  VectorSlice(const VectorSlice& other) = delete;
+  VectorSlice(VectorSlice<float>&& other) = delete;
+  VectorSlice(std::vector<T>& v, size_t start, size_t end, size_t elem_size)
+    : data_(v.data() + start*elem_size)
+    , size_(elem_size * (end-start)) {
+    assert(v.size() > 0);
+    assert(end >= start);
+    assert(start*elem_size <= v.size());
+    assert(end*elem_size <= v.size());
+    assert(elem_size > 0);
+  }
+
+  VectorSlice& operator=(const VectorSlice& other) = delete;
+  VectorSlice& operator=(VectorSlice<float>&& other) = delete;
+
+  T& operator[](size_t idx) {
+    assert(idx < size_);
+    return data_[idx];
+  }
+  size_t size() const { return size_; }
+private:
+  T* data_;
+  size_t size_;
+};
+
+// TODO move elsewhere
+template <template <typename...> class Storage>
+class MixedDataMapBase {
+public:
+  template <typename T>
+  using Storage_t = Storage<T>;
+
+  MixedDataMapBase() = default;
+  MixedDataMapBase(const MixedDataMapBase&) = delete;
+  MixedDataMapBase(MixedDataMapBase&&) = default;
+  MixedDataMapBase& operator=(const MixedDataMapBase&) = delete;
+  MixedDataMapBase& operator=(MixedDataMapBase&&) = default;
 
   template <SupportedBuffers buffer>
-  std::vector<typename traits<buffer>::type>& get() {
+  Storage<typename traits<buffer>::type>& get() {
     keys_.insert(buffer);
     return get_dispatch<buffer>();
   }
@@ -61,7 +95,7 @@ public:
   }
 
   auto FloatData() {
-    std::vector<std::pair<SupportedBuffers, const std::vector<float>&>> ret;
+    std::vector<std::pair<SupportedBuffers, const Storage<float>&>> ret;
     for (const auto& key : keys_) {
       switch(key) {
         case SupportedBuffers::COLORS:
@@ -82,7 +116,7 @@ public:
   }
 
   auto IntegralData() {
-    std::vector<std::pair<SupportedBuffers, const std::vector<uint32_t>&>> ret;
+    std::vector<std::pair<SupportedBuffers, const Storage<uint32_t>&>> ret;
     for (const auto& key : keys_) {
       switch(key) {
         case SupportedBuffers::COLORS:
@@ -105,20 +139,57 @@ public:
 private:
 
   template <SupportedBuffers buffer>
-  std::vector<typename traits<buffer>::type>& get_dispatch() {
-    // This is only here for a clearer compilation error if a new
-    // SupportedBuffer is added and this function is missing an explicit
-    // instantiation for it.
-    static_assert(sizeof(buffer) == 0, "Don't instantiate me!");
+  typename std::enable_if<
+      std::is_same<float, typename traits<buffer>::type>::value,
+      Storage<typename traits<buffer>::type>
+  >::type& get_dispatch() {
+    auto item = buffer;
+    switch (item) {
+      case SupportedBuffers::COLORS:
+        return colors_;
+        break;
+      case SupportedBuffers::TEXTURES:
+        return textures_;
+        break;
+      case SupportedBuffers::VERTICES:
+        return vertices_;
+        break;
+      case SupportedBuffers::INDICES:
+        assert(false);
+        return vertices_;
+        break;
+    }
+  }
+
+  template <SupportedBuffers buffer>
+  typename std::enable_if<
+      std::is_same<uint32_t, typename traits<buffer>::type>::value,
+      Storage<typename traits<buffer>::type>
+  >::type& get_dispatch() {
+    auto item = buffer;
+    switch (item) {
+      case SupportedBuffers::COLORS:
+        assert(false);
+      case SupportedBuffers::TEXTURES:
+        assert(false);
+      case SupportedBuffers::VERTICES:
+        assert(false);
+      case SupportedBuffers::INDICES:
+        return indices_;
+        break;
+    }
   }
 
   std::set<SupportedBuffers> keys_;
-  std::vector<float> colors_;
-  std::vector<float> textures_;
-  std::vector<float> vertices_;
-  std::vector<uint32_t> indices_;
+  Storage<float> colors_;
+  Storage<float> textures_;
+  Storage<float> vertices_;
+  Storage<uint32_t> indices_;
 };
 
+class MixedDataMap : public MixedDataMapBase<std::vector> {
+
+};
 
 /**
  * Basic vertex for a tree of objects to render.  The entire tree will share
@@ -160,36 +231,6 @@ protected:
   static const size_t floats_per_color_ = 3;
   static const size_t floats_per_text_ = 2;
   static const size_t floats_per_ind = 1;
-
-  // Helper class to help make sure nodes don't overwrite each other's data
-  // TODO: Should live elsewhere?
-  template <typename T>
-  class VectorSlice final{
-  public:
-    VectorSlice(const VectorSlice& other) = delete;
-    VectorSlice(VectorSlice<float>&& other) = delete;
-    VectorSlice(std::vector<T>& v, size_t start, size_t end, size_t elem_size)
-      : data_(v.data() + start*elem_size)
-      , size_(elem_size * (end-start)) {
-      assert(v.size() > 0);
-      assert(end >= start);
-      assert(start*elem_size <= v.size());
-      assert(end*elem_size <= v.size());
-      assert(elem_size > 0);
-    }
-
-    VectorSlice& operator=(const VectorSlice& other) = delete;
-    VectorSlice& operator=(VectorSlice<float>&& other) = delete;
-
-    T& operator[](size_t idx) {
-      assert(idx < size_);
-      return data_[idx];
-    }
-    size_t size() const { return size_; }
-  private:
-    T* data_;
-    size_t size_;
-  };
 
 private:
   /**
@@ -235,7 +276,7 @@ template <size_t Flags> using TextureNode = TextureInterface<Flags & SupportedBu
 template <size_t Flags, bool enabled> struct ColorInterface : public TextureNode<Flags> {};
 template <size_t Flags>
 class ColorInterface<Flags, false> : public TextureNode<Flags> {
-	virtual void FillColorData(RenderNode::VectorSlice<float>&& data) const override {}
+	virtual void FillColorData(VectorSlice<float>&& data) const override {}
 };
 template <size_t Flags> using ColorNode = ColorInterface<Flags, Flags & SupportedBufferFlags::COLORS>;
 
@@ -243,7 +284,7 @@ template <size_t Flags, bool enabled> struct IndexInterface : public ColorNode<F
 template <size_t Flags>
 class IndexInterface<Flags, false> : public ColorNode<Flags> {
   virtual size_t ExclusiveNodeIndexCount() const override { return 0; }
-	virtual void FillIndexData(RenderNode::VectorSlice<uint32_t>&& data) const override {}
+	virtual void FillIndexData(VectorSlice<uint32_t>&& data) const override {}
 };
 template <size_t Flags> using IndexNode = IndexInterface<Flags, Flags & SupportedBufferFlags::INDICES>;
 
@@ -293,8 +334,8 @@ private:
   // TODO fix this.  Had to remove 'override' keyword because we can't tell
   // up front which functions need to be supported.
 	virtual size_t ExclusiveBufferSizeRequired() const { return 0; }
-	virtual void FillVertexData(RenderNode::VectorSlice<float>&& data) const {};
-	virtual void FillColorData(RenderNode::VectorSlice<float>&& data) const {};
+	virtual void FillVertexData(VectorSlice<float>&& data) const {};
+	virtual void FillColorData(VectorSlice<float>&& data) const {};
   virtual void DrawSelf() const {}
 };
 

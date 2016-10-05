@@ -24,7 +24,7 @@ size_t Cube::ExclusiveNodeVertexCount() const {
   return 72;
 }
 
-void Cube::FillVertexData(Opengl::RenderNode::VectorSlice<float>&& data) const {
+void Cube::FillVertexData(Opengl::VectorSlice<float>&& data) const {
   auto FillVertex = [&](float f1, float f2, float f3) {
     static size_t idx = 0;
     data[idx] = f1;
@@ -76,7 +76,7 @@ void Cube::FillVertexData(Opengl::RenderNode::VectorSlice<float>&& data) const {
   FillFace(2, false);
 }
 
-void Cube::FillColorData(Opengl::RenderNode::VectorSlice<float>&& data) const {
+void Cube::FillColorData(Opengl::VectorSlice<float>&& data) const {
   auto FillFaceColor = [&](float f1, float f2, float f3) {
     static size_t idx = 0;
     for (size_t i = 0; i < 6; ++i) {
