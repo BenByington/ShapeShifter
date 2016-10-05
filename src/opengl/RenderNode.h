@@ -31,6 +31,95 @@
 namespace ShapeShifter {
 namespace Opengl {
 
+// TODO figure out cleaner solution
+template <SupportedBuffers b>
+struct traits {
+  using type = float;
+};
+template <>
+struct traits<SupportedBuffers::INDICES> {
+  using type = uint32_t;
+};
+
+// TODO move elsewhere
+class MixedDataMap final {
+public:
+  MixedDataMap() = default;
+  MixedDataMap(const MixedDataMap&) = delete;
+  MixedDataMap(MixedDataMap&&) = default;
+  MixedDataMap& operator=(const MixedDataMap&) = delete;
+  MixedDataMap& operator=(MixedDataMap&&) = default;
+
+  template <SupportedBuffers buffer>
+  std::vector<typename traits<buffer>::type>& get() {
+    keys_.insert(buffer);
+    return get_dispatch<buffer>();
+  }
+
+  const std::set<SupportedBuffers>& keys() {
+    return keys_;
+  }
+
+  auto FloatData() {
+    std::vector<std::pair<SupportedBuffers, const std::vector<float>&>> ret;
+    for (const auto& key : keys_) {
+      switch(key) {
+        case SupportedBuffers::COLORS:
+          ret.emplace_back(SupportedBuffers::COLORS, colors_);
+          break;
+        case SupportedBuffers::TEXTURES:
+          ret.emplace_back(SupportedBuffers::TEXTURES, textures_);
+          break;
+        case SupportedBuffers::VERTICES:
+          ret.emplace_back(SupportedBuffers::VERTICES, vertices_);
+          break;
+        case SupportedBuffers::INDICES:
+          //do nothing
+          break;
+      }
+    }
+    return ret;
+  }
+
+  auto IntegralData() {
+    std::vector<std::pair<SupportedBuffers, const std::vector<uint32_t>&>> ret;
+    for (const auto& key : keys_) {
+      switch(key) {
+        case SupportedBuffers::COLORS:
+          //do nothing
+          break;
+        case SupportedBuffers::TEXTURES:
+          //do nothing
+          break;
+        case SupportedBuffers::VERTICES:
+          //do nothing
+          break;
+        case SupportedBuffers::INDICES:
+          ret.emplace_back(SupportedBuffers::INDICES, indices_);
+          //do nothing
+          break;
+      }
+    }
+    return ret;
+  }
+private:
+
+  template <SupportedBuffers buffer>
+  std::vector<typename traits<buffer>::type>& get_dispatch() {
+    // This is only here for a clearer compilation error if a new
+    // SupportedBuffer is added and this function is missing an explicit
+    // instantiation for it.
+    static_assert(sizeof(buffer) == 0, "Don't instantiate me!");
+  }
+
+  std::set<SupportedBuffers> keys_;
+  std::vector<float> colors_;
+  std::vector<float> textures_;
+  std::vector<float> vertices_;
+  std::vector<uint32_t> indices_;
+};
+
+
 /**
  * Basic vertex for a tree of objects to render.  The entire tree will share
  * a vertex array object, though each node can have it's own rotation relative
@@ -59,7 +148,7 @@ protected:
 	// Compute how big the VAO should be
 	size_t SubtreeVertexCount() const;
 	// Fill the VAO with data and push to card
-  size_t PopulateBufferData(std::map<SupportedBuffers, std::vector<float>>& data, size_t start);
+  size_t PopulateBufferData(MixedDataMap& data, size_t start);
 	// Renders all children in the tree.
 	// TODO see how framerate is affected by the number/size of each child
 	void DrawChildren(const Camera& camera, const math::Quaternion& cumRot, const math::Vector4& cumTrans, const Shaders::ShaderProgram& shader) const;

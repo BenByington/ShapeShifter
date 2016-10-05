@@ -20,6 +20,26 @@
 namespace ShapeShifter {
 namespace Opengl {
 
+template <>
+std::vector<float>& MixedDataMap::get_dispatch<SupportedBuffers::COLORS>() {
+  return colors_;
+}
+
+template <>
+std::vector<float>& MixedDataMap::get_dispatch<SupportedBuffers::TEXTURES>() {
+  return textures_;
+}
+
+template <>
+std::vector<float>& MixedDataMap::get_dispatch<SupportedBuffers::VERTICES>() {
+  return vertices_;
+}
+
+template <>
+std::vector<uint32_t>& MixedDataMap::get_dispatch<SupportedBuffers::INDICES>() {
+  return indices_;
+}
+
 void RenderNode::SetRotation(const math::Quaternion& rot) {
   this->rotation_ = rot;
 }
@@ -37,7 +57,7 @@ size_t RenderNode::SubtreeVertexCount() const {
 }
 
 size_t RenderNode::PopulateBufferData(
-    std::map<SupportedBuffers, std::vector<float>>& data,
+    MixedDataMap& data,
 		const size_t start) {
 	auto idx = start;
 	for (const auto& child : children) {
@@ -48,23 +68,35 @@ size_t RenderNode::PopulateBufferData(
 	end_vertex_ = start_vertex_ + ExclusiveNodeVertexCount();
 
   // TODO automate this mapping somehow...
-  for(auto& kv: data) {
-    switch (kv.first) {
+  for(auto& key: data.keys()) {
+    switch (key) {
       case SupportedBuffers::COLORS:
+      {
+        auto& vec = data.get<SupportedBuffers::COLORS>();
         FillColorData(VectorSlice<float>(
-            kv.second, start_vertex_, end_vertex_, floats_per_color_));
+            vec, start_vertex_, end_vertex_, floats_per_color_));
         break;
+      }
       case SupportedBuffers::VERTICES:
+      {
+        auto& vec = data.get<SupportedBuffers::VERTICES>();
         FillVertexData(VectorSlice<float>(
-            kv.second, start_vertex_, end_vertex_, floats_per_vert_));
+            vec, start_vertex_, end_vertex_, floats_per_vert_));
         break;
+      }
       case SupportedBuffers::INDICES:
+      {
+        auto& vec = data.get<SupportedBuffers::INDICES>();
         assert(false);
         break;
+      }
       case SupportedBuffers::TEXTURES:
+      {
+        auto& vec = data.get<SupportedBuffers::TEXTURES>();
         FillTextureData(VectorSlice<float>(
-            kv.second, start_vertex_, end_vertex_, floats_per_text_));
+            vec, start_vertex_, end_vertex_, floats_per_text_));
         break;
+      }
     }
   }
 
@@ -81,20 +113,20 @@ void RootNode::UpdateData() {
 	auto size = this->SubtreeVertexCount();
 
   // TODO automate this mapping somehow...
-  std::map<SupportedBuffers, std::vector<float>> data;
+  MixedDataMap data;
   for (const auto& kv: idx_map) {
     switch (kv.first) {
       case SupportedBuffers::COLORS:
-        data[kv.first].resize(size*floats_per_color_);
+        data.get<SupportedBuffers::COLORS>().resize(size*floats_per_color_);
         break;
       case SupportedBuffers::INDICES:
-        data[kv.first].resize(size*floats_per_ind);
+        data.get<SupportedBuffers::INDICES>().resize(size*floats_per_ind);
         break;
       case SupportedBuffers::TEXTURES:
-        data[kv.first].resize(size*floats_per_text_);
+        data.get<SupportedBuffers::TEXTURES>().resize(size*floats_per_text_);
         break;
       case SupportedBuffers::VERTICES:
-        data[kv.first].resize(size*floats_per_vert_);
+        data.get<SupportedBuffers::VERTICES>().resize(size*floats_per_vert_);
         break;
     }
   }
@@ -105,7 +137,7 @@ void RootNode::UpdateData() {
   glGenVertexArrays (1, &vao);
   glBindVertexArray (vao);
 
-  for (const auto& kv: data) {
+  for (const auto& kv: data.FloatData()) {
     auto vbo = GLuint{0};
     const auto& buffer_dat = kv.second;
     glGenBuffers (1, &vbo);
@@ -113,6 +145,10 @@ void RootNode::UpdateData() {
     glBufferData (GL_ARRAY_BUFFER, buffer_dat.size() * sizeof (float), buffer_dat.data(), GL_STATIC_DRAW);
     glVertexAttribPointer (idx_map.at(kv.first), 3, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(idx_map.at(kv.first));
+  }
+
+  for (const auto& kv : data.IntegralData()) {
+    assert(kv.first == SupportedBuffers::INDICES);
   }
 }
 
