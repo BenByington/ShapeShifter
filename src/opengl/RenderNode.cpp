@@ -36,51 +36,40 @@ size_t RenderNode::SubtreeVertexCount() const {
 	return ret;
 }
 
-size_t RenderNode::PopulateBufferData(
-    MixedDataMap& data,
-		const size_t start) {
-	auto idx = start;
+void RenderNode::PopulateBufferData(MixedDataMap& data) {
 	for (const auto& child : children) {
-		idx += child->PopulateBufferData(data, idx);
+		child->PopulateBufferData(data);
 	}
 
-	start_vertex_ = idx;
-	end_vertex_ = start_vertex_ + ExclusiveNodeVertexCount();
+  auto local_data = data.NextSlice(ExclusiveNodeVertexCount());
+	start_vertex_ = local_data.start_vertex();
+	end_vertex_ = local_data.end_vertex();
 
   // TODO automate this mapping somehow...
   for(auto& key: data.keys()) {
     switch (key) {
       case SupportedBuffers::COLORS:
       {
-        auto& vec = data.get<SupportedBuffers::COLORS>();
-        FillColorData(VectorSlice<float>(
-            vec, start_vertex_, end_vertex_, floats_per_color_));
+        FillColorData(local_data.get<SupportedBuffers::COLORS>());
         break;
       }
       case SupportedBuffers::VERTICES:
       {
-        auto& vec = data.get<SupportedBuffers::VERTICES>();
-        FillVertexData(VectorSlice<float>(
-            vec, start_vertex_, end_vertex_, floats_per_vert_));
+        FillVertexData(local_data.get<SupportedBuffers::VERTICES>());
         break;
       }
       case SupportedBuffers::INDICES:
       {
-        auto& vec = data.get<SupportedBuffers::INDICES>();
         assert(false);
         break;
       }
       case SupportedBuffers::TEXTURES:
       {
-        auto& vec = data.get<SupportedBuffers::TEXTURES>();
-        FillTextureData(VectorSlice<float>(
-            vec, start_vertex_, end_vertex_, floats_per_text_));
+        FillTextureData(local_data.get<SupportedBuffers::TEXTURES>());
         break;
       }
     }
   }
-
-	return end_vertex_ - start;
 }
 
 void RootNode::UpdateData() {
@@ -92,27 +81,14 @@ void RootNode::UpdateData() {
 	CleanupBuffer();
 	auto size = this->SubtreeVertexCount();
 
-  // TODO automate this mapping somehow...
-  MixedDataMap data;
-  for (const auto& kv: idx_map) {
-    switch (kv.first) {
-      case SupportedBuffers::COLORS:
-        data.get<SupportedBuffers::COLORS>().resize(size*floats_per_color_);
-        break;
-      case SupportedBuffers::INDICES:
-        data.get<SupportedBuffers::INDICES>().resize(size*floats_per_ind);
-        break;
-      case SupportedBuffers::TEXTURES:
-        data.get<SupportedBuffers::TEXTURES>().resize(size*floats_per_text_);
-        break;
-      case SupportedBuffers::VERTICES:
-        data.get<SupportedBuffers::VERTICES>().resize(size*floats_per_vert_);
-        break;
-    }
+  std::set<SupportedBuffers> keys;
+  for (const auto& kv : idx_map) {
+    keys.insert(kv.first);
   }
+  MixedDataMap data(keys, size);
 
-	auto end = this->PopulateBufferData(data, 0);
-	assert(end == size);
+	this->PopulateBufferData(data);
+	assert(data.DataRemaining() == 0);
 
   glGenVertexArrays (1, &vao);
   glBindVertexArray (vao);
@@ -163,10 +139,13 @@ void RenderNode::DrawChildren(
 }
 
 void RenderNode::DebugRotation(const math::Matrix4& mat) const {
-  auto data = std::vector<float>(this->ExclusiveNodeVertexCount()*floats_per_vert_);
-  FillVertexData(VectorSlice<float>(data, 0, ExclusiveNodeVertexCount(), floats_per_vert_));
+  auto dataset = MixedDataMap({SupportedBuffers::VERTICES}, ExclusiveNodeVertexCount());
+  auto slices = dataset.NextSlice(ExclusiveNodeVertexCount());
+  auto& slice = slices.get<SupportedBuffers::VERTICES>();
+  FillVertexData(slice);
   std::cerr << "Matrix: " << std::endl;
   mat.print();
+  auto& data = dataset.get<SupportedBuffers::VERTICES>();
   for (size_t i = 0; i < data.size(); i += 3) {
     // TODO figure out how to make Vector4 constructor less verbose...
     auto vec = math::Vector4(std::array<float,4>{{data[i], data[i+1], data[i+2], 1}});

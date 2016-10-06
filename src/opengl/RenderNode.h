@@ -47,7 +47,8 @@ template <typename T>
 class VectorSlice final{
 public:
   VectorSlice(const VectorSlice& other) = delete;
-  VectorSlice(VectorSlice<float>&& other) = delete;
+  VectorSlice(VectorSlice<T>&& other) = default;
+  VectorSlice() : data_(nullptr), size_(0) {}
   VectorSlice(std::vector<T>& v, size_t start, size_t end, size_t elem_size)
     : data_(v.data() + start*elem_size)
     , size_(elem_size * (end-start)) {
@@ -59,7 +60,7 @@ public:
   }
 
   VectorSlice& operator=(const VectorSlice& other) = delete;
-  VectorSlice& operator=(VectorSlice<float>&& other) = delete;
+  VectorSlice& operator=(VectorSlice<T>&& other) = default;
 
   T& operator[](size_t idx) {
     assert(idx < size_);
@@ -75,6 +76,12 @@ private:
 template <template <typename...> class Storage>
 class MixedDataMapBase {
 public:
+  // TODO find better home?
+  static const size_t floats_per_vert_ = 3;
+  static const size_t floats_per_color_ = 3;
+  static const size_t floats_per_text_ = 2;
+  static const size_t floats_per_ind = 1;
+
   template <typename T>
   using Storage_t = Storage<T>;
 
@@ -95,7 +102,7 @@ public:
   }
 
   auto FloatData() {
-    std::vector<std::pair<SupportedBuffers, const Storage<float>&>> ret;
+    std::vector<std::pair<SupportedBuffers, Storage<float>&>> ret;
     for (const auto& key : keys_) {
       switch(key) {
         case SupportedBuffers::COLORS:
@@ -116,7 +123,7 @@ public:
   }
 
   auto IntegralData() {
-    std::vector<std::pair<SupportedBuffers, const Storage<uint32_t>&>> ret;
+    std::vector<std::pair<SupportedBuffers, Storage<uint32_t>&>> ret;
     for (const auto& key : keys_) {
       switch(key) {
         case SupportedBuffers::COLORS:
@@ -187,8 +194,100 @@ private:
   Storage<uint32_t> indices_;
 };
 
-class MixedDataMap : public MixedDataMapBase<std::vector> {
+class MixedSliceMap final : public MixedDataMapBase<VectorSlice> {
+public:
+  MixedSliceMap(const MixedSliceMap& other) = delete;
+  MixedSliceMap(MixedSliceMap&& other) = default;
 
+  MixedSliceMap& operator=(const MixedSliceMap& other) = delete;
+  MixedSliceMap& operator=(MixedSliceMap&& other) = default;
+
+  MixedSliceMap(
+      const std::vector<std::pair<SupportedBuffers, std::vector<float>&>>& float_data,
+      const std::vector<std::pair<SupportedBuffers, std::vector<uint32_t>&>>& int_data,
+      size_t start_vert,
+      size_t end_vert)
+    : start_vertex_(start_vert)
+    , end_vertex_(end_vert) {
+
+    for (const auto& kv : float_data) {
+      switch (kv.first) {
+        case SupportedBuffers::COLORS:
+          get<SupportedBuffers::COLORS>() = VectorSlice<float>(kv.second, start_vert, end_vert, floats_per_color_);
+          break;
+        case SupportedBuffers::TEXTURES:
+          get<SupportedBuffers::TEXTURES>() = VectorSlice<float>(kv.second, start_vert, end_vert, floats_per_text_);
+          break;
+        case SupportedBuffers::VERTICES:
+          get<SupportedBuffers::VERTICES>() = VectorSlice<float>(kv.second, start_vert, end_vert, floats_per_vert_);
+          break;
+        case SupportedBuffers::INDICES:
+          assert(false);
+          break;
+      }
+    }
+
+    for (const auto& kv : int_data) {
+      assert(false);
+    }
+
+  }
+
+  size_t start_vertex() { return start_vertex_; }
+  size_t end_vertex() { return end_vertex_; }
+
+private:
+  size_t start_vertex_;
+  size_t end_vertex_;
+};
+
+class MixedDataMap final : public MixedDataMapBase<std::vector> {
+public:
+  MixedDataMap(std::set<SupportedBuffers> keys, size_t vertex_count) {
+    for (const auto& key: keys) {
+      switch (key) {
+        case SupportedBuffers::COLORS:
+          get<SupportedBuffers::COLORS>().resize(vertex_count*floats_per_color_);
+          break;
+        case SupportedBuffers::INDICES:
+          get<SupportedBuffers::INDICES>().resize(vertex_count*floats_per_ind);
+          break;
+        case SupportedBuffers::TEXTURES:
+          get<SupportedBuffers::TEXTURES>().resize(vertex_count*floats_per_text_);
+          break;
+        case SupportedBuffers::VERTICES:
+          get<SupportedBuffers::VERTICES>().resize(vertex_count*floats_per_vert_);
+          break;
+      }
+    }
+    total_vertices_ = vertex_count;
+    next_free_vertex_ = 0;
+  }
+
+  MixedDataMap(const MixedDataMap&) = delete;
+  MixedDataMap(MixedDataMap&&) = default;
+
+  MixedDataMap& operator=(const MixedDataMap&) = delete;
+  MixedDataMap& operator=(MixedDataMap&&) = default;
+
+  MixedSliceMap NextSlice(size_t vertex_count) {
+    auto vertex = next_free_vertex_;
+    next_free_vertex_ += vertex_count;
+    return MixedSliceMap(
+        FloatData(),
+        IntegralData(),
+        vertex,
+        next_free_vertex_
+        );
+  }
+
+  size_t DataRemaining() {
+    return total_vertices_ - next_free_vertex_;
+  }
+
+private:
+  size_t next_free_vertex_ = 0;
+  size_t total_vertices_ = 0;
 };
 
 /**
@@ -219,19 +318,12 @@ protected:
 	// Compute how big the VAO should be
 	size_t SubtreeVertexCount() const;
 	// Fill the VAO with data and push to card
-  size_t PopulateBufferData(MixedDataMap& data, size_t start);
+  void PopulateBufferData(MixedDataMap& data);
 	// Renders all children in the tree.
 	// TODO see how framerate is affected by the number/size of each child
 	void DrawChildren(const Camera& camera, const math::Quaternion& cumRot, const math::Vector4& cumTrans, const Shaders::ShaderProgram& shader) const;
 
 	std::vector<std::shared_ptr<RenderNode>> children;
-
-  // TODO find better home?
-  static const size_t floats_per_vert_ = 3;
-  static const size_t floats_per_color_ = 3;
-  static const size_t floats_per_text_ = 2;
-  static const size_t floats_per_ind = 1;
-
 private:
   /**
 	 * Functions that must be implemented by any concrete child implementations.
@@ -241,10 +333,10 @@ private:
    */
 	virtual size_t ExclusiveNodeVertexCount() const = 0;
   virtual size_t ExclusiveNodeIndexCount() const = 0;
-  virtual void FillIndexData(VectorSlice<uint32_t>&& data) const = 0;
-  virtual void FillTextureData(VectorSlice<float>&& data) const = 0;
-	virtual void FillColorData(VectorSlice<float>&& data) const = 0;
-	virtual void FillVertexData(VectorSlice<float>&& data) const = 0;
+  virtual void FillIndexData(VectorSlice<uint32_t>& data) const = 0;
+  virtual void FillTextureData(VectorSlice<float>& data) const = 0;
+	virtual void FillColorData(VectorSlice<float>& data) const = 0;
+	virtual void FillVertexData(VectorSlice<float>& data) const = 0;
 	virtual void DrawSelf() const = 0;
 
   void DebugRotation(const math::Matrix4& mat) const;
@@ -269,14 +361,14 @@ namespace detail {
 template <bool Enabled> struct TextureInterface : public RenderNode {};
 template <>
 class TextureInterface<false> : public RenderNode {
-  virtual void FillTextureData(VectorSlice<float>&& data) const override {}
+  virtual void FillTextureData(VectorSlice<float>& data) const override {}
 };
 template <size_t Flags> using TextureNode = TextureInterface<Flags & SupportedBufferFlags::TEXTURES>;
 
 template <size_t Flags, bool enabled> struct ColorInterface : public TextureNode<Flags> {};
 template <size_t Flags>
 class ColorInterface<Flags, false> : public TextureNode<Flags> {
-	virtual void FillColorData(VectorSlice<float>&& data) const override {}
+	virtual void FillColorData(VectorSlice<float>& data) const override {}
 };
 template <size_t Flags> using ColorNode = ColorInterface<Flags, Flags & SupportedBufferFlags::COLORS>;
 
@@ -284,7 +376,7 @@ template <size_t Flags, bool enabled> struct IndexInterface : public ColorNode<F
 template <size_t Flags>
 class IndexInterface<Flags, false> : public ColorNode<Flags> {
   virtual size_t ExclusiveNodeIndexCount() const override { return 0; }
-	virtual void FillIndexData(VectorSlice<uint32_t>&& data) const override {}
+	virtual void FillIndexData(VectorSlice<uint32_t>& data) const override {}
 };
 template <size_t Flags> using IndexNode = IndexInterface<Flags, Flags & SupportedBufferFlags::INDICES>;
 
@@ -334,8 +426,8 @@ private:
   // TODO fix this.  Had to remove 'override' keyword because we can't tell
   // up front which functions need to be supported.
 	virtual size_t ExclusiveBufferSizeRequired() const { return 0; }
-	virtual void FillVertexData(VectorSlice<float>&& data) const {};
-	virtual void FillColorData(VectorSlice<float>&& data) const {};
+	virtual void FillVertexData(VectorSlice<float>& data) const {};
+	virtual void FillColorData(VectorSlice<float>& data) const {};
   virtual void DrawSelf() const {}
 };
 
@@ -370,7 +462,7 @@ public:
 	void RenderTree(const Camera& camera) const;
 
 private:
-	virtual void FillVertexData(VectorSlice<float>&& data) const override {}
+	virtual void FillVertexData(VectorSlice<float>& data) const override {}
 	virtual size_t ExclusiveNodeVertexCount() const override { return 0; }
   virtual void DrawSelf() const override {}
   void CleanupBuffer();

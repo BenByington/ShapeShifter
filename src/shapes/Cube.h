@@ -30,8 +30,8 @@ public:
 private:
 
   virtual size_t ExclusiveNodeVertexCount() const override;
-	virtual void FillVertexData(Opengl::VectorSlice<float>&& data) const override;
-	virtual void FillColorData(Opengl::VectorSlice<float>&& data) const override;
+	virtual void FillVertexData(Opengl::VectorSlice<float>& data) const override;
+	virtual void FillColorData(Opengl::VectorSlice<float>& data) const override;
   virtual void DrawSelf() const override;
 
   float sx_;
