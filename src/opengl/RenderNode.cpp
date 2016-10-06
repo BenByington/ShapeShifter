@@ -36,14 +36,25 @@ size_t RenderNode::SubtreeVertexCount() const {
 	return ret;
 }
 
+// TODO combine with above?
+size_t RenderNode::SubtreeIndexCount() const {
+	auto ret = ExclusiveNodeIndexCount();
+	for (const auto& child : children) {
+		ret += child->SubtreeIndexCount();
+	}
+	return ret;
+}
+
 void RenderNode::PopulateBufferData(MixedDataMap& data) {
 	for (const auto& child : children) {
 		child->PopulateBufferData(data);
 	}
 
-  auto local_data = data.NextSlice(ExclusiveNodeVertexCount());
+  auto local_data = data.NextSlice(ExclusiveNodeVertexCount(), ExclusiveNodeIndexCount());
 	start_vertex_ = local_data.start_vertex();
 	end_vertex_ = local_data.end_vertex();
+	start_index_ = local_data.start_index();
+	end_index_ = local_data.end_index();
 
   // TODO automate this mapping somehow...
   for(auto& key: data.keys()) {
@@ -60,7 +71,7 @@ void RenderNode::PopulateBufferData(MixedDataMap& data) {
       }
       case SupportedBuffers::INDICES:
       {
-        assert(false);
+        FillIndexData(local_data.get<SupportedBuffers::INDICES>());
         break;
       }
       case SupportedBuffers::TEXTURES:
@@ -78,17 +89,22 @@ void RootNode::UpdateData() {
 	// out how big the tree is, and then again to actually populate the VAO.
 	// Could potentially recurse once, filling pre-allocated buffers and adding
 	// more as necessary?
+  // TODO: I don't think this will save much time anymore, but regardless,
+  //       with the new tree construction constraints, the first recursion
+  //       could be done then since things are essentially forced to be
+  //       created bottom up.
 	CleanupBuffer();
-	auto size = this->SubtreeVertexCount();
+	auto vert_size = this->SubtreeVertexCount();
+  auto idx_size = this->SubtreeIndexCount();
 
   std::set<SupportedBuffers> keys;
   for (const auto& kv : idx_map) {
     keys.insert(kv.first);
   }
-  MixedDataMap data(keys, size);
+  MixedDataMap data(keys, vert_size, idx_size);
 
-	this->PopulateBufferData(data);
-	assert(data.DataRemaining() == 0);
+	PopulateBufferData(data);
+	assert(data.VertexDataRemaining() == 0);
 
   glGenVertexArrays (1, &vao);
   glBindVertexArray (vao);
@@ -99,23 +115,32 @@ void RootNode::UpdateData() {
     glGenBuffers (1, &vbo);
     glBindBuffer (GL_ARRAY_BUFFER, vbo);
     glBufferData (GL_ARRAY_BUFFER, buffer_dat.size() * sizeof (float), buffer_dat.data(), GL_STATIC_DRAW);
+    // TODO 3 hardcode is wrong for textures?
     glVertexAttribPointer (idx_map.at(kv.first), 3, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(idx_map.at(kv.first));
   }
 
   for (const auto& kv : data.IntegralData()) {
     assert(kv.first == SupportedBuffers::INDICES);
+    ibo = GLuint{0};
+    const auto& buffer_dat = kv.second;
+    glGenBuffers (1, &ibo);
+    glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glBufferData (GL_ELEMENT_ARRAY_BUFFER, buffer_dat.size() * sizeof (uint32_t), buffer_dat.data(), GL_STATIC_DRAW);
   }
 }
 
 void RootNode::CleanupBuffer() {
 	//TODO check to make sure this is correct
 	glDeleteVertexArrays(1, &vao);
+  if (ibo != 0) glDeleteBuffers(1, &ibo);
 	vao = 0;
+  ibo = 0;
 }
 
 void RootNode::RenderTree(const Camera& camera) const {
   glBindVertexArray(vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   program_->UseProgram();
   this->DrawChildren(camera, math::Quaternion(), math::Vector4({0, 0, 0, 1}), *program_);
 }
@@ -139,8 +164,8 @@ void RenderNode::DrawChildren(
 }
 
 void RenderNode::DebugRotation(const math::Matrix4& mat) const {
-  auto dataset = MixedDataMap({SupportedBuffers::VERTICES}, ExclusiveNodeVertexCount());
-  auto slices = dataset.NextSlice(ExclusiveNodeVertexCount());
+  auto dataset = MixedDataMap({SupportedBuffers::VERTICES}, ExclusiveNodeVertexCount(), 0);
+  auto slices = dataset.NextSlice(ExclusiveNodeVertexCount(), 0);
   auto& slice = slices.get<SupportedBuffers::VERTICES>();
   FillVertexData(slice);
   std::cerr << "Matrix: " << std::endl;

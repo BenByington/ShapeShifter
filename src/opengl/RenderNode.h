@@ -80,7 +80,7 @@ public:
   static const size_t floats_per_vert_ = 3;
   static const size_t floats_per_color_ = 3;
   static const size_t floats_per_text_ = 2;
-  static const size_t floats_per_ind = 1;
+  static const size_t floats_per_ind_ = 1;
 
   template <typename T>
   using Storage_t = Storage<T>;
@@ -206,9 +206,13 @@ public:
       const std::vector<std::pair<SupportedBuffers, std::vector<float>&>>& float_data,
       const std::vector<std::pair<SupportedBuffers, std::vector<uint32_t>&>>& int_data,
       size_t start_vert,
-      size_t end_vert)
+      size_t end_vert,
+      size_t start_idx,
+      size_t end_idx)
     : start_vertex_(start_vert)
-    , end_vertex_(end_vert) {
+    , end_vertex_(end_vert)
+    , start_index_(start_idx)
+    , end_index_(end_idx) {
 
     for (const auto& kv : float_data) {
       switch (kv.first) {
@@ -228,7 +232,20 @@ public:
     }
 
     for (const auto& kv : int_data) {
-      assert(false);
+      switch (kv.first) {
+        case SupportedBuffers::COLORS:
+          assert(false);
+          break;
+        case SupportedBuffers::TEXTURES:
+          assert(false);
+          break;
+        case SupportedBuffers::VERTICES:
+          assert(false);
+          break;
+        case SupportedBuffers::INDICES:
+          get<SupportedBuffers::INDICES>() = VectorSlice<uint32_t>(kv.second, start_idx, end_idx, floats_per_ind_);
+          break;
+      }
     }
 
   }
@@ -236,21 +253,25 @@ public:
   size_t start_vertex() { return start_vertex_; }
   size_t end_vertex() { return end_vertex_; }
 
+  size_t start_index() { return start_index_; }
+  size_t end_index() { return end_index_; }
 private:
   size_t start_vertex_;
+  size_t start_index_;
   size_t end_vertex_;
+  size_t end_index_;
 };
 
 class MixedDataMap final : public MixedDataMapBase<std::vector> {
 public:
-  MixedDataMap(std::set<SupportedBuffers> keys, size_t vertex_count) {
+  MixedDataMap(std::set<SupportedBuffers> keys, size_t vertex_count, size_t idx_count) {
     for (const auto& key: keys) {
       switch (key) {
         case SupportedBuffers::COLORS:
           get<SupportedBuffers::COLORS>().resize(vertex_count*floats_per_color_);
           break;
         case SupportedBuffers::INDICES:
-          get<SupportedBuffers::INDICES>().resize(vertex_count*floats_per_ind);
+          get<SupportedBuffers::INDICES>().resize(idx_count*floats_per_ind_);
           break;
         case SupportedBuffers::TEXTURES:
           get<SupportedBuffers::TEXTURES>().resize(vertex_count*floats_per_text_);
@@ -261,7 +282,9 @@ public:
       }
     }
     total_vertices_ = vertex_count;
+    total_indices_ = idx_count;
     next_free_vertex_ = 0;
+    next_free_index_ = 0;
   }
 
   MixedDataMap(const MixedDataMap&) = delete;
@@ -270,24 +293,35 @@ public:
   MixedDataMap& operator=(const MixedDataMap&) = delete;
   MixedDataMap& operator=(MixedDataMap&&) = default;
 
-  MixedSliceMap NextSlice(size_t vertex_count) {
+  MixedSliceMap NextSlice(size_t vertex_count, size_t index_count) {
+    // TODO unify vertex and index into single structure?
     auto vertex = next_free_vertex_;
+    auto idx = next_free_index_;
     next_free_vertex_ += vertex_count;
+    next_free_index_ += index_count;
     return MixedSliceMap(
         FloatData(),
         IntegralData(),
         vertex,
-        next_free_vertex_
+        next_free_vertex_,
+        idx,
+        next_free_index_
         );
   }
 
-  size_t DataRemaining() {
+  size_t VertexDataRemaining() {
     return total_vertices_ - next_free_vertex_;
+  }
+
+  size_t IndexDataRemaining() {
+    return total_indices_ - next_free_index_;
   }
 
 private:
   size_t next_free_vertex_ = 0;
+  size_t next_free_index_ = 0;
   size_t total_vertices_ = 0;
+  size_t total_indices_ = 0;
 };
 
 /**
@@ -314,9 +348,12 @@ protected:
 	// FillVertexData and FillColorData.
 	size_t start_vertex() const {return start_vertex_; }
 	size_t end_vertex() const {return end_vertex_; }
+	size_t start_index() const {return start_index_; }
+	size_t end_index() const {return end_index_; }
 
 	// Compute how big the VAO should be
 	size_t SubtreeVertexCount() const;
+	size_t SubtreeIndexCount() const;
 	// Fill the VAO with data and push to card
   void PopulateBufferData(MixedDataMap& data);
 	// Renders all children in the tree.
@@ -342,7 +379,9 @@ private:
   void DebugRotation(const math::Matrix4& mat) const;
 
   size_t start_vertex_ = 0;
-	size_t end_vertex_ = 0;
+  size_t start_index_ = 0;
+  size_t end_vertex_= 0;
+	size_t end_index_ = 0;
 
   math::Quaternion rotation_;
   math::Vector4 translation_;
@@ -386,7 +425,7 @@ template <size_t Flags>
 class TypedRenderNode : public detail::IndexNode<Flags> {
   static_assert(Flags < SupportedBufferFlags::END_VALUE, "Invalid flags for buffer support");
 public:
-  constexpr static size_t Flags_t = Flags;
+  constexpr static const size_t Flags_t = Flags;
   TypedRenderNode() {}
   virtual ~TypedRenderNode() {}
 
@@ -475,6 +514,7 @@ private:
 	void UpdateData();
 
   GLuint vao = 0;
+  GLuint ibo = 0;
   std::shared_ptr<Shaders::ShaderProgram> program_;
   std::map<SupportedBuffers, size_t> idx_map;
 };

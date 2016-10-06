@@ -24,6 +24,10 @@ size_t Cube::ExclusiveNodeVertexCount() const {
   return 72;
 }
 
+size_t Cube::ExclusiveNodeIndexCount() const {
+  return 72;
+}
+
 void Cube::FillVertexData(Opengl::VectorSlice<float>& data) const {
   auto FillVertex = [&](float f1, float f2, float f3) {
     static size_t idx = 0;
@@ -95,8 +99,14 @@ void Cube::FillColorData(Opengl::VectorSlice<float>& data) const {
   FillFaceColor(0, 1, 1);
 }
 
+void Cube::FillIndexData(Opengl::VectorSlice<uint32_t>& data) const {
+  for (uint32_t i = 0; i < ExclusiveNodeVertexCount(); ++i) {
+    data[i] = i;
+  }
+}
+
 void Cube::DrawSelf() const {
-  glDrawArrays (GL_TRIANGLES, start_vertex(), this->ExclusiveNodeVertexCount());
+  glDrawElements(GL_TRIANGLES, this->ExclusiveNodeIndexCount(), GL_UNSIGNED_INT, 0);
 }
 
 }} // ShapeShifter::Shapes

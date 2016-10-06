@@ -19,7 +19,10 @@
 namespace ShapeShifter {
 namespace Shapes {
 
-class Cube final : public Opengl::TypedRenderNode<Opengl::SupportedBufferFlags::COLORS>{
+class Cube final : public Opengl::TypedRenderNode<
+    Opengl::SupportedBufferFlags::COLORS |
+    Opengl::SupportedBufferFlags::INDICES
+>{
 public:
   Cube(float sx, float sy, float sz);
   Cube(const Cube& orig) = delete;
@@ -30,8 +33,10 @@ public:
 private:
 
   virtual size_t ExclusiveNodeVertexCount() const override;
+  virtual size_t ExclusiveNodeIndexCount() const override;
 	virtual void FillVertexData(Opengl::VectorSlice<float>& data) const override;
 	virtual void FillColorData(Opengl::VectorSlice<float>& data) const override;
+	virtual void FillIndexData(Opengl::VectorSlice<uint32_t>& data) const override;
   virtual void DrawSelf() const override;
 
   float sx_;
