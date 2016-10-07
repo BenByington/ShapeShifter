@@ -29,6 +29,7 @@ size_t Cube::ExclusiveNodeIndexCount() const {
 }
 
 void Cube::FillVertexData(Opengl::VectorSlice<float>& data) const {
+  // TODO build this functionality into the VectorSlice object
   auto FillVertex = [&](float f1, float f2, float f3) {
     static size_t idx = 0;
     data[idx] = f1;
@@ -106,7 +107,12 @@ void Cube::FillIndexData(Opengl::VectorSlice<uint32_t>& data) const {
 }
 
 void Cube::DrawSelf() const {
-  glDrawElements(GL_TRIANGLES, ExclusiveNodeIndexCount(), GL_UNSIGNED_INT, (GLvoid*)(start_index()*sizeof(uint32_t)));
+  glDrawElements(
+      GL_TRIANGLES,
+      ExclusiveNodeIndexCount(),
+      GL_UNSIGNED_INT,
+      // TODO look for cleaner cast?
+      (GLvoid*)(start_index()*sizeof(uint32_t)));
 }
 
 }} // ShapeShifter::Shapes

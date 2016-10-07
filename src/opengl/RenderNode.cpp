@@ -36,7 +36,7 @@ size_t RenderNode::SubtreeVertexCount() const {
 	return ret;
 }
 
-// TODO combine with above?
+// TODO combine index and vertex indexing?
 size_t RenderNode::SubtreeIndexCount() const {
 	auto ret = ExclusiveNodeIndexCount();
 	for (const auto& child : children) {

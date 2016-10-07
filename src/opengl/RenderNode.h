@@ -44,7 +44,7 @@ struct traits<SupportedBuffers::INDICES> {
 // Helper class to help make sure nodes don't overwrite each other's data
 // TODO: Should live elsewhere?
 template <typename T>
-class VectorSlice final{
+class VectorSlice final {
 public:
   VectorSlice(const VectorSlice& other) = delete;
   VectorSlice(VectorSlice<T>&& other) = default;
@@ -82,6 +82,7 @@ public:
   static const size_t floats_per_vert_ = 3;
   static const size_t floats_per_color_ = 3;
   static const size_t floats_per_text_ = 2;
+  // TODO change this to be 3 and rename floats_per_tri_
   static const size_t floats_per_ind_ = 1;
 
   template <typename T>
@@ -444,6 +445,7 @@ public:
   std::shared_ptr<RenderNode> AddChild(
       std::unique_ptr<Other> child,
 	    typename std::enable_if<
+          //TODO cleanup and hide away this logic
           (Other::Flags_t & Flags) == Flags
           && std::is_base_of<TypedRenderNode<Other::Flags_t>, Other>::value
           && (Other::Flags_t & SupportedBufferFlags::INDICES) == (Flags & SupportedBufferFlags::INDICES)
@@ -480,6 +482,7 @@ public:
   RootNode(
       std::unique_ptr<Other> tree,
       std::shared_ptr<Shaders::ShaderProgram> program,
+      // TODO move this to template parameter with default argument
 	    typename std::enable_if<
           std::is_base_of<TypedRenderNode<Other::Flags_t>, Other>::value
       >::type* dummy = 0 // Only here for SFINAE

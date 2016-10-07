@@ -94,6 +94,8 @@ void Sphere::FillIndexData(Opengl::VectorSlice<uint32_t>& data) const {
     idx += 3;
   };
 
+  // TODO replace with something more procedural
+  // Should port over mesh tesselation code.
   FillTriangle(0,1,2);
   FillTriangle(0,3,1);
 
@@ -124,11 +126,15 @@ void Sphere::FillIndexData(Opengl::VectorSlice<uint32_t>& data) const {
 }
 
 void Sphere::DrawSelf() const {
-  //TODO put better place
+  //TODO set up global and toggle-able culling
   //glEnable(GL_CULL_FACE);
   //glCullFace(GL_BACK);
 
-  glDrawElements(GL_TRIANGLES, ExclusiveNodeIndexCount(), GL_UNSIGNED_INT, (GLvoid*)(start_index()*sizeof(uint32_t)));
+  glDrawElements(
+      GL_TRIANGLES,
+      ExclusiveNodeIndexCount(),
+      GL_UNSIGNED_INT,
+      (GLvoid*)(start_index()*sizeof(uint32_t)));
 }
 
 }} // ShapeShifter::Shapes

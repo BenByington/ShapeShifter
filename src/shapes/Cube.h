@@ -11,6 +11,7 @@
  * Created on August 31, 2016, 4:07 PM
  */
 
+//TODO fix all header guards to include namespace
 #ifndef CUBE_H
 #define CUBE_H
 

@@ -33,7 +33,9 @@ std::unique_ptr<Opengl::World> IndexBuffers::Setup() {
 
   auto sphere = std::make_unique<Shapes::Sphere>(0.2);
 
-  constexpr auto flag = Opengl::SupportedBufferFlags::COLORS | Opengl::SupportedBufferFlags::INDICES;
+  constexpr auto flag = Opengl::SupportedBufferFlags::COLORS
+     | Opengl::SupportedBufferFlags::INDICES;
+
   auto pure = std::make_unique<Opengl::PureNode<flag>>();
   pure->AddChild(std::move(sphere));
   pure->AddChild(std::move(cube));
@@ -45,7 +47,6 @@ std::unique_ptr<Opengl::World> IndexBuffers::Setup() {
 	auto program = std::make_shared<Opengl::Shaders::ShaderProgram>(
       std::move(vert), std::move(frag));
 
-	//auto root = std::make_unique<Opengl::RootNode>(std::move(cube),  program);
 	auto root = std::make_unique<Opengl::RootNode>(std::move(pure),  program);
   root->SetTranslation(Opengl::math::Vector4({-.5, -.5, -2.5, 1}));
 
