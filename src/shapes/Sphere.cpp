@@ -31,8 +31,8 @@ size_t Sphere::ExclusiveNodeIndexCount() const {
 void Sphere::FillVertexData(Opengl::VectorSlice<float>& data) const {
   // TODO unify with cube's version and build into slice.  It can automatically
   // know how many floats go with a single vertex for each buffer.
+  auto idx = size_t{0};
   auto FillVertex = [&](float f1, float f2, float f3) {
-    static size_t idx = 0;
     data[idx] = radius_* f1;
     data[idx+1] = radius_*f2;
     data[idx+2] = radius_*f3;
@@ -60,8 +60,8 @@ void Sphere::FillVertexData(Opengl::VectorSlice<float>& data) const {
 
 void Sphere::FillColorData(Opengl::VectorSlice<float>& data) const {
   // TODO unify with cube's version?
+  auto idx = size_t{0};
   auto FillColor = [&](float f1, float f2, float f3) {
-    static size_t idx = 0;
     data[idx] = f1;
     data[idx+1] = f2;
     data[idx+2] = f3;
@@ -86,8 +86,8 @@ void Sphere::FillColorData(Opengl::VectorSlice<float>& data) const {
 
 void Sphere::FillIndexData(Opengl::VectorSlice<uint32_t>& data) const {
   // TODO unify with cube's version?
+  auto idx = size_t{0};
   auto FillTriangle = [&](float f1, float f2, float f3) {
-    static size_t idx = 0;
     data[idx] = f1;
     data[idx+1] = f2;
     data[idx+2] = f3;

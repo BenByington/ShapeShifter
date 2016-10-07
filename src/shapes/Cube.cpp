@@ -30,8 +30,8 @@ size_t Cube::ExclusiveNodeIndexCount() const {
 
 void Cube::FillVertexData(Opengl::VectorSlice<float>& data) const {
   // TODO build this functionality into the VectorSlice object
+  auto idx = size_t{0};
   auto FillVertex = [&](float f1, float f2, float f3) {
-    static size_t idx = 0;
     data[idx] = f1;
     data[idx+1] = f2;
     data[idx+2] = f3;
@@ -82,8 +82,8 @@ void Cube::FillVertexData(Opengl::VectorSlice<float>& data) const {
 }
 
 void Cube::FillColorData(Opengl::VectorSlice<float>& data) const {
+  auto idx = size_t{0};
   auto FillFaceColor = [&](float f1, float f2, float f3) {
-    static size_t idx = 0;
     for (size_t i = 0; i < 6; ++i) {
       data[idx] = f1;
       data[idx+1] = f2;
