@@ -52,7 +52,7 @@ public:
   VectorSlice(std::vector<T>& v, size_t start, size_t end, size_t elem_size)
     : data_(v.data() + start*elem_size)
     , size_(elem_size * (end-start)) {
-    assert(v.size() > 0);
+    assert(v.size() > 0 || (start == 0 && end == 0));
     assert(end >= start);
     assert(start*elem_size <= v.size());
     assert(end*elem_size <= v.size());
@@ -66,6 +66,8 @@ public:
     assert(idx < size_);
     return data_[idx];
   }
+  T* begin() { return  data_; }
+  T* end() {return data_ + size_; }
   size_t size() const { return size_; }
 private:
   T* data_;
@@ -464,9 +466,11 @@ public:
 private:
   // TODO fix this.  Had to remove 'override' keyword because we can't tell
   // up front which functions need to be supported.
-	virtual size_t ExclusiveBufferSizeRequired() const { return 0; }
+	virtual size_t ExclusiveNodeVertexCount() const { return 0; }
+	virtual size_t ExclusiveNodeIndexCount() const { return 0; }
 	virtual void FillVertexData(VectorSlice<float>& data) const {};
 	virtual void FillColorData(VectorSlice<float>& data) const {};
+	virtual void FillIndexData(VectorSlice<uint32_t>& data) const {};
   virtual void DrawSelf() const {}
 };
 

@@ -71,7 +71,12 @@ void RenderNode::PopulateBufferData(MixedDataMap& data) {
       }
       case SupportedBuffers::INDICES:
       {
-        FillIndexData(local_data.get<SupportedBuffers::INDICES>());
+        auto&& slice = local_data.get<SupportedBuffers::INDICES>();
+        FillIndexData(slice);
+        size_t offset = start_vertex();
+        for (auto& ind: slice) {
+          ind += offset;
+        }
         break;
       }
       case SupportedBuffers::TEXTURES:
@@ -105,6 +110,7 @@ void RootNode::UpdateData() {
 
 	PopulateBufferData(data);
 	assert(data.VertexDataRemaining() == 0);
+	assert(data.IndexDataRemaining() == 0);
 
   glGenVertexArrays (1, &vao);
   glBindVertexArray (vao);

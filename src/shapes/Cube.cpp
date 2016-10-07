@@ -21,11 +21,11 @@ namespace Shapes {
 Cube::Cube(float sx, float sy, float sz) : sx_(sx), sy_(sy), sz_(sz) {}
 
 size_t Cube::ExclusiveNodeVertexCount() const {
-  return 72;
+  return 36;
 }
 
 size_t Cube::ExclusiveNodeIndexCount() const {
-  return 72;
+  return 36;
 }
 
 void Cube::FillVertexData(Opengl::VectorSlice<float>& data) const {
@@ -45,8 +45,8 @@ void Cube::FillVertexData(Opengl::VectorSlice<float>& data) const {
       0.0f, 0.0f,
       1.0f, 0.0f,
       0.0f, 1.0f,
-      1.0f, 1.0f,
       1.0f, 0.0f,
+      1.0f, 1.0f,
       0.0f, 1.0f
     };
 
@@ -54,8 +54,8 @@ void Cube::FillVertexData(Opengl::VectorSlice<float>& data) const {
       1.0f, 0.0f,
       0.0f, 1.0f,
       0.0f, 0.0f,
-      1.0f, 0.0f,
       0.0f, 1.0f,
+      1.0f, 0.0f,
       1.0f, 1.0f
     };
 
@@ -106,7 +106,7 @@ void Cube::FillIndexData(Opengl::VectorSlice<uint32_t>& data) const {
 }
 
 void Cube::DrawSelf() const {
-  glDrawElements(GL_TRIANGLES, this->ExclusiveNodeIndexCount(), GL_UNSIGNED_INT, 0);
+  glDrawElements(GL_TRIANGLES, ExclusiveNodeIndexCount(), GL_UNSIGNED_INT, (GLvoid*)(start_index()*sizeof(uint32_t)));
 }
 
 }} // ShapeShifter::Shapes

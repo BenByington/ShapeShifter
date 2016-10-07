@@ -14,6 +14,7 @@
 #include "opengl/math/Quaternion.h"
 #include "scenarios/tests/IndexBuffers.h"
 #include "shapes/Cube.h"
+#include "shapes/Sphere.h"
 
 #include <cassert>
 #include <cmath>
@@ -26,6 +27,16 @@ namespace tests {
 std::unique_ptr<Opengl::World> IndexBuffers::Setup() {
 
   auto cube = std::make_unique<Shapes::Cube>(.5f, .7f, .85f);
+  cube->SetRotation(Opengl::math::Quaternion(.5, 1, 1, 1));
+  cube->SetTranslation(Opengl::math::Vector4({.7, .2, -.4, 1}));
+
+
+  auto sphere = std::make_unique<Shapes::Sphere>(0.2);
+
+  constexpr auto flag = Opengl::SupportedBufferFlags::COLORS | Opengl::SupportedBufferFlags::INDICES;
+  auto pure = std::make_unique<Opengl::PureNode<flag>>();
+  pure->AddChild(std::move(sphere));
+  pure->AddChild(std::move(cube));
 
 	auto vert = std::make_unique<Opengl::Shaders::VertexShader>(
 	    "/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert");
@@ -34,7 +45,8 @@ std::unique_ptr<Opengl::World> IndexBuffers::Setup() {
 	auto program = std::make_shared<Opengl::Shaders::ShaderProgram>(
       std::move(vert), std::move(frag));
 
-	auto root = std::make_unique<Opengl::RootNode>(std::move(cube),  program);
+	//auto root = std::make_unique<Opengl::RootNode>(std::move(cube),  program);
+	auto root = std::make_unique<Opengl::RootNode>(std::move(pure),  program);
   root->SetTranslation(Opengl::math::Vector4({-.5, -.5, -2.5, 1}));
 
   auto frust = Opengl::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
