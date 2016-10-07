@@ -47,6 +47,7 @@ protected:
 public slots:
   void EmptyScenario();
   void Squares2DScenario();
+  void IndexBufferScenario();
 
 private:
 

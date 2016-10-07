@@ -18,6 +18,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <limits>
 
 namespace ShapeShifter {
 namespace Opengl {
@@ -107,6 +108,11 @@ std::map<SupportedBuffers, size_t> ShaderProgram::BufferMapping() const {
     }
   }
 
+  // TODO fix this hack.  Shader doesn't care about indices.
+  if (check == SupportedBufferFlags::INDICES) {
+    check = 0;
+    ret[SupportedBuffers::INDICES] = std::numeric_limits<size_t>::max();
+  }
   if (check != 0 || !found_vertex) {
     throw std::runtime_error("Shader program does not take the requested inputs");
   }
@@ -115,6 +121,7 @@ std::map<SupportedBuffers, size_t> ShaderProgram::BufferMapping() const {
 
 // TODO cleanup
 template std::map<SupportedBuffers, size_t> ShaderProgram::BufferMapping<SupportedBufferFlags::COLORS>() const;
+template std::map<SupportedBuffers, size_t> ShaderProgram::BufferMapping<SupportedBufferFlags::COLORS | SupportedBufferFlags::INDICES>() const;
 
 }}} // ShapeShifter::Opengl::Shaders
 

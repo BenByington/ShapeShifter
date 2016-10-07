@@ -36,39 +36,56 @@ size_t RenderNode::SubtreeVertexCount() const {
 	return ret;
 }
 
-size_t RenderNode::PopulateBufferData(
-    std::map<SupportedBuffers, std::vector<float>>& data,
-		const size_t start) {
-	auto idx = start;
+// TODO combine index and vertex indexing?
+size_t RenderNode::SubtreeIndexCount() const {
+	auto ret = ExclusiveNodeIndexCount();
 	for (const auto& child : children) {
-		idx += child->PopulateBufferData(data, idx);
+		ret += child->SubtreeIndexCount();
+	}
+	return ret;
+}
+
+void RenderNode::PopulateBufferData(MixedDataMap& data) {
+	for (const auto& child : children) {
+		child->PopulateBufferData(data);
 	}
 
-	start_vertex_ = idx;
-	end_vertex_ = start_vertex_ + ExclusiveNodeVertexCount();
+  auto local_data = data.NextSlice(ExclusiveNodeVertexCount(), ExclusiveNodeIndexCount());
+	start_vertex_ = local_data.start_vertex();
+	end_vertex_ = local_data.end_vertex();
+	start_index_ = local_data.start_index();
+	end_index_ = local_data.end_index();
 
   // TODO automate this mapping somehow...
-  for(auto& kv: data) {
-    switch (kv.first) {
+  for(auto& key: data.keys()) {
+    switch (key) {
       case SupportedBuffers::COLORS:
-        FillColorData(VectorSlice<float>(
-            kv.second, start_vertex_, end_vertex_, floats_per_color_));
+      {
+        FillColorData(local_data.get<SupportedBuffers::COLORS>());
         break;
+      }
       case SupportedBuffers::VERTICES:
-        FillVertexData(VectorSlice<float>(
-            kv.second, start_vertex_, end_vertex_, floats_per_vert_));
+      {
+        FillVertexData(local_data.get<SupportedBuffers::VERTICES>());
         break;
+      }
       case SupportedBuffers::INDICES:
-        assert(false);
+      {
+        auto&& slice = local_data.get<SupportedBuffers::INDICES>();
+        FillIndexData(slice);
+        size_t offset = start_vertex();
+        for (auto& ind: slice) {
+          ind += offset;
+        }
         break;
+      }
       case SupportedBuffers::TEXTURES:
-        FillTextureData(VectorSlice<float>(
-            kv.second, start_vertex_, end_vertex_, floats_per_text_));
+      {
+        FillTextureData(local_data.get<SupportedBuffers::TEXTURES>());
         break;
+      }
     }
   }
-
-	return end_vertex_ - start;
 }
 
 void RootNode::UpdateData() {
@@ -77,53 +94,59 @@ void RootNode::UpdateData() {
 	// out how big the tree is, and then again to actually populate the VAO.
 	// Could potentially recurse once, filling pre-allocated buffers and adding
 	// more as necessary?
+  // TODO: I don't think this will save much time anymore, but regardless,
+  //       with the new tree construction constraints, the first recursion
+  //       could be done then since things are essentially forced to be
+  //       created bottom up.
 	CleanupBuffer();
-	auto size = this->SubtreeVertexCount();
+	auto vert_size = this->SubtreeVertexCount();
+  auto idx_size = this->SubtreeIndexCount();
 
-  // TODO automate this mapping somehow...
-  std::map<SupportedBuffers, std::vector<float>> data;
-  for (const auto& kv: idx_map) {
-    switch (kv.first) {
-      case SupportedBuffers::COLORS:
-        data[kv.first].resize(size*floats_per_color_);
-        break;
-      case SupportedBuffers::INDICES:
-        data[kv.first].resize(size*floats_per_ind);
-        break;
-      case SupportedBuffers::TEXTURES:
-        data[kv.first].resize(size*floats_per_text_);
-        break;
-      case SupportedBuffers::VERTICES:
-        data[kv.first].resize(size*floats_per_vert_);
-        break;
-    }
+  std::set<SupportedBuffers> keys;
+  for (const auto& kv : idx_map) {
+    keys.insert(kv.first);
   }
+  MixedDataMap data(keys, vert_size, idx_size);
 
-	auto end = this->PopulateBufferData(data, 0);
-	assert(end == size);
+	PopulateBufferData(data);
+	assert(data.VertexDataRemaining() == 0);
+	assert(data.IndexDataRemaining() == 0);
 
   glGenVertexArrays (1, &vao);
   glBindVertexArray (vao);
 
-  for (const auto& kv: data) {
+  for (const auto& kv: data.FloatData()) {
     auto vbo = GLuint{0};
     const auto& buffer_dat = kv.second;
     glGenBuffers (1, &vbo);
     glBindBuffer (GL_ARRAY_BUFFER, vbo);
     glBufferData (GL_ARRAY_BUFFER, buffer_dat.size() * sizeof (float), buffer_dat.data(), GL_STATIC_DRAW);
+    // TODO 3 hardcode is wrong for textures?
     glVertexAttribPointer (idx_map.at(kv.first), 3, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(idx_map.at(kv.first));
+  }
+
+  for (const auto& kv : data.IntegralData()) {
+    assert(kv.first == SupportedBuffers::INDICES);
+    ibo = GLuint{0};
+    const auto& buffer_dat = kv.second;
+    glGenBuffers (1, &ibo);
+    glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glBufferData (GL_ELEMENT_ARRAY_BUFFER, buffer_dat.size() * sizeof (uint32_t), buffer_dat.data(), GL_STATIC_DRAW);
   }
 }
 
 void RootNode::CleanupBuffer() {
 	//TODO check to make sure this is correct
 	glDeleteVertexArrays(1, &vao);
+  if (ibo != 0) glDeleteBuffers(1, &ibo);
 	vao = 0;
+  ibo = 0;
 }
 
 void RootNode::RenderTree(const Camera& camera) const {
   glBindVertexArray(vao);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   program_->UseProgram();
   this->DrawChildren(camera, math::Quaternion(), math::Vector4({0, 0, 0, 1}), *program_);
 }
@@ -147,10 +170,13 @@ void RenderNode::DrawChildren(
 }
 
 void RenderNode::DebugRotation(const math::Matrix4& mat) const {
-  auto data = std::vector<float>(this->ExclusiveNodeVertexCount()*floats_per_vert_);
-  FillVertexData(VectorSlice<float>(data, 0, ExclusiveNodeVertexCount(), floats_per_vert_));
+  auto dataset = MixedDataMap({SupportedBuffers::VERTICES}, ExclusiveNodeVertexCount(), 0);
+  auto slices = dataset.NextSlice(ExclusiveNodeVertexCount(), 0);
+  auto& slice = slices.get<SupportedBuffers::VERTICES>();
+  FillVertexData(slice);
   std::cerr << "Matrix: " << std::endl;
   mat.print();
+  auto& data = dataset.get<SupportedBuffers::VERTICES>();
   for (size_t i = 0; i < data.size(); i += 3) {
     // TODO figure out how to make Vector4 constructor less verbose...
     auto vec = math::Vector4(std::array<float,4>{{data[i], data[i+1], data[i+2], 1}});
