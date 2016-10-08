@@ -82,14 +82,6 @@ void RenderNode::PopulateBufferData(Data::MixedDataMap& data) {
 
 void RootNode::UpdateData() {
 
-  // Note, this function essentially recurses the tree twice, once to figure
-	// out how big the tree is, and then again to actually populate the VAO.
-	// Could potentially recurse once, filling pre-allocated buffers and adding
-	// more as necessary?
-  // TODO: I don't think this will save much time anymore, but regardless,
-  //       with the new tree construction constraints, the first recursion
-  //       could be done then since things are essentially forced to be
-  //       created bottom up.
 	CleanupBuffer();
   auto size = SubtreeCounts();
 

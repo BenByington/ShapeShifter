@@ -52,7 +52,16 @@ Quaternion Quaternion::operator *(const Quaternion& other) const {
   ret.qx = qw * other.qx + other.qw * qx + qy*other.qz - qz*other.qy;
   ret.qy = qw * other.qy + other.qw * qy + qz*other.qx - qx*other.qz;
   ret.qz = qw * other.qz + other.qw * qz + qx*other.qy - qy*other.qx;
+  ret.Normalize();
   return ret;
+}
+
+void Quaternion::Normalize() {
+  auto mag = std::sqrt(qw*qw + qx*qx + qy*qy + qz*qz);
+  qw /= mag;
+  qx /= mag;
+  qy /= mag;
+  qz /= mag;
 }
 
 }}} // ShapeShifter::Opengl::math

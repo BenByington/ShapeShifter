@@ -64,7 +64,6 @@ Matrix4 Matrix4::Translate(float x, float y, float z) {
 			     0, 0, 0, 1}};
 }
 
-//TODO check all assembly generated in this file for good SIMD use
 Vector4 Matrix4::operator*(const Vector4& right) const {
 	auto ret = _mm_setzero_ps();
 
@@ -74,8 +73,6 @@ Vector4 Matrix4::operator*(const Vector4& right) const {
     auto col = _mm_load_ps(data_.begin() + i*DIM);
 	  temp = _mm_mul_ps(temp, col);
 		ret = _mm_add_ps(ret, temp);
-		// TODO look into xsave error about fused multiply add operations
-		//_mm_fmadd_ps(temp, ret, ret);
 	}
   return Vector4(ret);
 }

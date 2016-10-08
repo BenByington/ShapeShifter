@@ -31,10 +31,10 @@ public:
   virtual ~Quaternion() {}
 
   Quaternion operator*(const Quaternion& other) const;
+  void Normalize();
 
   Matrix4 RotationMatrix() const;
 
-  //TODO add normalization function
 private:
   float qw;
   float qx;
