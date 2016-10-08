@@ -54,14 +54,11 @@ protected:
 	// Functions for child classes to figure out what indices in the VAO they
 	// should be modifying.  Only guaranteed to be valid during calls to
 	// FillVertexData and FillColorData.
-	size_t start_vertex() const {return start_vertex_; }
-	size_t end_vertex() const {return end_vertex_; }
-	size_t start_triangle() const {return start_tri_; }
-	size_t end_triangle() const {return end_tri_; }
+	Data::BufferIndex start() const {return start_; }
+	Data::BufferIndex end() const {return end_; }
 
 	// Compute how big the VAO should be
-	size_t SubtreeVertexCount() const;
-	size_t SubtreeTriangleCount() const;
+	Data::BufferIndex SubtreeCounts() const;
 	// Fill the VAO with data and push to card
   void PopulateBufferData(Data::MixedDataMap& data);
 	// Renders all children in the tree.
@@ -76,8 +73,7 @@ private:
 	 * (3x number of vertices) and to actually populate the data and render
 	 * your own vertices.
    */
-	virtual size_t ExclusiveNodeVertexCount() const = 0;
-  virtual size_t ExclusiveNodeTriangleCount() const = 0;
+  virtual Data::BufferIndex ExclusiveNodeDataCount() const = 0;
   virtual void FillIndexData(Data::VectorSlice<uint32_t>& data) const = 0;
   virtual void FillTextureData(Data::VectorSlice<float>& data) const = 0;
 	virtual void FillColorData(Data::VectorSlice<float>& data) const = 0;
@@ -86,10 +82,8 @@ private:
 
   void DebugRotation(const math::Matrix4& mat) const;
 
-  size_t start_vertex_ = 0;
-  size_t start_tri_ = 0;
-  size_t end_vertex_= 0;
-	size_t end_tri_ = 0;
+  Data::BufferIndex start_;
+  Data::BufferIndex end_;
 
   math::Quaternion rotation_;
   math::Vector4 translation_;
@@ -124,7 +118,6 @@ template <size_t Flags> using ColorNode = ColorInterface<Flags, Flags & Supporte
 template <size_t Flags, bool enabled> struct IndexInterface : public ColorNode<Flags> {};
 template <size_t Flags>
 class IndexInterface<Flags, false> : public ColorNode<Flags> {
-  virtual size_t ExclusiveNodeTriangleCount() const override { return 0; }
 	virtual void FillIndexData(Data::VectorSlice<uint32_t>& data) const override {}
 };
 template <size_t Flags> using IndexNode = IndexInterface<Flags, Flags & SupportedBufferFlags::INDICES>;
@@ -180,8 +173,7 @@ public:
 private:
   // TODO fix this.  Had to remove 'override' keyword because we can't tell
   // up front which functions need to be supported.
-	virtual size_t ExclusiveNodeVertexCount() const { return 0; }
-	virtual size_t ExclusiveNodeTriangleCount() const { return 0; }
+	virtual Data::BufferIndex ExclusiveNodeDataCount() const { return Data::BufferIndex(); }
 	virtual void FillVertexData(Data::VectorSlice<float>& data) const {};
 	virtual void FillColorData(Data::VectorSlice<float>& data) const {};
 	virtual void FillIndexData(Data::VectorSlice<uint32_t>& data) const {};
@@ -221,7 +213,7 @@ public:
 
 private:
 	virtual void FillVertexData(Data::VectorSlice<float>& data) const override {}
-	virtual size_t ExclusiveNodeVertexCount() const override { return 0; }
+	virtual Data::BufferIndex ExclusiveNodeDataCount() const { return Data::BufferIndex(); }
   virtual void DrawSelf() const override {}
   void CleanupBuffer();
 

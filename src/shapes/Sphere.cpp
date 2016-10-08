@@ -24,12 +24,11 @@ using namespace Opengl::Data;
 
 Sphere::Sphere(float radius) : radius_(radius) {}
 
-size_t Sphere::ExclusiveNodeVertexCount() const {
-  return 12;
-}
-
-size_t Sphere::ExclusiveNodeTriangleCount() const {
-  return 20;
+BufferIndex Sphere::ExclusiveNodeDataCount() const {
+  auto ret = BufferIndex();
+  ret.vertex_ = 12;
+  ret.triangle_ = 20;
+  return ret;
 }
 
 void Sphere::FillVertexData(VectorSlice<float>& data) const {
@@ -118,9 +117,9 @@ void Sphere::DrawSelf() const {
 
   glDrawElements(
       GL_TRIANGLES,
-      ExclusiveNodeTriangleCount()*floats_per_triangle,
+      ExclusiveNodeDataCount().triangle_*floats_per_triangle,
       GL_UNSIGNED_INT,
-      (GLvoid*)(start_triangle()*floats_per_triangle*sizeof(uint32_t)));
+      (GLvoid*)(start().triangle_*floats_per_triangle*sizeof(uint32_t)));
 }
 
 }} // ShapeShifter::Shapes

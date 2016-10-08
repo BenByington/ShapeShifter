@@ -24,7 +24,6 @@ namespace Opengl {
 namespace Data {
 
 namespace detail {
-// TODO figure out cleaner solution
 template <SupportedBuffers b>
 struct traits {
   using type = float;
@@ -150,6 +149,27 @@ private:
   Storage<uint32_t> indices_;
 };
 
+struct BufferIndex {
+  BufferIndex() : vertex_(0), triangle_(0) {}
+  BufferIndex(const BufferIndex& o)
+  : vertex_(o.vertex_), triangle_(o.triangle_) {}
+
+  size_t vertex_ = 0;
+  size_t triangle_ = 0;
+
+  BufferIndex& operator+=(const BufferIndex& o) {
+    vertex_ += o.vertex_;
+    triangle_ += o.triangle_;
+    return *this;
+  }
+  BufferIndex operator-(const BufferIndex& o) {
+    BufferIndex ret;
+    ret.vertex_ = vertex_ - o.vertex_;
+    ret.triangle_ = triangle_ - o.triangle_;
+    return ret;
+  }
+};
+
 class MixedSliceMap final : public MixedDataMapBase<VectorSlice> {
 public:
   MixedSliceMap(const MixedSliceMap& other) = delete;
@@ -161,18 +181,14 @@ public:
   MixedSliceMap(
       const std::vector<std::pair<SupportedBuffers, std::vector<float>&>>& float_data,
       const std::vector<std::pair<SupportedBuffers, std::vector<uint32_t>&>>& int_data,
-      size_t start_vert, size_t end_vert, size_t start_idx, size_t end_idx);
+      BufferIndex start, BufferIndex end);
 
-  size_t start_vertex() { return start_vertex_; }
-  size_t end_vertex() { return end_vertex_; }
+  BufferIndex start() { return start_; }
+  BufferIndex end() { return end_; }
 
-  size_t start_triangle() { return start_tri_; }
-  size_t end_triangle() { return end_tri_; }
 private:
-  size_t start_vertex_;
-  size_t start_tri_;
-  size_t end_vertex_;
-  size_t end_tri_;
+  BufferIndex start_;
+  BufferIndex end_;
 };
 
 class MixedDataMap final : public MixedDataMapBase<std::vector> {
@@ -181,21 +197,18 @@ public:
   MixedDataMap(MixedDataMap&&) = default;
   MixedDataMap(
       std::set<SupportedBuffers> keys,
-      size_t vertex_count, size_t idx_count);
+      BufferIndex count);
 
   MixedDataMap& operator=(const MixedDataMap&) = delete;
   MixedDataMap& operator=(MixedDataMap&&) = default;
 
-  MixedSliceMap NextSlice(size_t vertex_count, size_t index_count);
+  MixedSliceMap NextSlice(BufferIndex count);
 
-  size_t VertexDataRemaining() { return total_vertices_ - next_free_vertex_; }
-  size_t TriangleDataRemaining() { return total_tri_ - next_free_tri_; }
+  BufferIndex DataRemaining();
 
 private:
-  size_t next_free_vertex_ = 0;
-  size_t next_free_tri_ = 0;
-  size_t total_vertices_ = 0;
-  size_t total_tri_ = 0;
+  BufferIndex next_free_;
+  BufferIndex total_;
 };
 
 }}} // ShapeShifter::Opengl::Data

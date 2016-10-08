@@ -48,7 +48,8 @@ public:
 	SquareTest2D() = default;
 	virtual ~SquareTest2D() {}
 private:
-	virtual size_t ExclusiveNodeVertexCount() const override;
+  using BufferIndex = Opengl::Data::BufferIndex;
+	virtual BufferIndex ExclusiveNodeDataCount() const override;
 	virtual void FillVertexData(Opengl::Data::VectorSlice<float>& data) const override;
 	virtual void FillColorData(Opengl::Data::VectorSlice<float>& data) const override;
 	virtual void DrawSelf() const override;
