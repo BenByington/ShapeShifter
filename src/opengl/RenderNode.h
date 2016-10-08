@@ -47,7 +47,7 @@ public:
 protected:
 	// Prevent any duplication so we can easier avoid conflicts over opengl
 	// resources.
-  RenderNode() : translation_({0.0f, 0.0f, 0.0f, 1.0f}) {}
+  RenderNode() : translation_(0.0f, 0.0f, 0.0f, 1.0f) {}
   RenderNode(const RenderNode& orig) = delete;
 	RenderNode& operator=(RenderNode&) = delete;
 
@@ -62,7 +62,6 @@ protected:
 	// Fill the VAO with data and push to card
   void PopulateBufferData(Data::MixedDataMap& data);
 	// Renders all children in the tree.
-	// TODO see how framerate is affected by the number/size of each child
 	void DrawChildren(const Camera& camera, const math::Quaternion& cumRot, const math::Vector4& cumTrans, const Shaders::ShaderProgram& shader) const;
 
 	std::vector<std::shared_ptr<RenderNode>> children;
@@ -139,7 +138,6 @@ public:
 
 	/**
 	 * Adds a child to this node.
-	 * TODO actually make that an error
 	 * Note: These are intentionally shared, and external code may keep a
 	 *       reference to do things like tweak the rotation matrix.  Tweaking the
 	 *       actual vertex count or absolute position will not be supported.
@@ -182,15 +180,14 @@ private:
 
 class RootNode : private TypedRenderNode<0> {
 public:
-  template <typename Other>
-  RootNode(
-      std::unique_ptr<Other> tree,
-      std::shared_ptr<Shaders::ShaderProgram> program,
-      // TODO move this to template parameter with default argument
+  template <typename Other, typename dummy =
 	    typename std::enable_if<
           std::is_base_of<TypedRenderNode<Other::Flags_t>, Other>::value
-      >::type* dummy = 0 // Only here for SFINAE
-      )
+      >::type
+  >
+  RootNode(
+      std::unique_ptr<Other> tree,
+      std::shared_ptr<Shaders::ShaderProgram> program)
     : program_(program) {
     children.emplace_back(tree.release());
     idx_map = program->BufferMapping<Other::Flags_t>();

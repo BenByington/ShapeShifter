@@ -41,9 +41,6 @@ ShaderProgram::ShaderProgram(
 	glAttachShader(program_, *frag_shader_);
 
 	//TODO Again check for errors
-	//TODO can link programs already in use.  Current RAII implementation will
-	//prevent that, don't know if I need any asserts to keep things sane if
-	//something evolves.
 	glLinkProgram(program_);
 
 	//TODO this is mostly copy/paste.  Factor out?
@@ -61,9 +58,7 @@ ShaderProgram::ShaderProgram(
 		//TODO need error handling on this as well.
 		glDeleteProgram(program_);
 
-		//TODO throw specific exception and do proper logging
-		std::cerr << slog;
-		throw std::exception();
+		throw std::runtime_error(slog);
 	}
 }
 
@@ -74,7 +69,6 @@ ShaderProgram::~ShaderProgram() {
 
 void ShaderProgram::uploadMatrix(const math::Matrix4& mat) const {
   auto transform_location = glGetUniformLocation(program_, "transform");
-  // TODO decipher this
   glUniformMatrix4fv(transform_location, 1, GL_FALSE, mat.data());
 }
 

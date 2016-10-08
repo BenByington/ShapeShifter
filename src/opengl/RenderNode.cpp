@@ -112,7 +112,7 @@ void RootNode::UpdateData() {
     glGenBuffers (1, &vbo);
     glBindBuffer (GL_ARRAY_BUFFER, vbo);
     glBufferData (GL_ARRAY_BUFFER, buffer_dat.size() * sizeof (float), buffer_dat.data(), GL_STATIC_DRAW);
-    // TODO 3 hardcode is wrong for textures?
+    // TODO 3 hardcode is wrong for textures!.
     glVertexAttribPointer (idx_map.at(kv.first), 3, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(idx_map.at(kv.first));
   }
@@ -128,7 +128,6 @@ void RootNode::UpdateData() {
 }
 
 void RootNode::CleanupBuffer() {
-	//TODO check to make sure this is correct
 	glDeleteVertexArrays(1, &vao);
   if (ibo != 0) glDeleteBuffers(1, &ibo);
 	vao = 0;
@@ -139,7 +138,7 @@ void RootNode::RenderTree(const Camera& camera) const {
   glBindVertexArray(vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   program_->UseProgram();
-  this->DrawChildren(camera, math::Quaternion(), math::Vector4({0, 0, 0, 1}), *program_);
+  this->DrawChildren(camera, math::Quaternion(), math::Vector4(0, 0, 0, 1), *program_);
 }
 
 void RenderNode::DrawChildren(
@@ -170,7 +169,7 @@ void RenderNode::DebugRotation(const math::Matrix4& mat) const {
   auto& data = dataset.get<SupportedBuffers::VERTICES>();
   for (size_t i = 0; i < data.size(); i += 3) {
     // TODO figure out how to make Vector4 constructor less verbose...
-    auto vec = math::Vector4(std::array<float,4>{{data[i], data[i+1], data[i+2], 1}});
+    auto vec = math::Vector4(data[i], data[i+1], data[i+2], 1);
     std::cerr << "Before: " << std::endl;
     vec.print();
     auto result = mat * vec;

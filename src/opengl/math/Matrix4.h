@@ -25,7 +25,6 @@ namespace Opengl {
 namespace math {
 
 // column major for now
-// TODO don't store __m128.  Just store alligned float array
 class alignas(16) Matrix4 final {
 public:
 
@@ -48,8 +47,7 @@ public:
 	Vector4 operator*(const Vector4& right) const;
 	Matrix4 operator*(const Matrix4& right) const;
 
-  // TODO this is ugly and possibly dangerous...  Fix!
-  const float* data() const { return reinterpret_cast<const float*>(data_.begin()); }
+  const float* data() const { return data_.begin(); }
 
   void print() const;
 

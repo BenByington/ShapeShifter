@@ -23,7 +23,6 @@ namespace ShapeShifter {
 namespace Opengl {
 namespace Data {
 
-//Forward.  TODO, clean this up when we split the file.
 template <typename T>
 class SliceFiller;
 

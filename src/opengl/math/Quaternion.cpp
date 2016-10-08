@@ -38,7 +38,6 @@ Quaternion::Quaternion(float s, const Vector3& dir) {
 }
 
 Matrix4 Quaternion::RotationMatrix() const {
-  // TODO This is row major returned as column major?
   return {{1 - 2*qy*qy - 2*qz*qz, 2*qx*qy + 2*qz*qw, 2*qx*qz - 2*qy*qw, 0
          ,2*qx*qy - 2*qz*qw, 1 - 2*qx*qx - 2*qz*qz,	2*qy*qz + 2*qx*qw, 0
          ,2*qx*qz + 2*qy*qw, 2*qy*qz - 2*qx*qw, 1 - 2*qx*qx - 2*qy*qy, 0

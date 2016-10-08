@@ -31,7 +31,6 @@ Shader::Shader(const std::string& filename, ShaderType t) {
 
   ParseLayouts(data);
 
-	// TODO make debug check only?
 	auto can_compile = GLint{GL_FALSE};
   glGetIntegerv(GL_SHADER_COMPILER, &can_compile);
 	assert(can_compile == GL_TRUE);
@@ -57,17 +56,11 @@ Shader::Shader(const std::string& filename, ShaderType t) {
 		//TODO need error handling on this as well.
 		glDeleteShader(shader);
 
-		//TODO throw specific exception and do proper logging
-		std::cerr << slog;
-		throw std::exception();
+		throw std::runtime_error(slog);
   }
 }
 
 Shader::~Shader() {
-	//TODO this wont necessary delete if we share shader amongst different
-	//rendering pipelines.  For now things will be set up to not be shared, but
-	//if that changes we may need to put in reference counters to keep track of
-	//how many pipelines use this particular shader.
 	glDeleteShader(shader);
 }
 

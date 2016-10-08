@@ -15,6 +15,7 @@
 #define VECTOR4_H
 
 #include <array>
+#include <cassert>
 #include <smmintrin.h>
 
 namespace ShapeShifter {
@@ -23,20 +24,18 @@ namespace math {
 
 class alignas(16) Vector4 final {
 public:
-	//TODO make sure I'm storing in correct order
-  explicit Vector4(const std::array<float, 4>& data);
-  // TODO see why explicit breaks this...
+  Vector4(const std::array<float, 4>& data);
+  Vector4(float f1, float f2, float f3, float f4);
 	Vector4(const __m128 data) {_mm_store_ps(data_.begin(), data); }
-  explicit Vector4(const Vector4& orig);
+  Vector4(const Vector4& orig);
 	const Vector4& operator=(const Vector4& other);
   ~Vector4();
 
   Vector4 operator+(const Vector4& other) const;
   Vector4 operator-(const Vector4& other) const;
 
-	//TODO ensure idx is valid?
-	float& operator[](int idx) { return data_[idx];}
-	const float& operator[](int idx) const { return data_[idx];}
+	float& operator[](size_t idx) { assert(idx < 4); return data_[idx];}
+	const float& operator[](size_t idx) const { assert(idx < 4); return data_[idx];}
   const float* begin() const { return data_.begin(); }
   const float* end() const { return data_.end(); }
 

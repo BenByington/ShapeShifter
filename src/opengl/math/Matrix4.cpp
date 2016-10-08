@@ -77,7 +77,6 @@ Vector4 Matrix4::operator*(const Vector4& right) const {
 		// TODO look into xsave error about fused multiply add operations
 		//_mm_fmadd_ps(temp, ret, ret);
 	}
-  // TODO look to see if it matters that we're saving as Vector4 instead of __m128
   return Vector4(ret);
 }
 

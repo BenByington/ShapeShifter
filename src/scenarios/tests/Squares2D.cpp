@@ -36,11 +36,11 @@ std::unique_ptr<Opengl::World> Squares2D::Setup() {
   auto fifth = std::make_unique<SquareTest2D>();
   auto manipulator = fifth->AddChild(std::move(sixth));
   manipulator->SetRotation({pi/2, 0, 1, 0});
-  manipulator->SetTranslation(Opengl::math::Vector4({-1, 0 , 1, 1.0}));
+  manipulator->SetTranslation(Opengl::math::Vector4(-1, 0 , 1, 1.0));
 
   auto fourth = std::make_unique<SquareTest2D>();
   manipulator = fourth->AddChild(std::move(fifth));
-  manipulator->SetTranslation(Opengl::math::Vector4({0, 0 , -1.0, 1.0}));
+  manipulator->SetTranslation(Opengl::math::Vector4(0, 0 , -1.0, 1.0));
 
   auto third = std::make_unique<SquareTest2D>();
   manipulator = third->AddChild(std::move(fourth));
@@ -48,7 +48,7 @@ std::unique_ptr<Opengl::World> Squares2D::Setup() {
 
   auto second = std::make_unique<SquareTest2D>();
   manipulator = second->AddChild(std::move(third));
-  manipulator->SetTranslation(Opengl::math::Vector4({0, 0 , -1.0, 1.0}));
+  manipulator->SetTranslation(Opengl::math::Vector4(0, 0 , -1.0, 1.0));
 
 	auto first = std::make_unique<SquareTest2D>();
   manipulator = first->AddChild(std::move(second));
@@ -62,11 +62,11 @@ std::unique_ptr<Opengl::World> Squares2D::Setup() {
       std::move(vert), std::move(frag));
 
 	auto root = std::make_unique<Opengl::RootNode>(std::move(first),  program);
-  root->SetTranslation(Opengl::math::Vector4({-.5, -.5, -2.5, 1}));
+  root->SetTranslation(Opengl::math::Vector4(-.5, -.5, -2.5, 1));
 
   auto frust = Opengl::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
   auto camera = std::make_unique<Opengl::Camera>(frust, 2.5);
-  camera->ChangePosition(Opengl::math::Vector4({0, 0, 0, 1.0f}));
+  camera->ChangePosition(Opengl::math::Vector4(0, 0, 0, 1.0f));
 
   auto world = std::make_unique<Opengl::World>(std::move(camera));
   world->SetRenderTree(std::move(root));

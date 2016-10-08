@@ -83,10 +83,8 @@ BufferIndex MixedDataMap::DataRemaining() {
 }
 
 MixedSliceMap MixedDataMap::NextSlice(BufferIndex count) {
-  // TODO unify vertex and index into single structure?
   auto start = next_free_;
-  next_free_.vertex_ += count.vertex_;
-  next_free_.triangle_ += count.triangle_;
+  next_free_ += count;
   return MixedSliceMap(
       FloatData(),
       IntegralData(),

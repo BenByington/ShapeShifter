@@ -22,6 +22,13 @@ namespace math {
 Vector4::Vector4(const std::array<float, 4>& other) :
     data_(other) {}
 
+Vector4::Vector4(float f1, float f2, float f3, float f4) {
+  data_[0] = f1;
+  data_[1] = f2;
+  data_[2] = f3;
+  data_[3] = f4;
+}
+
 Vector4::Vector4(const Vector4& orig) : data_(orig.data_) {}
 
 Vector4::~Vector4() {
@@ -42,7 +49,7 @@ Vector4 Vector4::operator +(const Vector4& other) const {
   auto left = _mm_load_ps(data_.begin());
   auto right = _mm_load_ps(other.data_.begin());
   auto sum = _mm_add_ps(left, right);
-  auto ret = Vector4(sum);
+  auto ret = Vector4{sum};
   //TODO clean this up... Shouldn't have to force to 1.
   ret[3] = 1;
   return ret;
