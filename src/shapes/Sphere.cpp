@@ -24,8 +24,8 @@ size_t Sphere::ExclusiveNodeVertexCount() const {
   return 12;
 }
 
-size_t Sphere::ExclusiveNodeIndexCount() const {
-  return 60;
+size_t Sphere::ExclusiveNodeTriangleCount() const {
+  return 20;
 }
 
 void Sphere::FillVertexData(Opengl::Data::VectorSlice<float>& data) const {
@@ -114,9 +114,10 @@ void Sphere::DrawSelf() const {
 
   glDrawElements(
       GL_TRIANGLES,
-      ExclusiveNodeIndexCount(),
+      // TODO fix hard codes
+      ExclusiveNodeTriangleCount()*3,
       GL_UNSIGNED_INT,
-      (GLvoid*)(start_index()*sizeof(uint32_t)));
+      (GLvoid*)(start_triangle()*3*sizeof(uint32_t)));
 }
 
 }} // ShapeShifter::Shapes

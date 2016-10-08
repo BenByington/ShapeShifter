@@ -42,8 +42,7 @@ public:
   static const size_t floats_per_vert_ = 3;
   static const size_t floats_per_color_ = 3;
   static const size_t floats_per_text_ = 2;
-  // TODO change this to be 3 and rename floats_per_tri_
-  static const size_t floats_per_ind_ = 1;
+  static const size_t floats_per_tri_ = 3;
 
   template <typename T>
   using Storage_t = Storage<T>;
@@ -173,13 +172,13 @@ public:
   size_t start_vertex() { return start_vertex_; }
   size_t end_vertex() { return end_vertex_; }
 
-  size_t start_index() { return start_index_; }
-  size_t end_index() { return end_index_; }
+  size_t start_triangle() { return start_tri_; }
+  size_t end_triangle() { return end_tri_; }
 private:
   size_t start_vertex_;
-  size_t start_index_;
+  size_t start_tri_;
   size_t end_vertex_;
-  size_t end_index_;
+  size_t end_tri_;
 };
 
 class MixedDataMap final : public MixedDataMapBase<std::vector> {
@@ -196,13 +195,13 @@ public:
   MixedSliceMap NextSlice(size_t vertex_count, size_t index_count);
 
   size_t VertexDataRemaining() { return total_vertices_ - next_free_vertex_; }
-  size_t IndexDataRemaining() { return total_indices_ - next_free_index_; }
+  size_t TriangleDataRemaining() { return total_tri_ - next_free_tri_; }
 
 private:
   size_t next_free_vertex_ = 0;
-  size_t next_free_index_ = 0;
+  size_t next_free_tri_ = 0;
   size_t total_vertices_ = 0;
-  size_t total_indices_ = 0;
+  size_t total_tri_ = 0;
 };
 
 }}} // ShapeShifter::Opengl::Data

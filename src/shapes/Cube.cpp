@@ -24,8 +24,8 @@ size_t Cube::ExclusiveNodeVertexCount() const {
   return 36;
 }
 
-size_t Cube::ExclusiveNodeIndexCount() const {
-  return 36;
+size_t Cube::ExclusiveNodeTriangleCount() const {
+  return 12;
 }
 
 void Cube::FillVertexData(Opengl::Data::VectorSlice<float>& data) const {
@@ -100,10 +100,12 @@ void Cube::FillIndexData(Opengl::Data::VectorSlice<uint32_t>& data) const {
 void Cube::DrawSelf() const {
   glDrawElements(
       GL_TRIANGLES,
-      ExclusiveNodeIndexCount(),
+      //TODO fix hard codes
+      ExclusiveNodeTriangleCount()*3,
       GL_UNSIGNED_INT,
       // TODO look for cleaner cast?
-      (GLvoid*)(start_index()*sizeof(uint32_t)));
+      //TODO make uint32_t configurable
+      (GLvoid*)(start_triangle()*3*sizeof(uint32_t)));
 }
 
 }} // ShapeShifter::Shapes

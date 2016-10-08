@@ -37,10 +37,10 @@ size_t RenderNode::SubtreeVertexCount() const {
 }
 
 // TODO combine index and vertex indexing?
-size_t RenderNode::SubtreeIndexCount() const {
-	auto ret = ExclusiveNodeIndexCount();
+size_t RenderNode::SubtreeTriangleCount() const {
+	auto ret = ExclusiveNodeTriangleCount();
 	for (const auto& child : children) {
-		ret += child->SubtreeIndexCount();
+		ret += child->SubtreeTriangleCount();
 	}
 	return ret;
 }
@@ -50,11 +50,11 @@ void RenderNode::PopulateBufferData(Data::MixedDataMap& data) {
 		child->PopulateBufferData(data);
 	}
 
-  auto local_data = data.NextSlice(ExclusiveNodeVertexCount(), ExclusiveNodeIndexCount());
+  auto local_data = data.NextSlice(ExclusiveNodeVertexCount(), ExclusiveNodeTriangleCount());
 	start_vertex_ = local_data.start_vertex();
 	end_vertex_ = local_data.end_vertex();
-	start_index_ = local_data.start_index();
-	end_index_ = local_data.end_index();
+	start_tri_ = local_data.start_triangle();
+	end_tri_ = local_data.end_triangle();
 
   // TODO automate this mapping somehow...
   for(auto& key: data.keys()) {
@@ -100,17 +100,17 @@ void RootNode::UpdateData() {
   //       created bottom up.
 	CleanupBuffer();
 	auto vert_size = this->SubtreeVertexCount();
-  auto idx_size = this->SubtreeIndexCount();
+  auto tri_size = this->SubtreeTriangleCount();
 
   std::set<SupportedBuffers> keys;
   for (const auto& kv : idx_map) {
     keys.insert(kv.first);
   }
-  Data::MixedDataMap data(keys, vert_size, idx_size);
+  Data::MixedDataMap data(keys, vert_size, tri_size);
 
 	PopulateBufferData(data);
 	assert(data.VertexDataRemaining() == 0);
-	assert(data.IndexDataRemaining() == 0);
+	assert(data.TriangleDataRemaining() == 0);
 
   glGenVertexArrays (1, &vao);
   glBindVertexArray (vao);
