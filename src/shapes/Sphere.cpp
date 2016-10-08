@@ -13,10 +13,14 @@
 
 #include "Sphere.h"
 
+#include "opengl/data/BufferTypes.h"
+
 #include <iostream>
 
 namespace ShapeShifter {
 namespace Shapes {
+
+using namespace Opengl::Data;
 
 Sphere::Sphere(float radius) : radius_(radius) {}
 
@@ -28,7 +32,7 @@ size_t Sphere::ExclusiveNodeTriangleCount() const {
   return 20;
 }
 
-void Sphere::FillVertexData(Opengl::Data::VectorSlice<float>& data) const {
+void Sphere::FillVertexData(VectorSlice<float>& data) const {
   auto data_filler = data.Filler();
   auto FillVertex = [&](float f1, float f2, float f3) {
     data_filler(radius_*f1, radius_*f2, radius_*f3);
@@ -54,7 +58,7 @@ void Sphere::FillVertexData(Opengl::Data::VectorSlice<float>& data) const {
 }
 
 // TODO search for and eradicate long fully qualified names
-void Sphere::FillColorData(Opengl::Data::VectorSlice<float>& data) const {
+void Sphere::FillColorData(VectorSlice<float>& data) const {
   auto DataFiller = data.Filler();
 
   DataFiller(0, 0, 1);
@@ -73,7 +77,7 @@ void Sphere::FillColorData(Opengl::Data::VectorSlice<float>& data) const {
   DataFiller(1, 0, 1);
 }
 
-void Sphere::FillIndexData(Opengl::Data::VectorSlice<uint32_t>& data) const {
+void Sphere::FillIndexData(VectorSlice<uint32_t>& data) const {
   auto FillData = data.Filler();
 
   // TODO replace with something more procedural
@@ -114,10 +118,9 @@ void Sphere::DrawSelf() const {
 
   glDrawElements(
       GL_TRIANGLES,
-      // TODO fix hard codes
-      ExclusiveNodeTriangleCount()*3,
+      ExclusiveNodeTriangleCount()*floats_per_triangle,
       GL_UNSIGNED_INT,
-      (GLvoid*)(start_triangle()*3*sizeof(uint32_t)));
+      (GLvoid*)(start_triangle()*floats_per_triangle*sizeof(uint32_t)));
 }
 
 }} // ShapeShifter::Shapes

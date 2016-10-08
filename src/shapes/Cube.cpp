@@ -13,10 +13,14 @@
 
 #include "Cube.h"
 
+#include "opengl/data/BufferTypes.h"
+
 #include <iostream>
 
 namespace ShapeShifter {
 namespace Shapes {
+
+using namespace Opengl::Data;
 
 Cube::Cube(float sx, float sy, float sz) : sx_(sx), sy_(sy), sz_(sz) {}
 
@@ -28,7 +32,7 @@ size_t Cube::ExclusiveNodeTriangleCount() const {
   return 12;
 }
 
-void Cube::FillVertexData(Opengl::Data::VectorSlice<float>& data) const {
+void Cube::FillVertexData(VectorSlice<float>& data) const {
   auto DataFiller = data.Filler();
 
   auto FillFace = [&](const size_t dim, const bool pos) {
@@ -74,7 +78,7 @@ void Cube::FillVertexData(Opengl::Data::VectorSlice<float>& data) const {
   FillFace(2, false);
 }
 
-void Cube::FillColorData(Opengl::Data::VectorSlice<float>& data) const {
+void Cube::FillColorData(VectorSlice<float>& data) const {
   auto DataFiller = data.Filler();
   auto idx = size_t{0};
   auto FillFaceColor = [&](float f1, float f2, float f3) {
@@ -91,7 +95,7 @@ void Cube::FillColorData(Opengl::Data::VectorSlice<float>& data) const {
   FillFaceColor(0, 1, 1);
 }
 
-void Cube::FillIndexData(Opengl::Data::VectorSlice<uint32_t>& data) const {
+void Cube::FillIndexData(VectorSlice<uint32_t>& data) const {
   for (uint32_t i = 0; i < ExclusiveNodeVertexCount(); ++i) {
     data[i] = i;
   }
@@ -100,12 +104,11 @@ void Cube::FillIndexData(Opengl::Data::VectorSlice<uint32_t>& data) const {
 void Cube::DrawSelf() const {
   glDrawElements(
       GL_TRIANGLES,
-      //TODO fix hard codes
-      ExclusiveNodeTriangleCount()*3,
+      ExclusiveNodeTriangleCount()*floats_per_triangle,
       GL_UNSIGNED_INT,
       // TODO look for cleaner cast?
       //TODO make uint32_t configurable
-      (GLvoid*)(start_triangle()*3*sizeof(uint32_t)));
+      (GLvoid*)(start_triangle()*floats_per_triangle*sizeof(uint32_t)));
 }
 
 }} // ShapeShifter::Shapes

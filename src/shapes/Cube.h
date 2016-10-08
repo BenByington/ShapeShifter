@@ -21,8 +21,8 @@ namespace ShapeShifter {
 namespace Shapes {
 
 class Cube final : public Opengl::TypedRenderNode<
-    Opengl::SupportedBufferFlags::COLORS |
-    Opengl::SupportedBufferFlags::INDICES
+    Opengl::Data::SupportedBufferFlags::COLORS |
+    Opengl::Data::SupportedBufferFlags::INDICES
 >{
 public:
   Cube(float sx, float sy, float sz);

@@ -18,7 +18,7 @@
 #include "opengl/math/Quaternion.h"
 #include "opengl/shaders/ShaderProgram.h"
 #include "opengl/Camera.h"
-#include "opengl/BufferTypes.h"
+#include "opengl/data/BufferTypes.h"
 #include "opengl/data/MixedDataMap.h"
 
 #include <opengl/gl3.h>
@@ -105,6 +105,8 @@ private:
  */
 namespace detail {
 
+using Opengl::Data::SupportedBufferFlags;
+
 template <bool Enabled> struct TextureInterface : public RenderNode {};
 template <>
 class TextureInterface<false> : public RenderNode {
@@ -131,7 +133,12 @@ template <size_t Flags> using IndexNode = IndexInterface<Flags, Flags & Supporte
 
 template <size_t Flags>
 class TypedRenderNode : public detail::IndexNode<Flags> {
+
+protected:
+  using SupportedBufferFlags = Data::SupportedBufferFlags;
+  using SupportedBuffers = Data::SupportedBuffers;
   static_assert(Flags < SupportedBufferFlags::END_VALUE, "Invalid flags for buffer support");
+
 public:
   constexpr static const size_t Flags_t = Flags;
   TypedRenderNode() {}

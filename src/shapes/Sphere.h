@@ -22,8 +22,8 @@ namespace ShapeShifter {
 namespace Shapes {
 
 class Sphere final : public Opengl::TypedRenderNode<
-    Opengl::SupportedBufferFlags::COLORS |
-    Opengl::SupportedBufferFlags::INDICES
+    Opengl::Data::SupportedBufferFlags::COLORS |
+    Opengl::Data::SupportedBufferFlags::INDICES
 >{
   constexpr static const auto phi = (1.0f + std::sqrt(5.0f))/2.0f;
 public:

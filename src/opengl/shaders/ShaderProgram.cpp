@@ -24,6 +24,9 @@ namespace ShapeShifter {
 namespace Opengl {
 namespace Shaders {
 
+using Data::SupportedBuffers;
+using Data::SupportedBufferFlags;
+
 ShaderProgram::ShaderProgram(
     std::unique_ptr<VertexShader> vert,
     std::unique_ptr<FragmentShader> frag)

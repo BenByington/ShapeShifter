@@ -20,6 +20,9 @@
 namespace ShapeShifter {
 namespace Opengl {
 
+using Data::SupportedBuffers;
+using Data::SupportedBufferFlags;
+
 void RenderNode::SetRotation(const math::Quaternion& rot) {
   this->rotation_ = rot;
 }

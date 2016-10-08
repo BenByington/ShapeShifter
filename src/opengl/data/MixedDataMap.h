@@ -38,12 +38,6 @@ struct traits<SupportedBuffers::INDICES> {
 template <template <typename...> class Storage>
 class MixedDataMapBase {
 public:
-  // TODO find better home?
-  static const size_t floats_per_vert_ = 3;
-  static const size_t floats_per_color_ = 3;
-  static const size_t floats_per_text_ = 2;
-  static const size_t floats_per_tri_ = 3;
-
   template <typename T>
   using Storage_t = Storage<T>;
 

@@ -26,6 +26,8 @@ namespace tests {
 
 std::unique_ptr<Opengl::World> IndexBuffers::Setup() {
 
+  using Opengl::Data::SupportedBufferFlags;
+
   auto cube = std::make_unique<Shapes::Cube>(.5f, .7f, .85f);
   cube->SetRotation(Opengl::math::Quaternion(.5, 1, 1, 1));
   cube->SetTranslation(Opengl::math::Vector4({.7, .2, -.4, 1}));
@@ -33,8 +35,8 @@ std::unique_ptr<Opengl::World> IndexBuffers::Setup() {
 
   auto sphere = std::make_unique<Shapes::Sphere>(0.2);
 
-  constexpr auto flag = Opengl::SupportedBufferFlags::COLORS
-     | Opengl::SupportedBufferFlags::INDICES;
+  constexpr auto flag = SupportedBufferFlags::COLORS
+     | SupportedBufferFlags::INDICES;
 
   auto pure = std::make_unique<Opengl::PureNode<flag>>();
   pure->AddChild(std::move(sphere));

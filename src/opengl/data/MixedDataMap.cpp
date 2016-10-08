@@ -25,13 +25,13 @@ MixedSliceMap::MixedSliceMap(
   for (const auto& kv : float_data) {
     switch (kv.first) {
       case SupportedBuffers::COLORS:
-        get<SupportedBuffers::COLORS>() = VectorSlice<float>(kv.second, start_vert, end_vert, floats_per_color_);
+        get<SupportedBuffers::COLORS>() = VectorSlice<float>(kv.second, start_vert, end_vert, floats_per_color);
         break;
       case SupportedBuffers::TEXTURES:
-        get<SupportedBuffers::TEXTURES>() = VectorSlice<float>(kv.second, start_vert, end_vert, floats_per_text_);
+        get<SupportedBuffers::TEXTURES>() = VectorSlice<float>(kv.second, start_vert, end_vert, floats_per_text);
         break;
       case SupportedBuffers::VERTICES:
-        get<SupportedBuffers::VERTICES>() = VectorSlice<float>(kv.second, start_vert, end_vert, floats_per_vert_);
+        get<SupportedBuffers::VERTICES>() = VectorSlice<float>(kv.second, start_vert, end_vert, floats_per_vert);
         break;
       case SupportedBuffers::INDICES:
         assert(false);
@@ -51,7 +51,7 @@ MixedSliceMap::MixedSliceMap(
         assert(false);
         break;
       case SupportedBuffers::INDICES:
-        get<SupportedBuffers::INDICES>() = VectorSlice<uint32_t>(kv.second, start_tri_, end_tri_, floats_per_tri_);
+        get<SupportedBuffers::INDICES>() = VectorSlice<uint32_t>(kv.second, start_tri_, end_tri_, floats_per_triangle);
         break;
     }
   }
@@ -61,16 +61,16 @@ MixedDataMap::MixedDataMap(std::set<SupportedBuffers> keys, size_t vertex_count,
   for (const auto& key: keys) {
     switch (key) {
       case SupportedBuffers::COLORS:
-        get<SupportedBuffers::COLORS>().resize(vertex_count*floats_per_color_);
+        get<SupportedBuffers::COLORS>().resize(vertex_count*floats_per_color);
         break;
       case SupportedBuffers::INDICES:
-        get<SupportedBuffers::INDICES>().resize(triangle_count*floats_per_tri_);
+        get<SupportedBuffers::INDICES>().resize(triangle_count*floats_per_triangle);
         break;
       case SupportedBuffers::TEXTURES:
-        get<SupportedBuffers::TEXTURES>().resize(vertex_count*floats_per_text_);
+        get<SupportedBuffers::TEXTURES>().resize(vertex_count*floats_per_text);
         break;
       case SupportedBuffers::VERTICES:
-        get<SupportedBuffers::VERTICES>().resize(vertex_count*floats_per_vert_);
+        get<SupportedBuffers::VERTICES>().resize(vertex_count*floats_per_vert);
         break;
     }
   }
