@@ -28,7 +28,7 @@ size_t Sphere::ExclusiveNodeIndexCount() const {
   return 60;
 }
 
-void Sphere::FillVertexData(Opengl::VectorSlice<float>& data) const {
+void Sphere::FillVertexData(Opengl::Data::VectorSlice<float>& data) const {
   auto data_filler = data.Filler();
   auto FillVertex = [&](float f1, float f2, float f3) {
     data_filler(radius_*f1, radius_*f2, radius_*f3);
@@ -53,7 +53,8 @@ void Sphere::FillVertexData(Opengl::VectorSlice<float>& data) const {
   FillVertex(-phi, 0, -1);
 }
 
-void Sphere::FillColorData(Opengl::VectorSlice<float>& data) const {
+// TODO search for and eradicate long fully qualified names
+void Sphere::FillColorData(Opengl::Data::VectorSlice<float>& data) const {
   auto DataFiller = data.Filler();
 
   DataFiller(0, 0, 1);
@@ -72,7 +73,7 @@ void Sphere::FillColorData(Opengl::VectorSlice<float>& data) const {
   DataFiller(1, 0, 1);
 }
 
-void Sphere::FillIndexData(Opengl::VectorSlice<uint32_t>& data) const {
+void Sphere::FillIndexData(Opengl::Data::VectorSlice<uint32_t>& data) const {
   auto FillData = data.Filler();
 
   // TODO replace with something more procedural

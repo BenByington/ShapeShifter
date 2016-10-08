@@ -37,9 +37,9 @@ private:
 
   virtual size_t ExclusiveNodeVertexCount() const override;
   virtual size_t ExclusiveNodeIndexCount() const override;
-	virtual void FillVertexData(Opengl::VectorSlice<float>& data) const override;
-	virtual void FillColorData(Opengl::VectorSlice<float>& data) const override;
-	virtual void FillIndexData(Opengl::VectorSlice<uint32_t>& data) const override;
+	virtual void FillVertexData(Opengl::Data::VectorSlice<float>& data) const override;
+	virtual void FillColorData(Opengl::Data::VectorSlice<float>& data) const override;
+	virtual void FillIndexData(Opengl::Data::VectorSlice<uint32_t>& data) const override;
   virtual void DrawSelf() const override;
 
   // FIXME: This isn't quite the radius...
