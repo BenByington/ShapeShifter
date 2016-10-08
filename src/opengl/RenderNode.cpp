@@ -45,7 +45,7 @@ size_t RenderNode::SubtreeIndexCount() const {
 	return ret;
 }
 
-void RenderNode::PopulateBufferData(MixedDataMap& data) {
+void RenderNode::PopulateBufferData(Data::MixedDataMap& data) {
 	for (const auto& child : children) {
 		child->PopulateBufferData(data);
 	}
@@ -106,7 +106,7 @@ void RootNode::UpdateData() {
   for (const auto& kv : idx_map) {
     keys.insert(kv.first);
   }
-  MixedDataMap data(keys, vert_size, idx_size);
+  Data::MixedDataMap data(keys, vert_size, idx_size);
 
 	PopulateBufferData(data);
 	assert(data.VertexDataRemaining() == 0);
@@ -170,7 +170,7 @@ void RenderNode::DrawChildren(
 }
 
 void RenderNode::DebugRotation(const math::Matrix4& mat) const {
-  auto dataset = MixedDataMap({SupportedBuffers::VERTICES}, ExclusiveNodeVertexCount(), 0);
+  auto dataset = Data::MixedDataMap({SupportedBuffers::VERTICES}, ExclusiveNodeVertexCount(), 0);
   auto slices = dataset.NextSlice(ExclusiveNodeVertexCount(), 0);
   auto& slice = slices.get<SupportedBuffers::VERTICES>();
   FillVertexData(slice);

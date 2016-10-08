@@ -28,15 +28,10 @@ size_t Sphere::ExclusiveNodeIndexCount() const {
   return 60;
 }
 
-void Sphere::FillVertexData(Opengl::VectorSlice<float>& data) const {
-  // TODO unify with cube's version and build into slice.  It can automatically
-  // know how many floats go with a single vertex for each buffer.
-  auto idx = size_t{0};
+void Sphere::FillVertexData(Opengl::Data::VectorSlice<float>& data) const {
+  auto data_filler = data.Filler();
   auto FillVertex = [&](float f1, float f2, float f3) {
-    data[idx] = radius_* f1;
-    data[idx+1] = radius_*f2;
-    data[idx+2] = radius_*f3;
-    idx += 3;
+    data_filler(radius_*f1, radius_*f2, radius_*f3);
   };
 
   FillVertex(phi, 0, 1);
@@ -58,71 +53,58 @@ void Sphere::FillVertexData(Opengl::VectorSlice<float>& data) const {
   FillVertex(-phi, 0, -1);
 }
 
-void Sphere::FillColorData(Opengl::VectorSlice<float>& data) const {
-  // TODO unify with cube's version?
-  auto idx = size_t{0};
-  auto FillColor = [&](float f1, float f2, float f3) {
-    data[idx] = f1;
-    data[idx+1] = f2;
-    data[idx+2] = f3;
-    idx += 3;
-  };
+// TODO search for and eradicate long fully qualified names
+void Sphere::FillColorData(Opengl::Data::VectorSlice<float>& data) const {
+  auto DataFiller = data.Filler();
 
-  FillColor(0, 0, 1);
-  FillColor(0, 1, 0);
-  FillColor(0, 1, 1);
-  FillColor(1, 0, 0);
+  DataFiller(0, 0, 1);
+  DataFiller(0, 1, 0);
+  DataFiller(0, 1, 1);
+  DataFiller(1, 0, 0);
 
-  FillColor(1, 0, 1);
-  FillColor(1, 1, 0);
-  FillColor(1, 1, 1);
-  FillColor(0, 0, 1);
+  DataFiller(1, 0, 1);
+  DataFiller(1, 1, 0);
+  DataFiller(1, 1, 1);
+  DataFiller(0, 0, 1);
 
-  FillColor(0, 0, 1);
-  FillColor(0, 1, 0);
-  FillColor(1, 0, 0);
-  FillColor(1, 0, 1);
+  DataFiller(0, 0, 1);
+  DataFiller(0, 1, 0);
+  DataFiller(1, 0, 0);
+  DataFiller(1, 0, 1);
 }
 
-void Sphere::FillIndexData(Opengl::VectorSlice<uint32_t>& data) const {
-  // TODO unify with cube's version?
-  auto idx = size_t{0};
-  auto FillTriangle = [&](float f1, float f2, float f3) {
-    data[idx] = f1;
-    data[idx+1] = f2;
-    data[idx+2] = f3;
-    idx += 3;
-  };
+void Sphere::FillIndexData(Opengl::Data::VectorSlice<uint32_t>& data) const {
+  auto FillData = data.Filler();
 
   // TODO replace with something more procedural
   // Should port over mesh tesselation code.
-  FillTriangle(0,1,2);
-  FillTriangle(0,3,1);
+  FillData(0,1,2);
+  FillData(0,3,1);
 
-  FillTriangle(0,2,4);
-  FillTriangle(0,4,5);
-  FillTriangle(0,5,3);
+  FillData(0,2,4);
+  FillData(0,4,5);
+  FillData(0,5,3);
 
-  FillTriangle(3, 5, 6);
-  FillTriangle(3, 6, 7);
-  FillTriangle(3, 7, 1);
+  FillData(3, 5, 6);
+  FillData(3, 6, 7);
+  FillData(3, 7, 1);
 
-  FillTriangle(1, 7, 8);
-  FillTriangle(1, 8, 2);
+  FillData(1, 7, 8);
+  FillData(1, 8, 2);
 
-  FillTriangle(2, 8, 9);
-  FillTriangle(2, 9, 4);
+  FillData(2, 8, 9);
+  FillData(2, 9, 4);
 
-  FillTriangle(4, 9, 10);
-  FillTriangle(4, 10, 5);
+  FillData(4, 9, 10);
+  FillData(4, 10, 5);
 
-  FillTriangle(5, 10, 6);
+  FillData(5, 10, 6);
 
-  FillTriangle(11, 6, 10);
-  FillTriangle(11, 10, 9);
-  FillTriangle(11, 9, 8);
-  FillTriangle(11, 8, 7);
-  FillTriangle(11, 7, 6);
+  FillData(11, 6, 10);
+  FillData(11, 10, 9);
+  FillData(11, 9, 8);
+  FillData(11, 8, 7);
+  FillData(11, 7, 6);
 }
 
 void Sphere::DrawSelf() const {
