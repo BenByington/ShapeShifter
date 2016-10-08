@@ -13,22 +13,25 @@
 
 #include "Cube.h"
 
+#include "opengl/data/BufferTypes.h"
+
 #include <iostream>
 
 namespace ShapeShifter {
 namespace Shapes {
 
+using namespace Opengl::Data;
+
 Cube::Cube(float sx, float sy, float sz) : sx_(sx), sy_(sy), sz_(sz) {}
 
-size_t Cube::ExclusiveNodeVertexCount() const {
-  return 36;
+BufferIndex Cube::ExclusiveNodeDataCount() const {
+  auto ret = BufferIndex();
+  ret.triangle_ = 12;
+  ret.vertex_ = 36;
+  return ret;
 }
 
-size_t Cube::ExclusiveNodeIndexCount() const {
-  return 36;
-}
-
-void Cube::FillVertexData(Opengl::Data::VectorSlice<float>& data) const {
+void Cube::FillVertexData(VectorSlice<float>& data) const {
   auto DataFiller = data.Filler();
 
   auto FillFace = [&](const size_t dim, const bool pos) {
@@ -74,7 +77,7 @@ void Cube::FillVertexData(Opengl::Data::VectorSlice<float>& data) const {
   FillFace(2, false);
 }
 
-void Cube::FillColorData(Opengl::Data::VectorSlice<float>& data) const {
+void Cube::FillColorData(VectorSlice<float>& data) const {
   auto DataFiller = data.Filler();
   auto idx = size_t{0};
   auto FillFaceColor = [&](float f1, float f2, float f3) {
@@ -91,8 +94,8 @@ void Cube::FillColorData(Opengl::Data::VectorSlice<float>& data) const {
   FillFaceColor(0, 1, 1);
 }
 
-void Cube::FillIndexData(Opengl::Data::VectorSlice<uint32_t>& data) const {
-  for (uint32_t i = 0; i < ExclusiveNodeVertexCount(); ++i) {
+void Cube::FillIndexData(VectorSlice<uint32_t>& data) const {
+  for (uint32_t i = 0; i < ExclusiveNodeDataCount().vertex_; ++i) {
     data[i] = i;
   }
 }
@@ -100,10 +103,11 @@ void Cube::FillIndexData(Opengl::Data::VectorSlice<uint32_t>& data) const {
 void Cube::DrawSelf() const {
   glDrawElements(
       GL_TRIANGLES,
-      ExclusiveNodeIndexCount(),
+      ExclusiveNodeDataCount().triangle_*floats_per_triangle,
       GL_UNSIGNED_INT,
       // TODO look for cleaner cast?
-      (GLvoid*)(start_index()*sizeof(uint32_t)));
+      //TODO make uint32_t configurable
+      (GLvoid*)(start().triangle_*floats_per_triangle*sizeof(uint32_t)));
 }
 
 }} // ShapeShifter::Shapes

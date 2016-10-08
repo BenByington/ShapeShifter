@@ -75,7 +75,12 @@ std::unique_ptr<Opengl::World> Squares2D::Setup() {
 
 namespace detail {
 
-size_t SquareTest2D::ExclusiveNodeVertexCount() const { return 4; }
+using Opengl::Data::BufferIndex;
+BufferIndex SquareTest2D::ExclusiveNodeDataCount() const {
+  auto ret = BufferIndex();
+  ret.vertex_ = 4;
+  return ret;
+}
 
 void SquareTest2D::FillColorData(Opengl::Data::VectorSlice<float>& data) const {
 	data[0] = 1.0;
@@ -114,7 +119,11 @@ void SquareTest2D::FillVertexData(Opengl::Data::VectorSlice<float>& data) const 
 }
 
 void SquareTest2D::DrawSelf() const {
-  glDrawArrays (GL_TRIANGLE_STRIP, start_vertex(), this->ExclusiveNodeVertexCount());
+  glDrawArrays (
+      GL_TRIANGLE_STRIP,
+      start().vertex_,
+      ExclusiveNodeDataCount().vertex_
+  );
 }
 
 }

@@ -22,10 +22,12 @@ namespace ShapeShifter {
 namespace Shapes {
 
 class Sphere final : public Opengl::TypedRenderNode<
-    Opengl::SupportedBufferFlags::COLORS |
-    Opengl::SupportedBufferFlags::INDICES
+    Opengl::Data::SupportedBufferFlags::COLORS |
+    Opengl::Data::SupportedBufferFlags::INDICES
 >{
+  using BufferIndex = Opengl::Data::BufferIndex;
   constexpr static const auto phi = (1.0f + std::sqrt(5.0f))/2.0f;
+
 public:
   Sphere(float radius);
   Sphere(const Sphere& orig) = delete;
@@ -35,8 +37,7 @@ public:
   ~Sphere() {}
 private:
 
-  virtual size_t ExclusiveNodeVertexCount() const override;
-  virtual size_t ExclusiveNodeIndexCount() const override;
+  virtual BufferIndex ExclusiveNodeDataCount() const override;
 	virtual void FillVertexData(Opengl::Data::VectorSlice<float>& data) const override;
 	virtual void FillColorData(Opengl::Data::VectorSlice<float>& data) const override;
 	virtual void FillIndexData(Opengl::Data::VectorSlice<uint32_t>& data) const override;

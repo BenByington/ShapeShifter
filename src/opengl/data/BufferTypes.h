@@ -16,6 +16,7 @@
 
 namespace ShapeShifter {
 namespace Opengl {
+namespace Data {
 
 // TODO can I force these two to be automatically consistent?
 enum SupportedBufferFlags : size_t {
@@ -32,7 +33,12 @@ enum class SupportedBuffers {
   VERTICES
 };
 
-}} // ShapeShifter::Opengl
+static constexpr size_t floats_per_vert = 3;
+static constexpr size_t floats_per_color = 3;
+static constexpr size_t floats_per_text = 2;
+static constexpr size_t floats_per_triangle = 3;
+
+}}} // ShapeShifter::Opengl::Data
 
 #endif /* BUFFERTYPES_H */
 

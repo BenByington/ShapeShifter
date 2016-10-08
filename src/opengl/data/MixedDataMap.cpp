@@ -13,25 +13,23 @@ namespace Data {
 MixedSliceMap::MixedSliceMap(
     const std::vector<std::pair<SupportedBuffers, std::vector<float>&>>& float_data,
     const std::vector<std::pair<SupportedBuffers, std::vector<uint32_t>&>>& int_data,
-    size_t start_vert,
-    size_t end_vert,
-    size_t start_idx,
-    size_t end_idx)
-  : start_vertex_(start_vert)
-  , end_vertex_(end_vert)
-  , start_index_(start_idx)
-  , end_index_(end_idx) {
+    BufferIndex start, BufferIndex end)
+  : start_(start)
+  , end_(end) {
 
   for (const auto& kv : float_data) {
     switch (kv.first) {
       case SupportedBuffers::COLORS:
-        get<SupportedBuffers::COLORS>() = VectorSlice<float>(kv.second, start_vert, end_vert, floats_per_color_);
+        get<SupportedBuffers::COLORS>() = VectorSlice<float>(
+            kv.second, start_.vertex_, end_.vertex_, floats_per_color);
         break;
       case SupportedBuffers::TEXTURES:
-        get<SupportedBuffers::TEXTURES>() = VectorSlice<float>(kv.second, start_vert, end_vert, floats_per_text_);
+        get<SupportedBuffers::TEXTURES>() = VectorSlice<float>(
+            kv.second, start_.vertex_, end_.vertex_, floats_per_text);
         break;
       case SupportedBuffers::VERTICES:
-        get<SupportedBuffers::VERTICES>() = VectorSlice<float>(kv.second, start_vert, end_vert, floats_per_vert_);
+        get<SupportedBuffers::VERTICES>() = VectorSlice<float>(
+            kv.second, start_.vertex_, end_.vertex_, floats_per_vert);
         break;
       case SupportedBuffers::INDICES:
         assert(false);
@@ -51,49 +49,50 @@ MixedSliceMap::MixedSliceMap(
         assert(false);
         break;
       case SupportedBuffers::INDICES:
-        get<SupportedBuffers::INDICES>() = VectorSlice<uint32_t>(kv.second, start_idx, end_idx, floats_per_ind_);
+        get<SupportedBuffers::INDICES>() = VectorSlice<uint32_t>(
+            kv.second, start_.triangle_, end_.triangle_, floats_per_triangle);
         break;
     }
   }
 }
 
-MixedDataMap::MixedDataMap(std::set<SupportedBuffers> keys, size_t vertex_count, size_t idx_count) {
+MixedDataMap::MixedDataMap(
+    std::set<SupportedBuffers> keys, BufferIndex count)
+  : total_(count) {
+
   for (const auto& key: keys) {
     switch (key) {
       case SupportedBuffers::COLORS:
-        get<SupportedBuffers::COLORS>().resize(vertex_count*floats_per_color_);
+        get<SupportedBuffers::COLORS>().resize(count.vertex_*floats_per_color);
         break;
       case SupportedBuffers::INDICES:
-        get<SupportedBuffers::INDICES>().resize(idx_count*floats_per_ind_);
+        get<SupportedBuffers::INDICES>().resize(count.triangle_*floats_per_triangle);
         break;
       case SupportedBuffers::TEXTURES:
-        get<SupportedBuffers::TEXTURES>().resize(vertex_count*floats_per_text_);
+        get<SupportedBuffers::TEXTURES>().resize(count.vertex_*floats_per_text);
         break;
       case SupportedBuffers::VERTICES:
-        get<SupportedBuffers::VERTICES>().resize(vertex_count*floats_per_vert_);
+        get<SupportedBuffers::VERTICES>().resize(count.vertex_*floats_per_vert);
         break;
     }
   }
-  total_vertices_ = vertex_count;
-  total_indices_ = idx_count;
-  next_free_vertex_ = 0;
-  next_free_index_ = 0;
 }
 
-MixedSliceMap MixedDataMap::NextSlice(size_t vertex_count, size_t index_count) {
+BufferIndex MixedDataMap::DataRemaining() {
+  return total_ - next_free_;
+}
+
+MixedSliceMap MixedDataMap::NextSlice(BufferIndex count) {
   // TODO unify vertex and index into single structure?
-  auto vertex = next_free_vertex_;
-  auto idx = next_free_index_;
-  next_free_vertex_ += vertex_count;
-  next_free_index_ += index_count;
+  auto start = next_free_;
+  next_free_.vertex_ += count.vertex_;
+  next_free_.triangle_ += count.triangle_;
   return MixedSliceMap(
       FloatData(),
       IntegralData(),
-      vertex,
-      next_free_vertex_,
-      idx,
-      next_free_index_
-      );
+      start,
+      next_free_
+  );
 }
 
 }}} // ShapeShifter::Opengl::Data

@@ -17,7 +17,7 @@
 #include <cassert>
 #include <vector>
 
-#include "opengl/BufferTypes.h"
+#include "opengl/data/BufferTypes.h"
 
 namespace ShapeShifter {
 namespace Opengl {

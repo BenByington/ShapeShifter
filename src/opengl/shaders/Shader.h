@@ -19,7 +19,7 @@
 
 #include <opengl/gl3.h>
 
-#include <opengl/BufferTypes.h>
+#include <opengl/data/BufferTypes.h>
 
 namespace ShapeShifter {
 namespace Opengl {
@@ -45,7 +45,7 @@ public:
 
 public:
 	operator GLuint() const {return shader;}
-  const std::map<SupportedBuffers, size_t>& layout_map() {
+  const std::map<Data::SupportedBuffers, size_t>& layout_map() {
     return layout_map_;
   }
 private:
@@ -53,7 +53,7 @@ private:
 
   void ParseLayouts(const std::string& data);
 
-  std::map<SupportedBuffers, size_t> layout_map_;
+  std::map<Data::SupportedBuffers, size_t> layout_map_;
 };
 
 class VertexShader : public Shader {

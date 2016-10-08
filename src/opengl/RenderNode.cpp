@@ -20,6 +20,9 @@
 namespace ShapeShifter {
 namespace Opengl {
 
+using Data::SupportedBuffers;
+using Data::SupportedBufferFlags;
+
 void RenderNode::SetRotation(const math::Quaternion& rot) {
   this->rotation_ = rot;
 }
@@ -28,19 +31,10 @@ void RenderNode::SetTranslation(const math::Vector4& trans) {
   this->translation_ = trans;
 }
 
-size_t RenderNode::SubtreeVertexCount() const {
-	auto ret = ExclusiveNodeVertexCount();
+Data::BufferIndex RenderNode::SubtreeCounts() const {
+	auto ret = ExclusiveNodeDataCount();
 	for (const auto& child : children) {
-		ret += child->SubtreeVertexCount();
-	}
-	return ret;
-}
-
-// TODO combine index and vertex indexing?
-size_t RenderNode::SubtreeIndexCount() const {
-	auto ret = ExclusiveNodeIndexCount();
-	for (const auto& child : children) {
-		ret += child->SubtreeIndexCount();
+		ret += child->SubtreeCounts();
 	}
 	return ret;
 }
@@ -50,11 +44,9 @@ void RenderNode::PopulateBufferData(Data::MixedDataMap& data) {
 		child->PopulateBufferData(data);
 	}
 
-  auto local_data = data.NextSlice(ExclusiveNodeVertexCount(), ExclusiveNodeIndexCount());
-	start_vertex_ = local_data.start_vertex();
-	end_vertex_ = local_data.end_vertex();
-	start_index_ = local_data.start_index();
-	end_index_ = local_data.end_index();
+  auto local_data = data.NextSlice(ExclusiveNodeDataCount());
+	start_= local_data.start();
+	end_= local_data.end();
 
   // TODO automate this mapping somehow...
   for(auto& key: data.keys()) {
@@ -73,7 +65,7 @@ void RenderNode::PopulateBufferData(Data::MixedDataMap& data) {
       {
         auto&& slice = local_data.get<SupportedBuffers::INDICES>();
         FillIndexData(slice);
-        size_t offset = start_vertex();
+        size_t offset = start().vertex_;
         for (auto& ind: slice) {
           ind += offset;
         }
@@ -99,18 +91,17 @@ void RootNode::UpdateData() {
   //       could be done then since things are essentially forced to be
   //       created bottom up.
 	CleanupBuffer();
-	auto vert_size = this->SubtreeVertexCount();
-  auto idx_size = this->SubtreeIndexCount();
+  auto size = SubtreeCounts();
 
   std::set<SupportedBuffers> keys;
   for (const auto& kv : idx_map) {
     keys.insert(kv.first);
   }
-  Data::MixedDataMap data(keys, vert_size, idx_size);
+  Data::MixedDataMap data(keys, size);
 
 	PopulateBufferData(data);
-	assert(data.VertexDataRemaining() == 0);
-	assert(data.IndexDataRemaining() == 0);
+	assert(data.DataRemaining().vertex_ == 0);
+	assert(data.DataRemaining().triangle_ == 0);
 
   glGenVertexArrays (1, &vao);
   glBindVertexArray (vao);
@@ -170,8 +161,8 @@ void RenderNode::DrawChildren(
 }
 
 void RenderNode::DebugRotation(const math::Matrix4& mat) const {
-  auto dataset = Data::MixedDataMap({SupportedBuffers::VERTICES}, ExclusiveNodeVertexCount(), 0);
-  auto slices = dataset.NextSlice(ExclusiveNodeVertexCount(), 0);
+  auto dataset = Data::MixedDataMap({SupportedBuffers::VERTICES}, ExclusiveNodeDataCount());
+  auto slices = dataset.NextSlice(ExclusiveNodeDataCount());
   auto& slice = slices.get<SupportedBuffers::VERTICES>();
   FillVertexData(slice);
   std::cerr << "Matrix: " << std::endl;

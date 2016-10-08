@@ -90,9 +90,9 @@ void Shader::ParseLayouts(const std::string& data) {
       temp >> trash >> op >> location;
 
       if (line.find("inPosition") != std::string::npos) {
-        layout_map_[SupportedBuffers::VERTICES] = location;
+        layout_map_[Data::SupportedBuffers::VERTICES] = location;
       } else if (line.find("inColor") != std::string::npos) {
-        layout_map_[SupportedBuffers::COLORS] = location;
+        layout_map_[Data::SupportedBuffers::COLORS] = location;
       } else {
         throw std::runtime_error("Unsupported input buffer type:\n" + line);
       }
