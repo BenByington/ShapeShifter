@@ -14,6 +14,8 @@
 #ifndef BUFFERTYPES_H
 #define BUFFERTYPES_H
 
+#include <cstdlib>
+
 namespace ShapeShifter {
 namespace Opengl {
 namespace Data {

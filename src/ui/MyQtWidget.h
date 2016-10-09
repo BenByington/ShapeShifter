@@ -21,7 +21,6 @@
 
 #include "ui_MyQtWidget.h"
 
-#include "opengl/RenderNode.h"
 #include "opengl/World.h"
 
 namespace ShapeShifter {

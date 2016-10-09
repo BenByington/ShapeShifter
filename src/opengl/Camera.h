@@ -16,7 +16,6 @@
 
 #include "opengl/math/Vector4.h"
 #include "opengl/Frustum.h"
-#include "opengl/math/Vector4.h"
 #include "opengl/math/Quaternion.h"
 
 namespace ShapeShifter {

@@ -11,8 +11,6 @@
  * Created on October 3, 2016, 8:22 AM
  */
 
-// TODO update all headers...
-
 #ifndef TESTS_INDEXED_BUFFERS_H
 #define TESTS_INDEXED_BUFFERS_H
 

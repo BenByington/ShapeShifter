@@ -11,8 +11,9 @@
  * Created on August 29, 2016, 8:47 AM
  */
 
-#include "opengl/math/Quaternion.h"
 #include "scenarios/tests/IndexBuffers.h"
+
+#include "opengl/math/Quaternion.h"
 #include "shapes/Cube.h"
 #include "shapes/Sphere.h"
 

@@ -12,6 +12,7 @@
  */
 
 #include "Camera.h"
+
 #include "math/Vector3.h"
 
 #include <cmath>

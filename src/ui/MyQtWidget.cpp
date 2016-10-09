@@ -12,6 +12,7 @@
  */
 
 #include "ui/MyQtWidget.h"
+
 #include "opengl/shaders/Shader.h"
 #include "opengl/shaders/ShaderProgram.h"
 #include "scenarios/Empty.h"
