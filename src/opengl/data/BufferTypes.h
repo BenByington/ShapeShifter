@@ -18,7 +18,6 @@ namespace ShapeShifter {
 namespace Opengl {
 namespace Data {
 
-// TODO can I force these two to be automatically consistent?
 enum SupportedBufferFlags : size_t {
   COLORS = 1,
   TEXTURES = 2,

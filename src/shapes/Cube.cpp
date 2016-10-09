@@ -105,9 +105,7 @@ void Cube::DrawSelf() const {
       GL_TRIANGLES,
       ExclusiveNodeDataCount().triangle_*floats_per_triangle,
       GL_UNSIGNED_INT,
-      // TODO look for cleaner cast?
-      //TODO make uint32_t configurable
-      (GLvoid*)(start().triangle_*floats_per_triangle*sizeof(uint32_t)));
+      StartIndexAsVP());
 }
 
 }} // ShapeShifter::Shapes

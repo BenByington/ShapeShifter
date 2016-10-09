@@ -23,8 +23,6 @@ namespace Opengl {
 Camera::Camera(const Frustum& frust, float look_depth)
   : frust_(frust),
     look_depth_(look_depth) {
-  // TODO consider if look_depth should be rolled tino frustum to avoid
-  // insane values.
 }
 
 Camera::~Camera() {
@@ -87,14 +85,11 @@ void Camera::PivotAroundLook(const std::pair<float,float>& start, const std::pai
 
 math::Matrix4 Camera::ProjectionMatrix() const {
   auto rot = rotation_.RotationMatrix();
-  // TODO this write column is too brittle for adding translation.  Find more
-  // robust solution
   rot.WriteColumn(3, translation_);
   return frust_.FrustTransform() * rot;
 }
 
 void Camera::SetAspectRatio(float aspect) {
-  //TODO validation
   frust_.SetAspect(aspect);
 }
 

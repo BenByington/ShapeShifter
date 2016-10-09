@@ -63,13 +63,7 @@ void MyQtWidget::resizeGL(int width, int height) {
 
 }
 
-void MyQtWidget::paintGL() {
-  // TODO remove or put into world objet
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glLoadIdentity();
-
-  world_->Render();
-}
+void MyQtWidget::paintGL() { world_->Render(); }
 
 void PixelCoordToCameraProj(int x, int y) {
 

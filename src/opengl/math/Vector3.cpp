@@ -51,7 +51,7 @@ void Vector3::Normalize() {
   for (size_t i = 0; i < 3; ++i) {
     data_[i] /= mag;
   }
-  // TODO disable after this is unit tested
+  //ISSUE: Create unit tests (this should be one of the checks)
   //assert(Magnitude() > .99 && Magnitude() < 1.01);
 }
 

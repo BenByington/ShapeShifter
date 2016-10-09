@@ -4,7 +4,7 @@
  * and open the template in the editor.
  *
  *
- * TODO change license netbeans includes
+ * ISSUE: Find license and update headers
  */
 
 /*
@@ -36,11 +36,9 @@ ShaderProgram::ShaderProgram(
 	program_ = glCreateProgram();
 	assert(program_ != 0);
 
-	//TODO check on various error conditions that can be caused.
 	glAttachShader(program_, *vert_shader_);
 	glAttachShader(program_, *frag_shader_);
 
-	//TODO Again check for errors
 	glLinkProgram(program_);
 
 	//TODO this is mostly copy/paste.  Factor out?
@@ -55,7 +53,6 @@ ShaderProgram::ShaderProgram(
 
 		auto slog = std::string(log.get());
 
-		//TODO need error handling on this as well.
 		glDeleteProgram(program_);
 
 		throw std::runtime_error(slog);
@@ -63,7 +60,6 @@ ShaderProgram::ShaderProgram(
 }
 
 ShaderProgram::~ShaderProgram() {
-	//TODO check for errors?
 	glDeleteProgram(program_);
 }
 
@@ -116,7 +112,6 @@ std::map<SupportedBuffers, size_t> ShaderProgram::BufferMapping() const {
   return ret;
 }
 
-// TODO cleanup
 template std::map<SupportedBuffers, size_t> ShaderProgram::BufferMapping<SupportedBufferFlags::COLORS>() const;
 template std::map<SupportedBuffers, size_t> ShaderProgram::BufferMapping<SupportedBufferFlags::COLORS | SupportedBufferFlags::INDICES>() const;
 

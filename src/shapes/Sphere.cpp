@@ -79,8 +79,7 @@ void Sphere::FillColorData(VectorSlice<float>& data) const {
 void Sphere::FillIndexData(VectorSlice<uint32_t>& data) const {
   auto FillData = data.Filler();
 
-  // TODO replace with something more procedural
-  // Should port over mesh tesselation code.
+  //ISSUE: Enable resolution adjusting, and put in a more procedural generation
   FillData(0,1,2);
   FillData(0,3,1);
 
@@ -111,7 +110,7 @@ void Sphere::FillIndexData(VectorSlice<uint32_t>& data) const {
 }
 
 void Sphere::DrawSelf() const {
-  //TODO set up global and toggle-able culling
+  //ISSUE set up global and toggle-able culling
   //glEnable(GL_CULL_FACE);
   //glCullFace(GL_BACK);
 
@@ -119,7 +118,7 @@ void Sphere::DrawSelf() const {
       GL_TRIANGLES,
       ExclusiveNodeDataCount().triangle_*floats_per_triangle,
       GL_UNSIGNED_INT,
-      (GLvoid*)(start().triangle_*floats_per_triangle*sizeof(uint32_t)));
+      StartIndexAsVP());
 }
 
 }} // ShapeShifter::Shapes

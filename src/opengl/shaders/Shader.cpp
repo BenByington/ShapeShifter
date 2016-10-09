@@ -53,7 +53,7 @@ Shader::Shader(const std::string& filename, ShaderType t) {
 
 		auto slog = std::string(log.get());
 
-		//TODO need error handling on this as well.
+		// ISSUE: wrap all gl functions and add error checking.
 		glDeleteShader(shader);
 
 		throw std::runtime_error(slog);
@@ -70,8 +70,7 @@ void Shader::ParseLayouts(const std::string& data) {
   auto line = std::string{};
   while (std::getline(stream, line)) {
     if (line.find("layout") != std::string::npos && line.find(" in ") != std::string::npos) {
-      // TODO:
-      // Horrible manual parsing...  Need to find a better way...
+      // Issue: Create classes for writing opengl code within C++
       auto start = line.find('(');
       auto end = line.find(')');
       assert(start != std::string::npos);

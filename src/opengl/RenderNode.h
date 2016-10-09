@@ -56,6 +56,9 @@ protected:
 	// FillVertexData and FillColorData.
 	Data::BufferIndex start() const {return start_; }
 	Data::BufferIndex end() const {return end_; }
+  GLvoid* StartIndexAsVP() const {
+      return (GLvoid*)(start().triangle_*Data::floats_per_triangle*sizeof(uint32_t));
+  }
 
 	// Compute how big the VAO should be
 	Data::BufferIndex SubtreeCounts() const;
@@ -148,7 +151,6 @@ public:
   std::shared_ptr<RenderNode> AddChild(
       std::unique_ptr<Other> child,
 	    typename std::enable_if<
-          //TODO cleanup and hide away this logic
           (Other::Flags_t & Flags) == Flags
           && std::is_base_of<TypedRenderNode<Other::Flags_t>, Other>::value
           && (Other::Flags_t & SupportedBufferFlags::INDICES) == (Flags & SupportedBufferFlags::INDICES)
@@ -169,12 +171,11 @@ public:
 	PureNode() = default;
 	virtual ~PureNode() {}
 private:
-  // TODO fix this.  Had to remove 'override' keyword because we can't tell
-  // up front which functions need to be supported.
-	virtual Data::BufferIndex ExclusiveNodeDataCount() const { return Data::BufferIndex(); }
-	virtual void FillVertexData(Data::VectorSlice<float>& data) const {};
-	virtual void FillColorData(Data::VectorSlice<float>& data) const {};
-	virtual void FillIndexData(Data::VectorSlice<uint32_t>& data) const {};
+	virtual Data::BufferIndex ExclusiveNodeDataCount() const override { return Data::BufferIndex(); }
+	virtual void FillTextureData(Data::VectorSlice<float>& data) const override {};
+	virtual void FillVertexData(Data::VectorSlice<float>& data) const override {};
+	virtual void FillColorData(Data::VectorSlice<float>& data) const override {};
+	virtual void FillIndexData(Data::VectorSlice<uint32_t>& data) const override {};
   virtual void DrawSelf() const {}
 };
 

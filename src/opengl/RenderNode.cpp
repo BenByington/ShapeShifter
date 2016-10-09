@@ -48,7 +48,10 @@ void RenderNode::PopulateBufferData(Data::MixedDataMap& data) {
 	start_= local_data.start();
 	end_= local_data.end();
 
-  // TODO automate this mapping somehow...
+  // ISSUE: Refactor buffer type meta programming.  Moving away from bit
+  //        flags (or at least the use of '|' to combine them) would be nice,
+  //        as well as the ability to avoid these switch statements scattered
+  //        all over.
   for(auto& key: data.keys()) {
     switch (key) {
       case SupportedBuffers::COLORS:
@@ -160,7 +163,6 @@ void RenderNode::DebugRotation(const math::Matrix4& mat) const {
   mat.print();
   auto& data = dataset.get<SupportedBuffers::VERTICES>();
   for (size_t i = 0; i < data.size(); i += 3) {
-    // TODO figure out how to make Vector4 constructor less verbose...
     auto vec = math::Vector4(data[i], data[i+1], data[i+2], 1);
     std::cerr << "Before: " << std::endl;
     vec.print();
@@ -170,7 +172,7 @@ void RenderNode::DebugRotation(const math::Matrix4& mat) const {
   }
 }
 
-// TODO clean up this so it's less manual
+// ISSUE: Set up type list to automatically instantiate explicit templates
 template class TypedRenderNode<SupportedBufferFlags::COLORS>;
 
 }} // ShapeShifter::Opengl

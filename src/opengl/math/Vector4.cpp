@@ -50,7 +50,7 @@ Vector4 Vector4::operator +(const Vector4& other) const {
   auto right = _mm_load_ps(other.data_.begin());
   auto sum = _mm_add_ps(left, right);
   auto ret = Vector4{sum};
-  //TODO clean this up... Shouldn't have to force to 1.
+  //ISSUE: Should be able to add a position + direction without this tweak.
   ret[3] = 1;
   return ret;
 }
