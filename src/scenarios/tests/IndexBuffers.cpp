@@ -28,10 +28,12 @@ namespace tests {
 std::unique_ptr<Opengl::World> IndexBuffers::Setup() {
 
   using Opengl::Data::SupportedBufferFlags;
+  using Opengl::math::Quaternion;
+  using Opengl::math::Vector4;
 
   auto cube = std::make_unique<Shapes::Cube>(.5f, .7f, .85f);
-  cube->SetRotation(Opengl::math::Quaternion(.5, 1, 1, 1));
-  cube->SetTranslation(Opengl::math::Vector4(.7, .2, -.4, 1));
+  cube->SetRotation(Quaternion(.5, 1, 1, 1));
+  cube->SetTranslation(Vector4(.7, .2, -.4, 1));
 
 
   auto sphere = std::make_unique<Shapes::Sphere>(0.2);
@@ -51,11 +53,11 @@ std::unique_ptr<Opengl::World> IndexBuffers::Setup() {
       std::move(vert), std::move(frag));
 
 	auto root = std::make_unique<Opengl::RootNode>(std::move(pure),  program);
-  root->SetTranslation(Opengl::math::Vector4(-.5, -.5, -2.5, 1));
+  root->SetTranslation(Vector4(-.5, -.5, -2.5, 1));
 
   auto frust = Opengl::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
   auto camera = std::make_unique<Opengl::Camera>(frust, 2.5);
-  camera->ChangePosition(Opengl::math::Vector4(0, 0, 0, 1.0f));
+  camera->ChangePosition(Vector4(0, 0, 0, 1.0f));
 
   auto world = std::make_unique<Opengl::World>(std::move(camera));
   world->SetRenderTree(std::move(root));

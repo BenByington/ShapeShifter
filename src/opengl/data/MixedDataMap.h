@@ -81,17 +81,12 @@ public:
     std::vector<std::pair<SupportedBuffers, Storage<uint32_t>&>> ret;
     for (const auto& key : keys_) {
       switch(key) {
-        case SupportedBuffers::COLORS:
-          //do nothing
-          break;
-        case SupportedBuffers::TEXTURES:
-          //do nothing
-          break;
-        case SupportedBuffers::VERTICES:
-          //do nothing
-          break;
         case SupportedBuffers::INDICES:
           ret.emplace_back(SupportedBuffers::INDICES, indices_);
+          break;
+        case SupportedBuffers::COLORS:
+        case SupportedBuffers::TEXTURES:
+        case SupportedBuffers::VERTICES:
           //do nothing
           break;
       }

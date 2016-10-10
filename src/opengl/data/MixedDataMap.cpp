@@ -39,18 +39,14 @@ MixedSliceMap::MixedSliceMap(
 
   for (const auto& kv : int_data) {
     switch (kv.first) {
-      case SupportedBuffers::COLORS:
-        assert(false);
-        break;
-      case SupportedBuffers::TEXTURES:
-        assert(false);
-        break;
-      case SupportedBuffers::VERTICES:
-        assert(false);
-        break;
       case SupportedBuffers::INDICES:
         get<SupportedBuffers::INDICES>() = VectorSlice<uint32_t>(
             kv.second, start_.triangle_, end_.triangle_, floats_per_triangle);
+        break;
+      case SupportedBuffers::COLORS:
+      case SupportedBuffers::TEXTURES:
+      case SupportedBuffers::VERTICES:
+        assert(false);
         break;
     }
   }

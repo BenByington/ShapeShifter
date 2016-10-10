@@ -56,7 +56,6 @@ void Sphere::FillVertexData(VectorSlice<float>& data) const {
   FillVertex(-phi, 0, -1);
 }
 
-// TODO search for and eradicate long fully qualified names
 void Sphere::FillColorData(VectorSlice<float>& data) const {
   auto DataFiller = data.Filler();
 

@@ -65,6 +65,7 @@ Shader::~Shader() {
 }
 
 void Shader::ParseLayouts(const std::string& data) {
+  using SupportedBuffers = Data::SupportedBuffers;
 
   auto stream = std::istringstream(data);
   auto line = std::string{};
@@ -82,9 +83,9 @@ void Shader::ParseLayouts(const std::string& data) {
       temp >> trash >> op >> location;
 
       if (line.find("inPosition") != std::string::npos) {
-        layout_map_[Data::SupportedBuffers::VERTICES] = location;
+        layout_map_[SupportedBuffers::VERTICES] = location;
       } else if (line.find("inColor") != std::string::npos) {
-        layout_map_[Data::SupportedBuffers::COLORS] = location;
+        layout_map_[SupportedBuffers::COLORS] = location;
       } else {
         throw std::runtime_error("Unsupported input buffer type:\n" + line);
       }
