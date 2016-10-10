@@ -11,8 +11,8 @@
  * Created on August 29, 2016, 8:39 AM
  */
 
-#ifndef SCENARIO_H
-#define SCENARIO_H
+#ifndef SCENARIOS_SCENARIO_H
+#define SCENARIOS_SCENARIO_H
 
 #include "opengl/World.h"
 
@@ -35,5 +35,5 @@ private:
 };
 
 }} //namespace ShapeShifter::scenarios
-#endif /* SCENARIO_H */
+#endif /* SCENARIOS_SCENARIO_H */
 

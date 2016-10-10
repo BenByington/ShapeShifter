@@ -11,8 +11,8 @@
  * Created on September 14, 2016, 4:00 PM
  */
 
-#ifndef BUFFERTYPES_H
-#define BUFFERTYPES_H
+#ifndef OPENGL_DATA_BUFFERTYPES_H
+#define OPENGL_DATA_BUFFERTYPES_H
 
 #include <cstdlib>
 
@@ -41,5 +41,5 @@ static constexpr size_t floats_per_triangle = 3;
 
 }}} // ShapeShifter::Opengl::Data
 
-#endif /* BUFFERTYPES_H */
+#endif /* OPENGL_DATA_BUFFERTYPES_H */
 

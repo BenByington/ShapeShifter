@@ -11,8 +11,8 @@
  * Created on August 11, 2016, 6:41 PM
  */
 
-#ifndef FRUSTUM_H
-#define FRUSTUM_H
+#ifndef OPENGL_FRUSTUM_H
+#define OPENGL_FRUSTUM_H
 
 #include "opengl/math/Matrix4.h"
 
@@ -87,5 +87,5 @@ private:
 
 }} // ShapeShifter::Opengl
 
-#endif /* FRUSTUM_H */
+#endif /* OPENGL_FRUSTUM_H */
 

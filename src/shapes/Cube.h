@@ -11,9 +11,8 @@
  * Created on August 31, 2016, 4:07 PM
  */
 
-//TODO fix all header guards to include namespace
-#ifndef CUBE_H
-#define CUBE_H
+#ifndef SHAPES_CUBE_H
+#define SHAPES_CUBE_H
 
 #include "opengl/RenderNode.h"
 
@@ -48,5 +47,5 @@ private:
 
 }} // ShapeShifter::Shapes
 
-#endif /* CUBE_H */
+ #endif /*SHAPES_CUBE_H */
 

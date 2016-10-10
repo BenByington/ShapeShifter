@@ -11,8 +11,8 @@
  * Created on August 5, 2016, 8:21 AM
  */
 
-#ifndef MATRIX4_H
-#define MATRIX4_H
+#ifndef OPENGL_MATH_MATRIX4_H
+#define OPENGL_MATH_MATRIX4_H
 
 #include <array>
 
@@ -58,5 +58,5 @@ private:
 
 }}} // ShapeShifter::Opengl::math
 
-#endif /* MATRIX4_H */
+#endif /* OPENGL_MATH_MATRIX4_H */
 

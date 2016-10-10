@@ -11,8 +11,8 @@
  * Created on August 31, 2016, 9:38 AM
  */
 
-#ifndef EMPTY_H
-#define EMPTY_H
+#ifndef SCENARIOS_EMPTY_H
+#define SCENARIOS_EMPTY_H
 
 #include "scenarios/Scenario.h"
 
@@ -36,5 +36,5 @@ private:
 };
 
 }} // namespace ShapeShifter::scenarios
-#endif /* EMPTY_H */
+#endif /* SCENARIOS_EMPTY_H */
 

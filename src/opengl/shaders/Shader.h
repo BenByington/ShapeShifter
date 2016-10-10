@@ -11,8 +11,8 @@
  * Created on July 29, 2016, 8:38 AM
  */
 
-#ifndef SHADER_H
-#define SHADER_H
+#ifndef OPENGL_SHADERS_SHADER_H
+#define OPENGL_SHADERS_SHADER_H
 
 #include <map>
 #include <string>
@@ -73,5 +73,5 @@ public:
 };
 
 }}} // ShapeShifter::Opengl::Shaders
-#endif /* SHADER_H */
+#endif /* OPENGL_SHADERS_SHADER_H */
 

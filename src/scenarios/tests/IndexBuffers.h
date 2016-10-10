@@ -11,8 +11,8 @@
  * Created on October 3, 2016, 8:22 AM
  */
 
-#ifndef TESTS_INDEXED_BUFFERS_H
-#define TESTS_INDEXED_BUFFERS_H
+#ifndef SCENARIOS_TESTS_INDEXED_BUFFERS_H
+#define SCENARIOS_TESTS_INDEXED_BUFFERS_H
 
 #include "opengl/RenderNode.h"
 #include "opengl/World.h"
@@ -40,5 +40,5 @@ private:
 
 }}} // ShapeShifter::scenarios::tests
 
-#endif /* TESTS_INDEXED_BUFFERS_H */
+#endif /* SCENARIOS_TESTS_INDEXED_BUFFERS_H */
 

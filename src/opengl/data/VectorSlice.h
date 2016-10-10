@@ -11,8 +11,8 @@
  * Created on October 7, 2016, 9:17 PM
  */
 
-#ifndef VECTORSLICE_H
-#define VECTORSLICE_H
+#ifndef OPENGL_DATA_VECTORSLICE_H
+#define OPENGL_DATA_VECTORSLICE_H
 
 #include <cassert>
 #include <vector>
@@ -92,5 +92,5 @@ SliceFiller<T> VectorSlice<T>::Filler() {
 
 }}} // ShapeShifter::Opengl::Data
 
-#endif /* VECTORSLICE_H */
+#endif /* OPENGL_DATA_VECTORSLICE_H */
 

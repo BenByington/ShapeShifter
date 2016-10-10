@@ -11,8 +11,8 @@
  * Created on August 22, 2016, 8:25 AM
  */
 
-#ifndef VECTOR3_H
-#define VECTOR3_H
+#ifndef OPENGL_MATH_VECTOR3_H
+#define OPENGL_MATH_VECTOR3_H
 
 #include <array>
 
@@ -43,5 +43,5 @@ private:
 
 }}} // ShapeShifter::Opengl::math
 
-#endif /* VECTOR3_H */
+#endif /* OPENGL_MATH_VECTOR3_H */
 

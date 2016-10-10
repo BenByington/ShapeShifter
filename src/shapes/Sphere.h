@@ -11,8 +11,8 @@
  * Created on August 31, 2016, 4:07 PM
  */
 
-#ifndef SPHERE_H
-#define SPHERE_H
+#ifndef SHAPES_SPHERE_H
+#define SHAPES_SPHERE_H
 
 #include "opengl/RenderNode.h"
 
@@ -49,5 +49,5 @@ private:
 
 }} // ShapeShifter::Shapes
 
-#endif /* SPHERE_H */
+#endif /* SHAPES_SPHERE_H */
 

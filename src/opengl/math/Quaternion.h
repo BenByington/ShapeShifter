@@ -11,8 +11,8 @@
  * Created on August 7, 2016, 1:09 PM
  */
 
-#ifndef QUATERNION_H
-#define QUATERNION_H
+#ifndef OPENGL_MATH_QUATERNION_H
+#define OPENGL_MATH_QUATERNION_H
 
 #include "opengl/math/Matrix4.h"
 #include "opengl/math/Vector3.h"
@@ -44,5 +44,5 @@ private:
 
 }}} // ShapeShifter::Opengl::math
 
-#endif /* QUATERNION_H */
+#endif /* OPENGL_MATH_QUATERNION_H */
 

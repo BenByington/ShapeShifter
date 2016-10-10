@@ -11,8 +11,8 @@
  * Created on August 2, 2016, 7:53 AM
  */
 
-#ifndef RENDERNODE_H
-#define RENDERNODE_H
+#ifndef OPENGL_RENDERNODE_H
+#define OPENGL_RENDERNODE_H
 
 //TODO change my own opengl directory to not be the same as system
 #include "opengl/math/Quaternion.h"
@@ -230,4 +230,4 @@ private:
 
 }} // ShapeShifter::Opengl
 
-#endif /* RENDERNODE_H */
+#endif /* OPENGL_RENDERNODE_H */

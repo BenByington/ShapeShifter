@@ -11,8 +11,8 @@
  * Created on August 11, 2016, 6:36 PM
  */
 
-#ifndef CAMERA_H
-#define CAMERA_H
+#ifndef OPENGL_CAMERA_H
+#define OPENGL_CAMERA_H
 
 #include "opengl/math/Vector4.h"
 #include "opengl/Frustum.h"
@@ -46,5 +46,5 @@ private:
 
 }} // ShapeShifter::Opengl
 
-#endif /* CAMERA_H */
+#endif /* OPENGL_CAMERA_H */
 

@@ -11,8 +11,8 @@
  * Created on August 29, 2016, 8:47 AM
  */
 
-#ifndef SQUARES2D_H
-#define SQUARES2D_H
+#ifndef SCENARIOS_TESTS_SQUARES2D_H
+#define SCENARIOS_TESTS_SQUARES2D_H
 
 #include "opengl/RenderNode.h"
 #include "opengl/World.h"
@@ -59,5 +59,5 @@ private:
 
 }}} // ShapeShifter::scenarios::tests
 
-#endif /* SQUARES2D_H */
+#endif /* SCENARIOS_TESTS_SQUARES2D_H */
 

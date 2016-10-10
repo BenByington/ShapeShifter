@@ -11,8 +11,8 @@
  * Created on August 29, 2016, 8:15 AM
  */
 
-#ifndef WORLD_H
-#define WORLD_H
+#ifndef OPENGL_WORLD_H
+#define OPENGL_WORLD_H
 
 #include "opengl/Camera.h"
 #include "opengl/shaders/ShaderProgram.h"
@@ -43,5 +43,5 @@ private:
 
 }} // ShapeShifter::Opengl
 
-#endif /* WORLD_H */
+#endif /* OPENGL_WORLD_H */
 

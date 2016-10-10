@@ -11,8 +11,8 @@
  * Created on October 7, 2016, 9:12 PM
  */
 
-#ifndef BUFFERDATA_H
-#define BUFFERDATA_H
+#ifndef OPENGL_DATA_BUFFERDATA_H
+#define OPENGL_DATA_BUFFERDATA_H
 
 #include <cassert>
 #include <set>
@@ -208,5 +208,5 @@ private:
 
 }}} // ShapeShifter::Opengl::Data
 
-#endif /* BUFFERDATA_H */
+#endif /* OPENGL_DATA_BUFFERDATA_H */
 
