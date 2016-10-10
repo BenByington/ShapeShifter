@@ -11,18 +11,17 @@
  * Created on August 5, 2016, 8:21 AM
  */
 
-#ifndef OPENGL_MATH_MATRIX4_H
-#define OPENGL_MATH_MATRIX4_H
+#ifndef MATH_MATRIX4_H
+#define MATH_MATRIX4_H
 
 #include <array>
 
-#include "opengl/math/Vector4.h"
+#include "math/Vector4.h"
 
 #include <smmintrin.h>
 
 namespace ShapeShifter {
-namespace Opengl {
-namespace math {
+namespace Math {
 
 // column major for now
 class alignas(16) Matrix4 final {
@@ -56,7 +55,7 @@ private:
 	std::array<float,16> data_;
 };
 
-}}} // ShapeShifter::Opengl::math
+}} // ShapeShifter::Math
 
-#endif /* OPENGL_MATH_MATRIX4_H */
+#endif /* MATH_MATRIX4_H */
 

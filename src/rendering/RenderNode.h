@@ -11,15 +11,14 @@
  * Created on August 2, 2016, 7:53 AM
  */
 
-#ifndef OPENGL_RENDERNODE_H
-#define OPENGL_RENDERNODE_H
+#ifndef RENDERING_RENDERNODE_H
+#define RENDERING_RENDERNODE_H
 
-//TODO change my own opengl directory to not be the same as system
-#include "opengl/math/Quaternion.h"
-#include "opengl/shaders/ShaderProgram.h"
-#include "opengl/Camera.h"
-#include "opengl/data/BufferTypes.h"
-#include "opengl/data/MixedDataMap.h"
+#include "data/BufferTypes.h"
+#include "data/MixedDataMap.h"
+#include "math/Quaternion.h"
+#include "rendering/shaders/ShaderProgram.h"
+#include "rendering/Camera.h"
 
 #include <opengl/gl3.h>
 
@@ -30,7 +29,7 @@
 #include <vector>
 
 namespace ShapeShifter {
-namespace Opengl {
+namespace Rendering {
 
 /**
  * Basic vertex for a tree of objects to render.  The entire tree will share
@@ -41,8 +40,8 @@ class RenderNode {
 public:
   virtual ~RenderNode() {}
 
-  void SetRotation(const math::Quaternion& rot);
-  void SetTranslation(const math::Vector4& trans);
+  void SetRotation(const Math::Quaternion& rot);
+  void SetTranslation(const Math::Vector4& trans);
 
 protected:
 	// Prevent any duplication so we can easier avoid conflicts over opengl
@@ -65,7 +64,7 @@ protected:
 	// Fill the VAO with data and push to card
   void PopulateBufferData(Data::MixedDataMap& data);
 	// Renders all children in the tree.
-	void DrawChildren(const Camera& camera, const math::Quaternion& cumRot, const math::Vector4& cumTrans, const Shaders::ShaderProgram& shader) const;
+	void DrawChildren(const Camera& camera, const Math::Quaternion& cumRot, const Math::Vector4& cumTrans, const Shaders::ShaderProgram& shader) const;
 
 	std::vector<std::shared_ptr<RenderNode>> children;
 private:
@@ -82,13 +81,13 @@ private:
 	virtual void FillVertexData(Data::VectorSlice<float>& data) const = 0;
 	virtual void DrawSelf() const = 0;
 
-  void DebugRotation(const math::Matrix4& mat) const;
+  void DebugRotation(const Math::Matrix4& mat) const;
 
   Data::BufferIndex start_;
   Data::BufferIndex end_;
 
-  math::Quaternion rotation_;
-  math::Vector4 translation_;
+  Math::Quaternion rotation_;
+  Math::Vector4 translation_;
   size_t type_;
 };
 
@@ -101,7 +100,7 @@ private:
  */
 namespace detail {
 
-using Opengl::Data::SupportedBufferFlags;
+using Data::SupportedBufferFlags;
 
 template <bool Enabled> struct TextureInterface : public RenderNode {};
 template <>
@@ -195,10 +194,10 @@ public:
     UpdateData();
   }
 
-  void SetRotation(const math::Quaternion& rot) {
+  void SetRotation(const Math::Quaternion& rot) {
     children.back()->SetRotation(rot);
   }
-  void SetTranslation(const math::Vector4& trans) {
+  void SetTranslation(const Math::Vector4& trans) {
     children.back()->SetTranslation(trans);
   }
 
@@ -228,6 +227,6 @@ private:
   std::map<SupportedBuffers, size_t> idx_map;
 };
 
-}} // ShapeShifter::Opengl
+}} // ShapeShifter::Rendering
 
-#endif /* OPENGL_RENDERNODE_H */
+#endif /* RENDERING_RENDERNODE_H */

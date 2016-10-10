@@ -11,16 +11,15 @@
  * Created on October 7, 2016, 9:17 PM
  */
 
-#ifndef OPENGL_DATA_VECTORSLICE_H
-#define OPENGL_DATA_VECTORSLICE_H
+#ifndef DATA_VECTORSLICE_H
+#define DATA_VECTORSLICE_H
 
 #include <cassert>
 #include <vector>
 
-#include "opengl/data/BufferTypes.h"
+#include "data/BufferTypes.h"
 
 namespace ShapeShifter {
-namespace Opengl {
 namespace Data {
 
 template <typename T>
@@ -90,7 +89,7 @@ SliceFiller<T> VectorSlice<T>::Filler() {
   return SliceFiller<T>(*this);
 }
 
-}}} // ShapeShifter::Opengl::Data
+}} // ShapeShifter::Data
 
-#endif /* OPENGL_DATA_VECTORSLICE_H */
+#endif /* DATA_VECTORSLICE_H */
 

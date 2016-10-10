@@ -18,8 +18,7 @@
 #include <iostream>
 
 namespace ShapeShifter {
-namespace Opengl {
-namespace math {
+namespace Math {
 
 Matrix4::Matrix4(const std::array<float, 16>& orig) : data_(orig) {}
 
@@ -98,4 +97,4 @@ void Matrix4::print() const {
   std::cerr << data_[0*DIM+3] << ", " << data_[1*DIM+3] << " " << data_[2*DIM+3] << " " << data_[3*DIM+3] << std::endl;
 }
 
-}}} // ShapeShifter::Opengl::math
+}} // ShapeShifter::Math

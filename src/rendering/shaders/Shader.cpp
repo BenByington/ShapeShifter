@@ -11,7 +11,7 @@
  * Created on July 29, 2016, 8:38 AM
  */
 
-#include "opengl/shaders/Shader.h"
+#include "rendering/shaders/Shader.h"
 
 #include <cassert>
 #include <iostream>
@@ -21,7 +21,7 @@
 #include <stdexcept>
 
 namespace ShapeShifter {
-namespace Opengl {
+namespace Rendering {
 namespace Shaders {
 
 Shader::Shader(const std::string& filename, ShaderType t) {
@@ -94,4 +94,4 @@ void Shader::ParseLayouts(const std::string& data) {
 }
 
 
-}}} // ShapeShifter::Opengl::Shaders
+}}} // ShapeShifter::Rendering::Shaders

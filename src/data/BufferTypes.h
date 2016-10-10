@@ -11,13 +11,12 @@
  * Created on September 14, 2016, 4:00 PM
  */
 
-#ifndef OPENGL_DATA_BUFFERTYPES_H
-#define OPENGL_DATA_BUFFERTYPES_H
+#ifndef DATA_BUFFERTYPES_H
+#define DATA_BUFFERTYPES_H
 
 #include <cstdlib>
 
 namespace ShapeShifter {
-namespace Opengl {
 namespace Data {
 
 enum SupportedBufferFlags : size_t {
@@ -39,7 +38,7 @@ static constexpr size_t floats_per_color = 3;
 static constexpr size_t floats_per_text = 2;
 static constexpr size_t floats_per_triangle = 3;
 
-}}} // ShapeShifter::Opengl::Data
+}} // ShapeShifter::Data
 
-#endif /* OPENGL_DATA_BUFFERTYPES_H */
+#endif /* DATA_BUFFERTYPES_H */
 

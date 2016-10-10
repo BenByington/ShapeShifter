@@ -16,12 +16,12 @@
 #include <cmath>
 
 namespace ShapeShifter {
-namespace Opengl {
+namespace Rendering {
 
-math::Matrix4 Frustum::FrustTransform() const {
+Math::Matrix4 Frustum::FrustTransform() const {
   auto itana = 1.0f / std::tan(fov_);
 
-  return math::Matrix4 {{itana, 0, 0, 0,
+  return Math::Matrix4 {{itana, 0, 0, 0,
                          0, aspect_*itana, 0, 0,
                          0, 0, -(far_ + near_) / (far_ - near_), -1,
                          0, 0, -2*far_*near_/(far_-near_), 0}};
@@ -56,4 +56,4 @@ namespace detail {
   }
 }
 
-}} // ShapeShifter::Opengl
+}} // ShapeShifter::Rendering

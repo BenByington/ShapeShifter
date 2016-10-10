@@ -11,14 +11,13 @@
  * Created on August 22, 2016, 8:25 AM
  */
 
-#ifndef OPENGL_MATH_VECTOR3_H
-#define OPENGL_MATH_VECTOR3_H
+#ifndef MATH_VECTOR3_H
+#define MATH_VECTOR3_H
 
 #include <array>
 
 namespace ShapeShifter {
-namespace Opengl {
-namespace math {
+namespace Math {
 
 class Vector3 {
 public:
@@ -41,7 +40,7 @@ private:
 
 };
 
-}}} // ShapeShifter::Opengl::math
+}} // ShapeShifter::Math
 
-#endif /* OPENGL_MATH_VECTOR3_H */
+#endif /* MATH_VECTOR3_H */
 

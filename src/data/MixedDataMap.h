@@ -11,16 +11,15 @@
  * Created on October 7, 2016, 9:12 PM
  */
 
-#ifndef OPENGL_DATA_BUFFERDATA_H
-#define OPENGL_DATA_BUFFERDATA_H
+#ifndef DATA_BUFFERDATA_H
+#define DATA_BUFFERDATA_H
 
 #include <cassert>
 #include <set>
 
-#include "opengl/data/VectorSlice.h"
+#include "data/VectorSlice.h"
 
 namespace ShapeShifter {
-namespace Opengl {
 namespace Data {
 
 namespace detail {
@@ -206,7 +205,7 @@ private:
   BufferIndex total_;
 };
 
-}}} // ShapeShifter::Opengl::Data
+}} // ShapeShifter::Data
 
-#endif /* OPENGL_DATA_BUFFERDATA_H */
+#endif /* DATA_BUFFERDATA_H */
 

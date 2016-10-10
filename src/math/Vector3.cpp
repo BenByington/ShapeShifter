@@ -18,8 +18,7 @@
 #include <iostream>
 
 namespace ShapeShifter {
-namespace Opengl {
-namespace math {
+namespace Math {
 
 Vector3 Vector3::cross(const Vector3& other) const {
   auto ret = Vector3 {};
@@ -59,5 +58,5 @@ void Vector3::Print() const {
   std::cerr << data_[0] << " " << data_[1] << " " << data_[2] << std::endl;
 }
 
-}}} // ShapeShifter::Opengl::math
+}} // ShapeShifter::Math
 

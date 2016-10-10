@@ -11,16 +11,15 @@
  * Created on August 5, 2016, 9:06 PM
  */
 
-#ifndef OPENGL_MATH_VECTOR4_H
-#define OPENGL_MATH_VECTOR4_H
+#ifndef MATH_VECTOR4_H
+#define MATH_VECTOR4_H
 
 #include <array>
 #include <cassert>
 #include <smmintrin.h>
 
 namespace ShapeShifter {
-namespace Opengl {
-namespace math {
+namespace Math {
 
 class alignas(16) Vector4 final {
 public:
@@ -47,7 +46,7 @@ private:
   std::array<float, 4> data_;
 };
 
-}}} // ShapeShifter::Opengl::math
+}} // ShapeShifter::Math
 
-#endif /* OPENGL_MATH_VECTOR4_H */
+#endif /* MATH_VECTOR4_H */
 

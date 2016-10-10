@@ -11,18 +11,18 @@
  * Created on July 29, 2016, 8:38 AM
  */
 
-#ifndef OPENGL_SHADERS_SHADER_H
-#define OPENGL_SHADERS_SHADER_H
+#ifndef RENDERING_SHADERS_SHADER_H
+#define RENDERING_SHADERS_SHADER_H
+
+#include "data/BufferTypes.h"
 
 #include <map>
 #include <string>
 
 #include <opengl/gl3.h>
 
-#include <opengl/data/BufferTypes.h>
-
 namespace ShapeShifter {
-namespace Opengl {
+namespace Rendering {
 namespace Shaders {
 
 /*
@@ -72,6 +72,6 @@ public:
 	virtual ~FragmentShader() {}
 };
 
-}}} // ShapeShifter::Opengl::Shaders
-#endif /* OPENGL_SHADERS_SHADER_H */
+}}} // ShapeShifter::Rendering::Shaders
+#endif /* RENDERING_SHADERS_SHADER_H */
 

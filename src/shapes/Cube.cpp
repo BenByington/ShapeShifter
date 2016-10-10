@@ -13,14 +13,14 @@
 
 #include "Cube.h"
 
-#include "opengl/data/BufferTypes.h"
+#include "data/BufferTypes.h"
 
 #include <iostream>
 
 namespace ShapeShifter {
 namespace Shapes {
 
-using namespace Opengl::Data;
+using namespace Data;
 
 Cube::Cube(float sx, float sy, float sz) : sx_(sx), sy_(sy), sz_(sz) {}
 

@@ -21,7 +21,7 @@
 
 #include "ui_MyQtWidget.h"
 
-#include "opengl/World.h"
+#include "rendering/World.h"
 
 namespace ShapeShifter {
 namespace ui {
@@ -52,7 +52,7 @@ private:
 
   std::pair<float, float> PixelCoordToCameraProj(const QPointF& p) const;
 
-  std::unique_ptr<Opengl::World> world_;
+  std::unique_ptr<Rendering::World> world_;
 
   bool tracking_mouse = false;
   std::pair<float, float> last_mouse_coords_rel_;

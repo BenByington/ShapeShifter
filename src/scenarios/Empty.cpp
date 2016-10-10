@@ -16,11 +16,11 @@
 namespace ShapeShifter {
 namespace scenarios {
 
-std::unique_ptr<Opengl::World> Empty::Setup() {
+std::unique_ptr<Rendering::World> Empty::Setup() {
 
-  auto&& frust = Opengl::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
-  auto camera = std::unique_ptr<Opengl::Camera>(new Opengl::Camera(frust, 2.5));
-  auto world = std::unique_ptr<Opengl::World>(new Opengl::World(std::move(camera)));
+  auto&& frust = Rendering::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
+  auto camera = std::unique_ptr<Rendering::Camera>(new Rendering::Camera(frust, 2.5));
+  auto world = std::unique_ptr<Rendering::World>(new Rendering::World(std::move(camera)));
   return world;
 }
 

@@ -11,27 +11,27 @@
  * Created on August 11, 2016, 6:36 PM
  */
 
-#ifndef OPENGL_CAMERA_H
-#define OPENGL_CAMERA_H
+#ifndef RENDERING_CAMERA_H
+#define RENDERING_CAMERA_H
 
-#include "opengl/math/Vector4.h"
-#include "opengl/Frustum.h"
-#include "opengl/math/Quaternion.h"
+#include "math/Vector4.h"
+#include "math/Quaternion.h"
+#include "rendering/Frustum.h"
 
 namespace ShapeShifter {
-namespace Opengl {
+namespace Rendering {
 
 class Camera {
 public:
   Camera(const Frustum& frust, float look_depth);
   virtual ~Camera();
 
-  math::Matrix4 ProjectionMatrix() const;
+  Math::Matrix4 ProjectionMatrix() const;
 
   void ChangeRollLeft(float rads);
   void ChangePitchUp(float rads);
   void ChangeYawLeft(float rads);
-  void ChangePosition(const math::Vector4& trans);
+  void ChangePosition(const Math::Vector4& trans);
   void PivotAroundLook(const std::pair<float, float>& start, const std::pair<float, float>& end);
 
   void SetAspectRatio(float aspect);
@@ -39,12 +39,12 @@ public:
 private:
   Frustum frust_;
   float look_depth_;
-  math::Vector4 translation_{{0, 0, 0, 1}};
-  math::Quaternion rotation_{0, 0, 0, 1};
+  Math::Vector4 translation_{{0, 0, 0, 1}};
+  Math::Quaternion rotation_{0, 0, 0, 1};
 
 };
 
-}} // ShapeShifter::Opengl
+}} // ShapeShifter::Rendering
 
-#endif /* OPENGL_CAMERA_H */
+#endif /* RENDERING_CAMERA_H */
 

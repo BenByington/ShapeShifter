@@ -14,8 +14,8 @@
 #ifndef SCENARIOS_TESTS_INDEXED_BUFFERS_H
 #define SCENARIOS_TESTS_INDEXED_BUFFERS_H
 
-#include "opengl/RenderNode.h"
-#include "opengl/World.h"
+#include "rendering/RenderNode.h"
+#include "rendering/World.h"
 #include "scenarios/Scenario.h"
 
 #include <memory>
@@ -32,7 +32,7 @@ public:
   IndexBuffers& operator=(const IndexBuffers& other) = delete;
   virtual ~IndexBuffers() {};
 
-  virtual std::unique_ptr<Opengl::World> Setup() override;
+  virtual std::unique_ptr<Rendering::World> Setup() override;
 
 private:
 

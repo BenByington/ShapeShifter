@@ -11,15 +11,15 @@
  * Created on August 11, 2016, 6:41 PM
  */
 
-#ifndef OPENGL_FRUSTUM_H
-#define OPENGL_FRUSTUM_H
+#ifndef RENDERING_FRUSTUM_H
+#define RENDERING_FRUSTUM_H
 
-#include "opengl/math/Matrix4.h"
+#include "math/Matrix4.h"
 
 #include <memory>
 
 namespace ShapeShifter {
-namespace Opengl {
+namespace Rendering {
 
 struct Frustum;
 
@@ -57,7 +57,7 @@ private:
 }
 
 struct Frustum {
-  math::Matrix4 FrustTransform() const;
+  Math::Matrix4 FrustTransform() const;
 
   static std::unique_ptr<detail::FrustumAspect> Build() {
     return std::unique_ptr<detail::FrustumAspect>(new detail::FrustumBuilder());
@@ -85,7 +85,7 @@ private:
 
 };
 
-}} // ShapeShifter::Opengl
+}} // ShapeShifter::Rendering
 
-#endif /* OPENGL_FRUSTUM_H */
+#endif /* RENDERING_FRUSTUM_H */
 

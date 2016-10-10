@@ -14,17 +14,17 @@
 #ifndef SHAPES_CUBE_H
 #define SHAPES_CUBE_H
 
-#include "opengl/RenderNode.h"
+#include "rendering/RenderNode.h"
 
 namespace ShapeShifter {
 namespace Shapes {
 
-class Cube final : public Opengl::TypedRenderNode<
-    Opengl::Data::SupportedBufferFlags::COLORS |
-    Opengl::Data::SupportedBufferFlags::INDICES
+class Cube final : public Rendering::TypedRenderNode<
+    Data::SupportedBufferFlags::COLORS |
+    Data::SupportedBufferFlags::INDICES
 >{
 
-  using BufferIndex = Opengl::Data::BufferIndex;
+  using BufferIndex = Data::BufferIndex;
 public:
   Cube(float sx, float sy, float sz);
   Cube(const Cube& orig) = delete;
@@ -35,9 +35,9 @@ public:
 private:
 
   virtual BufferIndex ExclusiveNodeDataCount() const override;
-	virtual void FillVertexData(Opengl::Data::VectorSlice<float>& data) const override;
-	virtual void FillColorData(Opengl::Data::VectorSlice<float>& data) const override;
-	virtual void FillIndexData(Opengl::Data::VectorSlice<uint32_t>& data) const override;
+	virtual void FillVertexData(Data::VectorSlice<float>& data) const override;
+	virtual void FillColorData(Data::VectorSlice<float>& data) const override;
+	virtual void FillIndexData(Data::VectorSlice<uint32_t>& data) const override;
   virtual void DrawSelf() const override;
 
   float sx_;

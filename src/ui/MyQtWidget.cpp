@@ -13,8 +13,8 @@
 
 #include "ui/MyQtWidget.h"
 
-#include "opengl/shaders/Shader.h"
-#include "opengl/shaders/ShaderProgram.h"
+#include "rendering/shaders/Shader.h"
+#include "rendering/shaders/ShaderProgram.h"
 #include "scenarios/Empty.h"
 #include "scenarios/tests/Squares2D.h"
 #include "scenarios/tests/IndexBuffers.h"

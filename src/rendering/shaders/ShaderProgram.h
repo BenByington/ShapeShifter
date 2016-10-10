@@ -11,19 +11,19 @@
  * Created on July 31, 2016, 3:08 PM
  */
 
-#ifndef OPENGL_SHADERS_SHADERPROGRAM_H
-#define OPENGL_SHADERS_SHADERPROGRAM_H
+#ifndef RENDERING_SHADERS_SHADERPROGRAM_H
+#define RENDERING_SHADERS_SHADERPROGRAM_H
 
 #include <map>
 #include <memory>
 #include <vector>
 
-#include "opengl/data/BufferTypes.h"
-#include "opengl/math/Matrix4.h"
-#include "opengl/shaders/Shader.h"
+#include "data/BufferTypes.h"
+#include "math/Matrix4.h"
+#include "rendering/shaders/Shader.h"
 
 namespace ShapeShifter {
-namespace Opengl {
+namespace Rendering {
 namespace Shaders {
 
 class ShaderProgram {
@@ -37,7 +37,7 @@ public:
   virtual ~ShaderProgram();
 
 	void UseProgram() const { glUseProgram(program_); }
-  void uploadMatrix(const math::Matrix4& mat) const;
+  void uploadMatrix(const Math::Matrix4& mat) const;
 
   template <size_t Flags>
   std::map<Data::SupportedBuffers, size_t> BufferMapping() const;
@@ -47,7 +47,7 @@ private:
 	GLuint program_;
 };
 
-}}} // ShapeShifter::Opengl::Shaders
+}}} // ShapeShifter::Rendering::Shaders
 
-#endif /* OPENGL_SHADERS_SHADERPROGRAM_H */
+#endif /* RENDERING_SHADERS_SHADERPROGRAM_H */
 

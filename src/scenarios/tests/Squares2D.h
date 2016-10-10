@@ -14,8 +14,8 @@
 #ifndef SCENARIOS_TESTS_SQUARES2D_H
 #define SCENARIOS_TESTS_SQUARES2D_H
 
-#include "opengl/RenderNode.h"
-#include "opengl/World.h"
+#include "rendering/RenderNode.h"
+#include "rendering/World.h"
 #include "scenarios/Scenario.h"
 
 #include <memory>
@@ -32,7 +32,7 @@ public:
   Squares2D& operator=(const Squares2D& other) = delete;
   virtual ~Squares2D() {};
 
-  virtual std::unique_ptr<Opengl::World> Setup() override;
+  virtual std::unique_ptr<Rendering::World> Setup() override;
 
 private:
 
@@ -43,15 +43,15 @@ namespace detail {
 /**
  * Simple test class that will draw a shaded square in the center of the screen
  */
-class SquareTest2D : public Opengl::TypedRenderNode<Opengl::Data::SupportedBufferFlags::COLORS> {
+class SquareTest2D : public Rendering::TypedRenderNode<Data::SupportedBufferFlags::COLORS> {
 public:
 	SquareTest2D() = default;
 	virtual ~SquareTest2D() {}
 private:
-  using BufferIndex = Opengl::Data::BufferIndex;
+  using BufferIndex = Data::BufferIndex;
 	virtual BufferIndex ExclusiveNodeDataCount() const override;
-	virtual void FillVertexData(Opengl::Data::VectorSlice<float>& data) const override;
-	virtual void FillColorData(Opengl::Data::VectorSlice<float>& data) const override;
+	virtual void FillVertexData(Data::VectorSlice<float>& data) const override;
+	virtual void FillColorData(Data::VectorSlice<float>& data) const override;
 	virtual void DrawSelf() const override;
 };
 

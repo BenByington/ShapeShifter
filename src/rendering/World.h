@@ -11,17 +11,17 @@
  * Created on August 29, 2016, 8:15 AM
  */
 
-#ifndef OPENGL_WORLD_H
-#define OPENGL_WORLD_H
+#ifndef RENDERING_WORLD_H
+#define RENDERING_WORLD_H
 
-#include "opengl/Camera.h"
-#include "opengl/shaders/ShaderProgram.h"
-#include "opengl/RenderNode.h"
+#include "rendering/Camera.h"
+#include "rendering/shaders/ShaderProgram.h"
+#include "rendering/RenderNode.h"
 
 #include <memory>
 
 namespace ShapeShifter {
-namespace Opengl {
+namespace Rendering {
 
 class World final{
 public:
@@ -41,7 +41,7 @@ private:
   std::unique_ptr<Camera> camera_;
 };
 
-}} // ShapeShifter::Opengl
+}} // ShapeShifter::Rendering
 
-#endif /* OPENGL_WORLD_H */
+#endif /* RENDERING_WORLD_H */
 

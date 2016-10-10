@@ -11,15 +11,14 @@
  * Created on August 7, 2016, 1:09 PM
  */
 
-#ifndef OPENGL_MATH_QUATERNION_H
-#define OPENGL_MATH_QUATERNION_H
+#ifndef MATH_QUATERNION_H
+#define MATH_QUATERNION_H
 
-#include "opengl/math/Matrix4.h"
-#include "opengl/math/Vector3.h"
+#include "math/Matrix4.h"
+#include "math/Vector3.h"
 
 namespace ShapeShifter {
-namespace Opengl {
-namespace math {
+namespace Math {
 
 class Quaternion {
 public:
@@ -42,7 +41,7 @@ private:
   float qz;
 };
 
-}}} // ShapeShifter::Opengl::math
+}} // ShapeShifter::Math
 
-#endif /* OPENGL_MATH_QUATERNION_H */
+#endif /* MATH_QUATERNION_H */
 

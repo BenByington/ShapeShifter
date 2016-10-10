@@ -14,7 +14,7 @@
 #ifndef SCENARIOS_SCENARIO_H
 #define SCENARIOS_SCENARIO_H
 
-#include "opengl/World.h"
+#include "rendering/World.h"
 
 #include <memory>
 
@@ -29,7 +29,7 @@ public:
   Scenario& operator=(const Scenario& orig) = delete;
   virtual ~Scenario() {};
 
-  virtual std::unique_ptr<Opengl::World> Setup() = 0;
+  virtual std::unique_ptr<Rendering::World> Setup() = 0;
 private:
 
 };

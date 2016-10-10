@@ -4,10 +4,9 @@
  * and open the template in the editor.
  */
 
-#include "opengl/data/MixedDataMap.h"
+#include "data/MixedDataMap.h"
 
 namespace ShapeShifter {
-namespace Opengl {
 namespace Data {
 
 MixedSliceMap::MixedSliceMap(
@@ -89,4 +88,4 @@ MixedSliceMap MixedDataMap::NextSlice(BufferIndex count) {
   );
 }
 
-}}} // ShapeShifter::Opengl::Data
+}} // ShapeShifter::Data

@@ -13,13 +13,12 @@
 
 #include "Quaternion.h"
 
-#include "opengl/math/Vector4.h"
+#include "math/Vector4.h"
 
 #include <cmath>
 
 namespace ShapeShifter {
-namespace Opengl {
-namespace math {
+namespace Math {
 
 Quaternion::Quaternion(float s, float x, float y, float z) {
   qw = std::cos(s/2);
@@ -64,4 +63,4 @@ void Quaternion::Normalize() {
   qz /= mag;
 }
 
-}}} // ShapeShifter::Opengl::math
+}} // ShapeShifter::Math

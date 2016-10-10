@@ -6,7 +6,7 @@ find_package(Qt5Widgets REQUIRED)
 find_package(Qt5GUI REQUIRED)
 find_package(Qt5OpenGL REQUIRED)
 
-find_package(OpenGL REQUIRED) 
+find_package(OpenGL REQUIRED)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)

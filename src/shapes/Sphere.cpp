@@ -13,14 +13,14 @@
 
 #include "Sphere.h"
 
-#include "opengl/data/BufferTypes.h"
+#include "data/BufferTypes.h"
 
 #include <iostream>
 
 namespace ShapeShifter {
 namespace Shapes {
 
-using namespace Opengl::Data;
+using namespace Data;
 
 Sphere::Sphere(float radius) : radius_(radius) {}
 

@@ -21,10 +21,10 @@ namespace ShapeShifter {
 namespace scenarios{
 namespace tests {
 
-std::unique_ptr<Opengl::World> Squares2D::Setup() {
+std::unique_ptr<Rendering::World> Squares2D::Setup() {
 
   using detail::SquareTest2D;
-  using Opengl::math::Vector4;
+  using Math::Vector4;
 
   auto pi = 4*std::atan(1.0f);
 
@@ -55,35 +55,35 @@ std::unique_ptr<Opengl::World> Squares2D::Setup() {
   manipulator = first->AddChild(std::move(second));
   manipulator->SetRotation({-pi/2, 0 , 1, 0});
 
-	auto vert = std::make_unique<Opengl::Shaders::VertexShader>(
+	auto vert = std::make_unique<Rendering::Shaders::VertexShader>(
 	    "/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert");
-	auto frag = std::make_unique<Opengl::Shaders::FragmentShader>(
+	auto frag = std::make_unique<Rendering::Shaders::FragmentShader>(
 	    "/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag");
-	auto program = std::make_shared<Opengl::Shaders::ShaderProgram>(
+	auto program = std::make_shared<Rendering::Shaders::ShaderProgram>(
       std::move(vert), std::move(frag));
 
-	auto root = std::make_unique<Opengl::RootNode>(std::move(first),  program);
+	auto root = std::make_unique<Rendering::RootNode>(std::move(first),  program);
   root->SetTranslation(Vector4(-.5, -.5, -2.5, 1));
 
-  auto frust = Opengl::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
-  auto camera = std::make_unique<Opengl::Camera>(frust, 2.5);
+  auto frust = Rendering::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
+  auto camera = std::make_unique<Rendering::Camera>(frust, 2.5);
   camera->ChangePosition(Vector4(0, 0, 0, 1.0f));
 
-  auto world = std::make_unique<Opengl::World>(std::move(camera));
+  auto world = std::make_unique<Rendering::World>(std::move(camera));
   world->SetRenderTree(std::move(root));
   return world;
 }
 
 namespace detail {
 
-using Opengl::Data::BufferIndex;
+using Data::BufferIndex;
 BufferIndex SquareTest2D::ExclusiveNodeDataCount() const {
   auto ret = BufferIndex();
   ret.vertex_ = 4;
   return ret;
 }
 
-void SquareTest2D::FillColorData(Opengl::Data::VectorSlice<float>& data) const {
+void SquareTest2D::FillColorData(Data::VectorSlice<float>& data) const {
 	data[0] = 1.0;
 	data[1] = 0.0;
 	data[2] = 0.0;
@@ -101,7 +101,7 @@ void SquareTest2D::FillColorData(Opengl::Data::VectorSlice<float>& data) const {
 	data[11] = 0.0;
 }
 
-void SquareTest2D::FillVertexData(Opengl::Data::VectorSlice<float>& data) const {
+void SquareTest2D::FillVertexData(Data::VectorSlice<float>& data) const {
 	data[0] = 0;
 	data[1] = 0;
 	data[2] = 0;

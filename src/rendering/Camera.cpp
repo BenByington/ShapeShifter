@@ -19,7 +19,7 @@
 #include <iostream>
 
 namespace ShapeShifter {
-namespace Opengl {
+namespace Rendering {
 
 Camera::Camera(const Frustum& frust, float look_depth)
   : frust_(frust),
@@ -30,18 +30,18 @@ Camera::~Camera() {
 }
 
 void Camera::ChangePitchUp(float rads) {
-  rotation_ = math::Quaternion(-rads, 1, 0, 0)*rotation_;
+  rotation_ = Math::Quaternion(-rads, 1, 0, 0)*rotation_;
 }
 
 void Camera::ChangeRollLeft(float rads) {
-  rotation_ = math::Quaternion(-rads, 0, 0, 1)*rotation_;
+  rotation_ = Math::Quaternion(-rads, 0, 0, 1)*rotation_;
 }
 
 void Camera::ChangeYawLeft(float rads) {
-  rotation_ = math::Quaternion(-rads, 0, 1, 0)*rotation_;
+  rotation_ = Math::Quaternion(-rads, 0, 1, 0)*rotation_;
 }
 
-void Camera::ChangePosition(const math::Vector4& trans) {
+void Camera::ChangePosition(const Math::Vector4& trans) {
   translation_ = translation_ - trans;
 }
 
@@ -54,7 +54,7 @@ void Camera::PivotAroundLook(const std::pair<float,float>& start, const std::pai
   auto ball_rad2 = ball_rad * ball_rad;
 
   auto convert  = [&](const std::pair<float, float>& in) {
-    auto coord = math::Vector3 {};
+    auto coord = Math::Vector3 {};
     coord[0] = in.first*proj_width;
     coord[1] = in.second * proj_width / frust_.aspect();
     auto rad2 = coord[0]*coord[0] + coord[1]*coord[1];
@@ -76,7 +76,7 @@ void Camera::PivotAroundLook(const std::pair<float,float>& start, const std::pai
   auto dot = first.dot(second);
   auto theta = acos(dot / first.Magnitude() / second.Magnitude());
 
-  auto q = math::Quaternion(theta, rot_dir);
+  auto q = Math::Quaternion(theta, rot_dir);
   rotation_ = q * rotation_;
   translation_[2] += look_depth_;
   translation_ = q.RotationMatrix()*translation_;
@@ -84,7 +84,7 @@ void Camera::PivotAroundLook(const std::pair<float,float>& start, const std::pai
 
 }
 
-math::Matrix4 Camera::ProjectionMatrix() const {
+Math::Matrix4 Camera::ProjectionMatrix() const {
   auto rot = rotation_.RotationMatrix();
   rot.WriteColumn(3, translation_);
   return frust_.FrustTransform() * rot;
@@ -95,4 +95,4 @@ void Camera::SetAspectRatio(float aspect) {
 }
 
 
-}} // ShapeShifter::Opengl
+}} // ShapeShifter::Rendering

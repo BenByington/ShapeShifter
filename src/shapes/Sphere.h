@@ -14,18 +14,18 @@
 #ifndef SHAPES_SPHERE_H
 #define SHAPES_SPHERE_H
 
-#include "opengl/RenderNode.h"
+#include "rendering/RenderNode.h"
 
 #include <cmath>
 
 namespace ShapeShifter {
 namespace Shapes {
 
-class Sphere final : public Opengl::TypedRenderNode<
-    Opengl::Data::SupportedBufferFlags::COLORS |
-    Opengl::Data::SupportedBufferFlags::INDICES
+class Sphere final : public Rendering::TypedRenderNode<
+    Data::SupportedBufferFlags::COLORS |
+    Data::SupportedBufferFlags::INDICES
 >{
-  using BufferIndex = Opengl::Data::BufferIndex;
+  using BufferIndex = Data::BufferIndex;
   constexpr static const auto phi = (1.0f + std::sqrt(5.0f))/2.0f;
 
 public:
@@ -38,9 +38,9 @@ public:
 private:
 
   virtual BufferIndex ExclusiveNodeDataCount() const override;
-	virtual void FillVertexData(Opengl::Data::VectorSlice<float>& data) const override;
-	virtual void FillColorData(Opengl::Data::VectorSlice<float>& data) const override;
-	virtual void FillIndexData(Opengl::Data::VectorSlice<uint32_t>& data) const override;
+	virtual void FillVertexData(Data::VectorSlice<float>& data) const override;
+	virtual void FillColorData(Data::VectorSlice<float>& data) const override;
+	virtual void FillIndexData(Data::VectorSlice<uint32_t>& data) const override;
   virtual void DrawSelf() const override;
 
   // FIXME: This isn't quite the radius...

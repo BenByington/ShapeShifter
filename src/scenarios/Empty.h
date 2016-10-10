@@ -29,7 +29,7 @@ public:
   Empty& operator=(const Empty& other) = delete;
   virtual ~Empty() {};
 
-  virtual std::unique_ptr<Opengl::World> Setup() override;
+  virtual std::unique_ptr<Rendering::World> Setup() override;
 
 private:
 

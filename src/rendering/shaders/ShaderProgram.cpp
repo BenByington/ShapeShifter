@@ -21,7 +21,7 @@
 #include <limits>
 
 namespace ShapeShifter {
-namespace Opengl {
+namespace Rendering {
 namespace Shaders {
 
 using Data::SupportedBuffers;
@@ -63,7 +63,7 @@ ShaderProgram::~ShaderProgram() {
 	glDeleteProgram(program_);
 }
 
-void ShaderProgram::uploadMatrix(const math::Matrix4& mat) const {
+void ShaderProgram::uploadMatrix(const Math::Matrix4& mat) const {
   auto transform_location = glGetUniformLocation(program_, "transform");
   glUniformMatrix4fv(transform_location, 1, GL_FALSE, mat.data());
 }
@@ -115,5 +115,5 @@ std::map<SupportedBuffers, size_t> ShaderProgram::BufferMapping() const {
 template std::map<SupportedBuffers, size_t> ShaderProgram::BufferMapping<SupportedBufferFlags::COLORS>() const;
 template std::map<SupportedBuffers, size_t> ShaderProgram::BufferMapping<SupportedBufferFlags::COLORS | SupportedBufferFlags::INDICES>() const;
 
-}}} // ShapeShifter::Opengl::Shaders
+}}} // ShapeShifter::Rendering::Shaders
 

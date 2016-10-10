@@ -18,16 +18,16 @@
 #include <numeric>
 
 namespace ShapeShifter {
-namespace Opengl {
+namespace Rendering {
 
 using Data::SupportedBuffers;
 using Data::SupportedBufferFlags;
 
-void RenderNode::SetRotation(const math::Quaternion& rot) {
+void RenderNode::SetRotation(const Math::Quaternion& rot) {
   this->rotation_ = rot;
 }
 
-void RenderNode::SetTranslation(const math::Vector4& trans) {
+void RenderNode::SetTranslation(const Math::Vector4& trans) {
   this->translation_ = trans;
 }
 
@@ -133,13 +133,13 @@ void RootNode::RenderTree(const Camera& camera) const {
   glBindVertexArray(vao);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
   program_->UseProgram();
-  this->DrawChildren(camera, math::Quaternion(), math::Vector4(0, 0, 0, 1), *program_);
+  this->DrawChildren(camera, Math::Quaternion(), Math::Vector4(0, 0, 0, 1), *program_);
 }
 
 void RenderNode::DrawChildren(
     const Camera& camera,
-    const math::Quaternion& cumRot,
-    const math::Vector4& cumTrans,
+    const Math::Quaternion& cumRot,
+    const Math::Vector4& cumTrans,
     const Shaders::ShaderProgram& shader) const {
 
   auto localQuat = cumRot*rotation_;
@@ -154,7 +154,7 @@ void RenderNode::DrawChildren(
 	this->DrawSelf();
 }
 
-void RenderNode::DebugRotation(const math::Matrix4& mat) const {
+void RenderNode::DebugRotation(const Math::Matrix4& mat) const {
   auto dataset = Data::MixedDataMap({SupportedBuffers::VERTICES}, ExclusiveNodeDataCount());
   auto slices = dataset.NextSlice(ExclusiveNodeDataCount());
   auto& slice = slices.get<SupportedBuffers::VERTICES>();
@@ -163,7 +163,7 @@ void RenderNode::DebugRotation(const math::Matrix4& mat) const {
   mat.print();
   auto& data = dataset.get<SupportedBuffers::VERTICES>();
   for (size_t i = 0; i < data.size(); i += 3) {
-    auto vec = math::Vector4(data[i], data[i+1], data[i+2], 1);
+    auto vec = Math::Vector4(data[i], data[i+1], data[i+2], 1);
     std::cerr << "Before: " << std::endl;
     vec.print();
     auto result = mat * vec;
@@ -175,4 +175,4 @@ void RenderNode::DebugRotation(const math::Matrix4& mat) const {
 // ISSUE: Set up type list to automatically instantiate explicit templates
 template class TypedRenderNode<SupportedBufferFlags::COLORS>;
 
-}} // ShapeShifter::Opengl
+}} // ShapeShifter::Rendering

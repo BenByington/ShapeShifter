@@ -4,4 +4,4 @@
  * and open the template in the editor.
  */
 
-#include "opengl/data/VectorSlice.h"
+#include "data/BufferTypes.h"
