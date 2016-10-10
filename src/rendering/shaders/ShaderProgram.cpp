@@ -41,7 +41,6 @@ ShaderProgram::ShaderProgram(
 
 	glLinkProgram(program_);
 
-	//TODO this is mostly copy/paste.  Factor out?
 	auto linked = GL_FALSE;
 	glGetProgramiv(program_, GL_LINK_STATUS, &linked);
 	if (linked == GL_FALSE) {

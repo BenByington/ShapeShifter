@@ -199,7 +199,7 @@ public:
   MixedSliceMap NextSlice(BufferIndex count);
 
   BufferIndex DataRemaining();
-
+  BufferIndex Size();
 private:
   BufferIndex next_free_;
   BufferIndex total_;

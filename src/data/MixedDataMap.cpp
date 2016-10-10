@@ -77,6 +77,10 @@ BufferIndex MixedDataMap::DataRemaining() {
   return total_ - next_free_;
 }
 
+BufferIndex MixedDataMap::Size() {
+  return total_;
+}
+
 MixedSliceMap MixedDataMap::NextSlice(BufferIndex count) {
   auto start = next_free_;
   next_free_ += count;

@@ -107,8 +107,7 @@ void RootNode::UpdateData() {
     glGenBuffers (1, &vbo);
     glBindBuffer (GL_ARRAY_BUFFER, vbo);
     glBufferData (GL_ARRAY_BUFFER, buffer_dat.size() * sizeof (float), buffer_dat.data(), GL_STATIC_DRAW);
-    // TODO 3 hardcode is wrong for textures!.
-    glVertexAttribPointer (idx_map.at(kv.first), 3, GL_FLOAT, GL_FALSE, 0, NULL);
+    glVertexAttribPointer (idx_map.at(kv.first),  buffer_dat.size()/data.Size().vertex_, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(idx_map.at(kv.first));
   }
 
