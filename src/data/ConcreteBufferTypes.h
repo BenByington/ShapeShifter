@@ -14,6 +14,7 @@
 #ifndef DATA_CONCRETE_BUFFERTYPES_H
 #define DATA_CONCRETE_BUFFERTYPES_H
 
+#include "data/AbstractBufferTypes.h"
 #include "data/BufferTypes.h"
 #include "data/MixedDataMap.h"
 #include "rendering/RenderNode.h"
@@ -23,20 +24,6 @@
 
 namespace ShapeShifter {
 namespace Data {
-
-class AbstractManager {
-public:
-  virtual ~AbstractManager(){}
-
-  virtual void FillData(VectorSlice<float>& data, Rendering::RenderNode* node) = 0;
-  virtual void FillData(VectorSlice<uint32_t>& data, Rendering::RenderNode* node) = 0;
-
-  // Temporary, to ease the transition from the enums to the Managers
-  virtual SupportedBufferFlags flag() = 0;
-  virtual SupportedBuffers buffer() = 0;
-  
-  virtual size_t ElementsPerEntry() = 0;
-};
 
 namespace detail {
 
@@ -75,6 +62,7 @@ public:
   template <class Child_>
   struct Dispatch {
     static void FillData(VectorSlice<typename Child_::Type>& data, Rendering::RenderNode* node) {
+      assert(false);
       auto typed_node = dynamic_cast<typename Child_::Interface*>(node);
       typed_node->FillData(data);
     }

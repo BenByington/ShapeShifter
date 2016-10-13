@@ -14,7 +14,7 @@
 #ifndef SHAPES_CUBE_H
 #define SHAPES_CUBE_H
 
-#include "rendering/RenderNode.h"
+#include "rendering/TypedRenderNode.h"
 
 namespace ShapeShifter {
 namespace Shapes {

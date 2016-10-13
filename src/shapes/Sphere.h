@@ -14,7 +14,7 @@
 #ifndef SHAPES_SPHERE_H
 #define SHAPES_SPHERE_H
 
-#include "rendering/RenderNode.h"
+#include "rendering/TypedRenderNode.h"
 
 #include <cmath>
 

@@ -14,6 +14,7 @@
 #include "scenarios/tests/IndexBuffers.h"
 
 #include "math/Quaternion.h"
+#include "rendering/PureNode.h"
 #include "shapes/Cube.h"
 #include "shapes/Sphere.h"
 

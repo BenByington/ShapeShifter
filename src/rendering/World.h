@@ -16,7 +16,7 @@
 
 #include "rendering/Camera.h"
 #include "rendering/shaders/ShaderProgram.h"
-#include "rendering/RenderNode.h"
+#include "rendering/RootNode.h"
 
 #include <memory>
 
