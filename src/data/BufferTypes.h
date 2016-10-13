@@ -14,7 +14,10 @@
 #ifndef DATA_BUFFERTYPES_H
 #define DATA_BUFFERTYPES_H
 
+#include "data/VectorSlice.h"
+
 #include <cstdlib>
+#include <type_traits>
 
 namespace ShapeShifter {
 namespace Data {

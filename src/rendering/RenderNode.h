@@ -14,7 +14,6 @@
 #ifndef RENDERING_RENDERNODE_H
 #define RENDERING_RENDERNODE_H
 
-#include "data/BufferTypes.h"
 #include "data/MixedDataMap.h"
 #include "math/Quaternion.h"
 #include "rendering/shaders/ShaderProgram.h"

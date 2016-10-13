@@ -17,6 +17,7 @@
 #include <cassert>
 #include <set>
 
+#include "data/BufferTypes.h"
 #include "data/VectorSlice.h"
 
 namespace ShapeShifter {

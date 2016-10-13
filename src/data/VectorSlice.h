@@ -17,8 +17,6 @@
 #include <cassert>
 #include <vector>
 
-#include "data/BufferTypes.h"
-
 namespace ShapeShifter {
 namespace Data {
 

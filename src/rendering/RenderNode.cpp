@@ -48,10 +48,6 @@ void RenderNode::PopulateBufferData(Data::MixedDataMap& data) {
 	start_= local_data.start();
 	end_= local_data.end();
 
-  // ISSUE: Refactor buffer type meta programming.  Moving away from bit
-  //        flags (or at least the use of '|' to combine them) would be nice,
-  //        as well as the ability to avoid these switch statements scattered
-  //        all over.
   for(auto& key: data.keys()) {
     switch (key) {
       case SupportedBuffers::COLORS:
