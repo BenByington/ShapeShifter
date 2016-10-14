@@ -80,6 +80,7 @@ public:
 class ColorManager : public BaseManager<ColorManager> {
 public:
   using Type = float;
+  static constexpr size_t Flag = SupportedBufferFlags::COLORS;
   virtual ~ColorManager(){}
 
   virtual size_t ElementsPerEntry() override { return 3; }
@@ -89,9 +90,25 @@ public:
   class Interface {
   public:
     void FillData(VectorSlice<Type>& data) { FillColorData(data); }
-	  virtual void FillColorData(Data::VectorSlice<float>& data) const = 0;
+	  virtual void FillColorData(Data::VectorSlice<Type>& data) const = 0;
   };
+};
 
+class IndexManager : public BaseManager<IndexManager> {
+public:
+  using Type = uint32_t;
+  static constexpr size_t Flag = SupportedBufferFlags::INDICES;
+  virtual ~IndexManager(){}
+
+  virtual size_t ElementsPerEntry() override { return 3; }
+  virtual SupportedBufferFlags flag() override { return SupportedBufferFlags::INDICES; }
+  virtual SupportedBuffers buffer() override { return SupportedBuffers::INDICES; }
+
+  class Interface {
+  public:
+    void FillData(VectorSlice<Type>& data) { FillIndexData(data); }
+	  virtual void FillIndexData(Data::VectorSlice<Type>& data) const = 0;
+  };
 };
 
 static ColorManager temp;

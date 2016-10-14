@@ -11,12 +11,13 @@
  * Created on October 13, 2016, 3:52 PM
  */
 
+#include "Data/ConcreteBufferTypes.h"
 #include "rendering/TypedRenderNode.h"
 
 namespace ShapeShifter {
 namespace Rendering {
 
 // ISSUE: Set up type list to automatically instantiate explicit templates
-template class TypedRenderNode<Data::SupportedBufferFlags::COLORS>;
+template class TypedRenderNode<Data::ColorManager>;
 
 }} // ShapeShifter::Rendering

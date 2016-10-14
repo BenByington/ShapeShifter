@@ -14,6 +14,7 @@
 #ifndef SHAPES_SPHERE_H
 #define SHAPES_SPHERE_H
 
+#include "data/ConcreteBufferTypes.h"
 #include "rendering/TypedRenderNode.h"
 
 #include <cmath>
@@ -22,8 +23,8 @@ namespace ShapeShifter {
 namespace Shapes {
 
 class Sphere final : public Rendering::TypedRenderNode<
-    Data::SupportedBufferFlags::COLORS |
-    Data::SupportedBufferFlags::INDICES
+    Data::ColorManager,
+    Data::IndexManager
 >{
   using BufferIndex = Data::BufferIndex;
   constexpr static const auto phi = (1.0f + std::sqrt(5.0f))/2.0f;

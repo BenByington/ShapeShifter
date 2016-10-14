@@ -19,11 +19,11 @@
 namespace ShapeShifter {
 namespace Rendering {
 
-class RootNode : private TypedRenderNode<0> {
+class RootNode : private TypedRenderNode<> {
 public:
   template <typename Other, typename dummy =
 	    typename std::enable_if<
-          std::is_base_of<TypedRenderNode<Other::Flags_t>, Other>::value
+          std::is_base_of<RenderNode, Other>::value
       >::type
   >
   RootNode(
@@ -31,7 +31,7 @@ public:
       std::shared_ptr<Shaders::ShaderProgram> program)
     : program_(program) {
     children.emplace_back(tree.release());
-    idx_map = program->BufferMapping<Other::Flags_t>();
+    idx_map = program->BufferMapping<Other::Flags>();
     UpdateData();
   }
 

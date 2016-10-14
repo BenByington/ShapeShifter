@@ -22,8 +22,8 @@ namespace Rendering {
 /**
  * Basic implementation for nodes that only hold other nodes
  */
-template <size_t Flags>
-class PureNode final : public TypedRenderNode<Flags> {
+template <class... Interface>
+class PureNode final : public TypedRenderNode<Interface...> {
 public:
 	PureNode() = default;
 	virtual ~PureNode() {}

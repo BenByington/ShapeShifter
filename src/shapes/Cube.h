@@ -15,13 +15,14 @@
 #define SHAPES_CUBE_H
 
 #include "rendering/TypedRenderNode.h"
+#include "data/ConcreteBufferTypes.h"
 
 namespace ShapeShifter {
 namespace Shapes {
 
 class Cube final : public Rendering::TypedRenderNode<
-    Data::SupportedBufferFlags::COLORS |
-    Data::SupportedBufferFlags::INDICES
+    Data::ColorManager,
+    Data::IndexManager
 >{
 
   using BufferIndex = Data::BufferIndex;

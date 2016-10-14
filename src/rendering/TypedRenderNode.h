@@ -52,11 +52,26 @@ class IndexInterface<Flags, false> : public ColorNode<Flags> {
 };
 template <size_t Flags> using IndexNode = IndexInterface<Flags, Flags & SupportedBufferFlags::INDICES>;
 
+template <class... Interface>
+struct extract_flags {
+  static size_t constexpr impl() {
+    const std::array<size_t, sizeof...(Interface)> dat { Interface::Flag... };
+    size_t ret = 0;
+    for (size_t i = 0; i < sizeof...(Interface); ++i) ret |= dat[i];
+    return ret;
+  }
+
+  static size_t constexpr Flags = impl();
+};
+
 }
 
-template <size_t Flags>
-class TypedRenderNode : public detail::IndexNode<Flags> {
 
+template <class... Interface>
+class TypedRenderNode : public detail::IndexNode<detail::extract_flags<Interface...>::Flags> {
+
+  public:
+  static constexpr size_t Flags = detail::extract_flags<Interface...>::Flags;
 protected:
   using SupportedBufferFlags = Data::SupportedBufferFlags;
   using SupportedBuffers = Data::SupportedBuffers;
@@ -80,7 +95,7 @@ public:
       std::unique_ptr<Other> child,
 	    typename std::enable_if<
           (Other::Flags_t & Flags) == Flags
-          && std::is_base_of<TypedRenderNode<Other::Flags_t>, Other>::value
+          && std::is_base_of<RenderNode, Other>::value
           && (Other::Flags_t & SupportedBufferFlags::INDICES) == (Flags & SupportedBufferFlags::INDICES)
       >::type* dummy = 0
       ) {

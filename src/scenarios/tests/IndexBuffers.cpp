@@ -42,7 +42,10 @@ std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
   constexpr auto flag = SupportedBufferFlags::COLORS
      | SupportedBufferFlags::INDICES;
 
-  auto pure = std::make_unique<Rendering::PureNode<flag>>();
+  auto pure = std::make_unique<Rendering::PureNode<
+      Data::ColorManager,
+      Data::IndexManager
+  >>();
   pure->AddChild(std::move(sphere));
   pure->AddChild(std::move(cube));
 
