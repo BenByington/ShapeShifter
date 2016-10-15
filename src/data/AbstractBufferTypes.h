@@ -26,6 +26,8 @@ namespace Data {
 
 class AbstractManager {
 public:
+  //TODO rule of 5, this class and children
+  AbstractManager(size_t idx) : idx_(idx) {}
   virtual ~AbstractManager(){}
 
   virtual void FillData(VectorSlice<float>& data, Rendering::RenderNode* node) = 0;
@@ -36,6 +38,10 @@ public:
   virtual SupportedBuffers buffer() = 0;
 
   virtual size_t ElementsPerEntry() = 0;
+
+  size_t idx() { return idx_; }
+private:
+  size_t idx_;
 };
 
 }} // ShapeShifter::Data

@@ -50,6 +50,7 @@ struct interface_function_exists {
 template <class Child>
 class BaseManager : public AbstractManager {
 public:
+  BaseManager(size_t idx) : AbstractManager(idx) {}
   virtual ~BaseManager() {
     constexpr Child* temp = nullptr;
     static_assert(detail::type_exists::valid(temp),
@@ -81,6 +82,9 @@ class ColorManager : public BaseManager<ColorManager> {
 public:
   using Type = float;
   static constexpr size_t Flag = SupportedBufferFlags::COLORS;
+  static constexpr char key[] = "inColor";
+
+  ColorManager(size_t idx) : BaseManager<ColorManager>(idx) {}
   virtual ~ColorManager(){}
 
   virtual size_t ElementsPerEntry() override { return 3; }
@@ -98,6 +102,9 @@ class IndexManager : public BaseManager<IndexManager> {
 public:
   using Type = uint32_t;
   static constexpr size_t Flag = SupportedBufferFlags::INDICES;
+  static constexpr char key[] = "pass";
+
+  IndexManager(size_t idx) : BaseManager<IndexManager>(idx) {}
   virtual ~IndexManager(){}
 
   virtual size_t ElementsPerEntry() override { return 3; }
@@ -111,7 +118,26 @@ public:
   };
 };
 
-static ColorManager temp;
+
+class VertexManager : public BaseManager<VertexManager> {
+public:
+  using Type = float;
+  static constexpr size_t Flag = SupportedBufferFlags::VERTICES;
+  static constexpr char key[] = "inPosition";
+
+  VertexManager(size_t idx) : BaseManager<VertexManager>(idx) {}
+  virtual ~VertexManager(){}
+
+  virtual size_t ElementsPerEntry() override { return 3; }
+  virtual SupportedBufferFlags flag() override { return SupportedBufferFlags::VERTICES; }
+  virtual SupportedBuffers buffer() override { return SupportedBuffers::VERTICES; }
+
+  class Interface {
+  public:
+    void FillData(VectorSlice<Type>& data) { FillVertexData(data); }
+	  virtual void FillVertexData(Data::VectorSlice<Type>& data) const = 0;
+  };
+};
 
 }} // ShapeShifter::Data
 

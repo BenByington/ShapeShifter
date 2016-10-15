@@ -17,13 +17,17 @@
 #include "data/MixedDataMap.h"
 #include "math/Quaternion.h"
 #include "math/Vector4.h"
-#include "rendering/shaders/ShaderProgram.h"
 #include "rendering/Camera.h"
 
 #include <opengl/gl3.h>
 
 namespace ShapeShifter {
 namespace Rendering {
+
+namespace Shaders {
+// TODO clean up cycle?
+class ShaderProgram;
+}
 
 /**
  * Basic vertex for a tree of objects to render.  The entire tree will share

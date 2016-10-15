@@ -72,6 +72,7 @@ class TypedRenderNode : public detail::IndexNode<detail::extract_flags<Interface
 
   public:
   static constexpr size_t Flags = detail::extract_flags<Interface...>::Flags;
+  using Interface_t = std::tuple<Interface...>;
 protected:
   using SupportedBufferFlags = Data::SupportedBufferFlags;
   using SupportedBuffers = Data::SupportedBuffers;

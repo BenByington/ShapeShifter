@@ -26,7 +26,8 @@ enum SupportedBufferFlags : size_t {
   COLORS = 1,
   TEXTURES = 2,
   INDICES = 4,
-  END_VALUE = 8
+  VERTICES = 8,
+  END_VALUE = 16
 };
 
 enum class SupportedBuffers {

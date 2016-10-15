@@ -43,6 +43,7 @@ std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
      | SupportedBufferFlags::INDICES;
 
   auto pure = std::make_unique<Rendering::PureNode<
+      Data::VertexManager,
       Data::ColorManager,
       Data::IndexManager
   >>();

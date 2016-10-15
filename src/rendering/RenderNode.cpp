@@ -13,6 +13,8 @@
 
 #include "RenderNode.h"
 
+#include "rendering/shaders/ShaderProgram.h"
+
 #include <iostream>
 
 namespace ShapeShifter {

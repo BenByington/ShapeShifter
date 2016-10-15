@@ -23,6 +23,7 @@ namespace ShapeShifter {
 namespace Shapes {
 
 class Sphere final : public Rendering::TypedRenderNode<
+    Data::VertexManager,
     Data::ColorManager,
     Data::IndexManager
 >{

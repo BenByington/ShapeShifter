@@ -15,6 +15,9 @@
 #define RENDERING_ROOT_NODE_H
 
 #include "rendering/TypedRenderNode.h"
+#include "rendering/shaders/ShaderProgram.h"
+
+#include <map>
 
 namespace ShapeShifter {
 namespace Rendering {
@@ -31,7 +34,10 @@ public:
       std::shared_ptr<Shaders::ShaderProgram> program)
     : program_(program) {
     children.emplace_back(tree.release());
-    idx_map = program->BufferMapping<Other::Flags>();
+    auto managers = program->BufferMapping<typename Other::Interface_t>();
+    for (const auto& manager : managers) {
+      idx_map[manager->buffer()] = manager->idx();
+    }
     UpdateData();
   }
 

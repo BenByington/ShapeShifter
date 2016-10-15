@@ -21,6 +21,7 @@ namespace ShapeShifter {
 namespace Shapes {
 
 class Cube final : public Rendering::TypedRenderNode<
+    Data::VertexManager,
     Data::ColorManager,
     Data::IndexManager
 >{
