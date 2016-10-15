@@ -15,8 +15,7 @@
 #define DATA_CONCRETE_BUFFERTYPES_H
 
 #include "data/AbstractBufferTypes.h"
-#include "data/BufferTypes.h"
-#include "data/MixedDataMap.h"
+#include "data/MixedDataMapBase.h"
 #include "rendering/RenderNode.h"
 
 #include <cstdlib>
@@ -90,6 +89,7 @@ public:
   virtual size_t ElementsPerEntry() override { return 3; }
   virtual SupportedBufferFlags flag() override { return SupportedBufferFlags::COLORS; }
   virtual SupportedBuffers buffer() override { return SupportedBuffers::COLORS; }
+  virtual bool isFloating() { return true; }
 
   class Interface {
   public:
@@ -110,6 +110,7 @@ public:
   virtual size_t ElementsPerEntry() override { return 3; }
   virtual SupportedBufferFlags flag() override { return SupportedBufferFlags::INDICES; }
   virtual SupportedBuffers buffer() override { return SupportedBuffers::INDICES; }
+  virtual bool isFloating() { return false; }
 
   class Interface {
   public:
@@ -131,6 +132,7 @@ public:
   virtual size_t ElementsPerEntry() override { return 3; }
   virtual SupportedBufferFlags flag() override { return SupportedBufferFlags::VERTICES; }
   virtual SupportedBuffers buffer() override { return SupportedBuffers::VERTICES; }
+  virtual bool isFloating() { return true; }
 
   class Interface {
   public:

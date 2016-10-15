@@ -14,7 +14,8 @@
 #ifndef RENDERING_TYPED_RENDERNODE_H
 #define RENDERING_TYPED_RENDERNODE_H
 
-#include "data/MixedDataMap.h"
+#include "data/BufferTypes.h"
+#include "data/MixedDataMapBase.h"
 #include "rendering/RenderNode.h"
 
 namespace ShapeShifter {

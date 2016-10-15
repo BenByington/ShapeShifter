@@ -48,31 +48,47 @@ void RenderNode::PopulateBufferData(Data::MixedDataMap& data) {
 	start_= local_data.start();
 	end_= local_data.end();
 
-  for(auto& key: data.keys()) {
-    switch (key) {
+  for(auto& key: local_data.FloatData()) {
+    switch (key.first->buffer()) {
       case SupportedBuffers::COLORS:
       {
-        FillColorData(local_data.get<SupportedBuffers::COLORS>());
+        FillColorData(key.second);
         break;
       }
       case SupportedBuffers::VERTICES:
       {
-        FillVertexData(local_data.get<SupportedBuffers::VERTICES>());
+        FillVertexData(key.second);
         break;
       }
       case SupportedBuffers::INDICES:
       {
-        auto&& slice = local_data.get<SupportedBuffers::INDICES>();
-        FillIndexData(slice);
-        size_t offset = start().vertex_;
-        for (auto& ind: slice) {
-          ind += offset;
-        }
+        assert(false);
         break;
       }
       case SupportedBuffers::TEXTURES:
       {
-        FillTextureData(local_data.get<SupportedBuffers::TEXTURES>());
+        FillTextureData(key.second);
+        break;
+      }
+    }
+  }
+
+  for(auto& key: local_data.IntegralData()) {
+    switch (key.first->buffer()) {
+      case SupportedBuffers::INDICES:
+      {
+        FillIndexData(key.second);
+        size_t offset = start().vertex_;
+        for (auto& ind: key.second) {
+          ind += offset;
+        }
+        break;
+      }
+      case SupportedBuffers::COLORS:
+      case SupportedBuffers::VERTICES:
+      case SupportedBuffers::TEXTURES:
+      {
+        assert(false);
         break;
       }
     }
@@ -98,21 +114,22 @@ void RenderNode::DrawChildren(
 }
 
 void RenderNode::DebugRotation(const Math::Matrix4& mat) const {
-  auto dataset = Data::MixedDataMap({SupportedBuffers::VERTICES}, ExclusiveNodeDataCount());
-  auto slices = dataset.NextSlice(ExclusiveNodeDataCount());
-  auto& slice = slices.get<SupportedBuffers::VERTICES>();
-  FillVertexData(slice);
-  std::cerr << "Matrix: " << std::endl;
-  mat.print();
-  auto& data = dataset.get<SupportedBuffers::VERTICES>();
-  for (size_t i = 0; i < data.size(); i += 3) {
-    auto vec = Math::Vector4(data[i], data[i+1], data[i+2], 1);
-    std::cerr << "Before: " << std::endl;
-    vec.print();
-    auto result = mat * vec;
-    std::cerr << "After: " << std::endl;
-    result.print();
-  }
+  assert(false);
+  //auto dataset = Data::MixedDataMap({SupportedBuffers::VERTICES}, ExclusiveNodeDataCount());
+  //auto slices = dataset.NextSlice(ExclusiveNodeDataCount());
+  //auto& slice = slices.get<SupportedBuffers::VERTICES>();
+  //FillVertexData(slice);
+  //std::cerr << "Matrix: " << std::endl;
+  //mat.print();
+  //auto& data = dataset.get<SupportedBuffers::VERTICES>();
+  //for (size_t i = 0; i < data.size(); i += 3) {
+  //  auto vec = Math::Vector4(data[i], data[i+1], data[i+2], 1);
+  //  std::cerr << "Before: " << std::endl;
+  //  vec.print();
+  //  auto result = mat * vec;
+  //  std::cerr << "After: " << std::endl;
+  //  result.print();
+  //}
 }
 
 }} // ShapeShifter::Rendering

@@ -34,10 +34,7 @@ public:
       std::shared_ptr<Shaders::ShaderProgram> program)
     : program_(program) {
     children.emplace_back(tree.release());
-    auto managers = program->BufferMapping<typename Other::Interface_t>();
-    for (const auto& manager : managers) {
-      idx_map[manager->buffer()] = manager->idx();
-    }
+    managers_ = program->BufferMapping<typename Other::Interface_t>();
     UpdateData();
   }
 
@@ -71,7 +68,7 @@ private:
   GLuint vao = 0;
   GLuint ibo = 0;
   std::shared_ptr<Shaders::ShaderProgram> program_;
-  std::map<SupportedBuffers, size_t> idx_map;
+  std::vector<std::shared_ptr<Data::AbstractManager>> managers_;
 };
 
 }} // ShapeShifter::Rendering

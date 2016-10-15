@@ -14,8 +14,7 @@
 #ifndef DATA_ABSTRACT_BUFFERTYPES_H
 #define DATA_ABSTRACT_BUFFERTYPES_H
 
-#include "data/BufferTypes.h"
-#include "data/MixedDataMap.h"
+#include "data/MixedDataMapBase.h"
 #include "rendering/RenderNode.h"
 
 #include <cstdlib>
@@ -38,6 +37,7 @@ public:
   virtual SupportedBuffers buffer() = 0;
 
   virtual size_t ElementsPerEntry() = 0;
+  virtual bool isFloating() = 0;
 
   size_t idx() { return idx_; }
 private:

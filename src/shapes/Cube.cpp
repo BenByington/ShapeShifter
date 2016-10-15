@@ -13,8 +13,6 @@
 
 #include "Cube.h"
 
-#include "data/BufferTypes.h"
-
 #include <iostream>
 
 namespace ShapeShifter {

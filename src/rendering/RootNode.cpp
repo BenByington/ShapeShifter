@@ -21,11 +21,7 @@ void RootNode::UpdateData() {
 	CleanupBuffer();
   auto size = SubtreeCounts();
 
-  std::set<SupportedBuffers> keys;
-  for (const auto& kv : idx_map) {
-    keys.insert(kv.first);
-  }
-  Data::MixedDataMap data(keys, size);
+  Data::MixedDataMap data(managers_, size);
 
 	PopulateBufferData(data);
 	assert(data.DataRemaining().vertex_ == 0);
@@ -40,12 +36,12 @@ void RootNode::UpdateData() {
     glGenBuffers (1, &vbo);
     glBindBuffer (GL_ARRAY_BUFFER, vbo);
     glBufferData (GL_ARRAY_BUFFER, buffer_dat.size() * sizeof (float), buffer_dat.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer (idx_map.at(kv.first),  buffer_dat.size()/data.Size().vertex_, GL_FLOAT, GL_FALSE, 0, NULL);
-    glEnableVertexAttribArray(idx_map.at(kv.first));
+    glVertexAttribPointer(kv.first->idx(),  buffer_dat.size()/data.Size().vertex_, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(kv.first->idx());
   }
 
   for (const auto& kv : data.IntegralData()) {
-    assert(kv.first == SupportedBuffers::INDICES);
+    assert(kv.first->buffer() == SupportedBuffers::INDICES);
     ibo = GLuint{0};
     const auto& buffer_dat = kv.second;
     glGenBuffers (1, &ibo);
