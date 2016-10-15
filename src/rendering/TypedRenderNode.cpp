@@ -17,7 +17,4 @@
 namespace ShapeShifter {
 namespace Rendering {
 
-// ISSUE: Set up type list to automatically instantiate explicit templates
-template class TypedRenderNode<Data::ColorManager>;
-
 }} // ShapeShifter::Rendering

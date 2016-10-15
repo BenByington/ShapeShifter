@@ -49,18 +49,20 @@ struct is_subset<std::tuple<A...>, std::tuple<B...>> {
   }
 };
 
-}
+template <class...>
+struct TypedRenderNode_;
 
-template <class... Managers>
-struct TypedRenderNode : public RenderNode, Managers::Interface... {
+// Should put in a check...  Either types==Managers or Managers is empty
+template <class... Types, class... Managers>
+struct TypedRenderNode_<std::tuple<Types...>, Managers...> : public RenderNode, Managers::Interface... {
 
   public:
-  using Interface_t = std::tuple<Managers...>;
+  using Interface_t = std::tuple<Types...>;
 protected:
 
 public:
-  TypedRenderNode() {}
-  virtual ~TypedRenderNode() {}
+  TypedRenderNode_() {}
+  virtual ~TypedRenderNode_() {}
 
 	/**
 	 * Adds a child to this node.
@@ -82,6 +84,14 @@ public:
 
   }
 };
+
+}
+
+template <class... Types>
+using TypedRenderNode = detail::TypedRenderNode_<std::tuple<Types...>, Types...>;
+
+template <class... Types>
+using PureTypedRenderNode = detail::TypedRenderNode_<std::tuple<Types...>>;
 
 }} // ShapeShifter::Rendering
 
