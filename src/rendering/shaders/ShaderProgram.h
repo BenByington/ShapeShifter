@@ -14,7 +14,7 @@
 #ifndef RENDERING_SHADERS_SHADERPROGRAM_H
 #define RENDERING_SHADERS_SHADERPROGRAM_H
 
-#include "data/AbstractBufferTypes.h"
+#include "data/AbstractBufferManager.h"
 #include "math/Matrix4.h"
 #include "rendering/shaders/Shader.h"
 

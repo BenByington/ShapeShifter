@@ -15,7 +15,7 @@
 #define SHAPES_CUBE_H
 
 #include "rendering/TypedRenderNode.h"
-#include "data/ConcreteBufferTypes.h"
+#include "data/ConcreteBufferManager.h"
 
 namespace ShapeShifter {
 namespace Shapes {

@@ -6,7 +6,7 @@
 
 #include "data/MixedDataMapBase.h"
 
-#include "data/AbstractBufferTypes.h"
+#include "data/AbstractBufferManager.h"
 
 namespace ShapeShifter {
 namespace Data {

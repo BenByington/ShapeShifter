@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-#include "data/ConcreteBufferTypes.h"
+#include "data/ConcreteBufferManager.h"
 
 namespace ShapeShifter {
 namespace Data {

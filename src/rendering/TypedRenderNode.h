@@ -14,51 +14,51 @@
 #ifndef RENDERING_TYPED_RENDERNODE_H
 #define RENDERING_TYPED_RENDERNODE_H
 
-#include "data/BufferTypes.h"
 #include "data/MixedDataMapBase.h"
 #include "rendering/RenderNode.h"
 
 namespace ShapeShifter {
 namespace Rendering {
 
-/*
- * Sets up a configurable interface.  Depending on what value is handed in for
- * the Flags template parameter, extending from the BaseNode class below will
- * require children to implement different combinations of abstract virtual
- * functions.  Valid values of 'Flags' are determined by using the above
- * definitions in namespace SupportedBuffers as bitflags.
- */
 namespace detail {
 
-using Data::SupportedBufferFlags;
-template <class... Interface>
-struct extract_flags {
-  static size_t constexpr impl() {
-    const std::array<size_t, sizeof...(Interface)> dat { Interface::Flag... };
-    size_t ret = 0;
-    for (size_t i = 0; i < sizeof...(Interface); ++i) ret |= dat[i];
+template <class A, class B> struct subset_helper;
+template <class A, class... B>
+struct subset_helper<A, std::tuple<B...>> {
+  static constexpr bool value() {
+    const std::array<bool, sizeof...(B)> check = { std::is_same<A,B>::value... };
+    auto ret = false;
+    for (size_t i = 0; i < sizeof...(B); ++i) {
+      ret |= check[i];
+    }
     return ret;
   }
+};
 
-  static size_t constexpr Flags = impl();
+template <class A, class B> struct is_subset;
+template <class... A, class... B>
+struct is_subset<std::tuple<A...>, std::tuple<B...>> {
+  static constexpr bool value() {
+    using other = std::tuple<B...>;
+    const std::array<bool, sizeof...(A)> check = {subset_helper<A, other>::value()... };
+    auto ret = true;
+    for (size_t i = 0; i < sizeof...(A); ++i) {
+      ret &= check[i];
+    }
+    return ret;
+  }
 };
 
 }
-
 
 template <class... Managers>
 struct TypedRenderNode : public RenderNode, Managers::Interface... {
 
   public:
-  static constexpr size_t Flags = detail::extract_flags<Managers...>::Flags;
   using Interface_t = std::tuple<Managers...>;
 protected:
-  using SupportedBufferFlags = Data::SupportedBufferFlags;
-  using SupportedBuffers = Data::SupportedBuffers;
-  static_assert(Flags < SupportedBufferFlags::END_VALUE, "Invalid flags for buffer support");
 
 public:
-  constexpr static const size_t Flags_t = Flags;
   TypedRenderNode() {}
   virtual ~TypedRenderNode() {}
 
@@ -72,13 +72,11 @@ public:
    */
   template <typename Other>
   std::shared_ptr<RenderNode> AddChild(
-      std::unique_ptr<Other> child,
-	    typename std::enable_if<
-          (Other::Flags_t & Flags) == Flags
-          && std::is_base_of<RenderNode, Other>::value
-          && (Other::Flags_t & SupportedBufferFlags::INDICES) == (Flags & SupportedBufferFlags::INDICES)
-      >::type* dummy = 0
-      ) {
+      std::unique_ptr<Other> child) {
+    static_assert(
+        detail::is_subset<Interface_t, typename Other::Interface_t>::value(),
+        "Attempting to add child node that does not fulfill the full interface"
+        " of the parent node");
     this->children.emplace_back(child.release());
     return this->children.back();
 

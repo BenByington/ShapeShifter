@@ -20,9 +20,6 @@
 namespace ShapeShifter {
 namespace Rendering {
 
-using Data::SupportedBuffers;
-using Data::SupportedBufferFlags;
-
 void RenderNode::SetRotation(const Math::Quaternion& rot) {
   this->rotation_ = rot;
 }

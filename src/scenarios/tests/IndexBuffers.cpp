@@ -28,7 +28,6 @@ namespace tests {
 
 std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
 
-  using Data::SupportedBufferFlags;
   using Math::Quaternion;
   using Math::Vector4;
 
@@ -38,9 +37,6 @@ std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
 
 
   auto sphere = std::make_unique<Shapes::Sphere>(0.2);
-
-  constexpr auto flag = SupportedBufferFlags::COLORS
-     | SupportedBufferFlags::INDICES;
 
   auto pure = std::make_unique<Rendering::PureNode<
       Data::VertexManager,

@@ -14,7 +14,7 @@
 #ifndef DATA_CONCRETE_BUFFERTYPES_H
 #define DATA_CONCRETE_BUFFERTYPES_H
 
-#include "data/AbstractBufferTypes.h"
+#include "data/AbstractBufferManager.h"
 #include "data/MixedDataMapBase.h"
 #include "rendering/RenderNode.h"
 
@@ -80,15 +80,12 @@ public:
 class ColorManager : public BaseManager<ColorManager> {
 public:
   using Type = float;
-  static constexpr size_t Flag = SupportedBufferFlags::COLORS;
   static constexpr char key[] = "inColor";
 
   ColorManager(size_t idx) : BaseManager<ColorManager>(idx) {}
   virtual ~ColorManager(){}
 
   virtual size_t ElementsPerEntry() override { return 3; }
-  virtual SupportedBufferFlags flag() override { return SupportedBufferFlags::COLORS; }
-  virtual SupportedBuffers buffer() override { return SupportedBuffers::COLORS; }
   virtual bool isFloating() { return true; }
 
   class Interface {
@@ -101,15 +98,12 @@ public:
 class IndexManager : public BaseManager<IndexManager> {
 public:
   using Type = uint32_t;
-  static constexpr size_t Flag = SupportedBufferFlags::INDICES;
   static constexpr char key[] = "pass";
 
   IndexManager(size_t idx) : BaseManager<IndexManager>(idx) {}
   virtual ~IndexManager(){}
 
   virtual size_t ElementsPerEntry() override { return 3; }
-  virtual SupportedBufferFlags flag() override { return SupportedBufferFlags::INDICES; }
-  virtual SupportedBuffers buffer() override { return SupportedBuffers::INDICES; }
   virtual bool isFloating() { return false; }
 
   class Interface {
@@ -123,15 +117,12 @@ public:
 class VertexManager : public BaseManager<VertexManager> {
 public:
   using Type = float;
-  static constexpr size_t Flag = SupportedBufferFlags::VERTICES;
   static constexpr char key[] = "inPosition";
 
   VertexManager(size_t idx) : BaseManager<VertexManager>(idx) {}
   virtual ~VertexManager(){}
 
   virtual size_t ElementsPerEntry() override { return 3; }
-  virtual SupportedBufferFlags flag() override { return SupportedBufferFlags::VERTICES; }
-  virtual SupportedBuffers buffer() override { return SupportedBuffers::VERTICES; }
   virtual bool isFloating() { return true; }
 
   class Interface {

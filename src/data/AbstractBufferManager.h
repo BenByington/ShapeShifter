@@ -32,10 +32,6 @@ public:
   virtual void FillData(VectorSlice<float>& data, Rendering::RenderNode* node) = 0;
   virtual void FillData(VectorSlice<uint32_t>& data, Rendering::RenderNode* node) = 0;
 
-  // Temporary, to ease the transition from the enums to the Managers
-  virtual SupportedBufferFlags flag() = 0;
-  virtual SupportedBuffers buffer() = 0;
-
   virtual size_t ElementsPerEntry() = 0;
   virtual bool isFloating() = 0;
 

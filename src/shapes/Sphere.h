@@ -14,7 +14,7 @@
 #ifndef SHAPES_SPHERE_H
 #define SHAPES_SPHERE_H
 
-#include "data/ConcreteBufferTypes.h"
+#include "data/ConcreteBufferManager.h"
 #include "rendering/TypedRenderNode.h"
 
 #include <cmath>

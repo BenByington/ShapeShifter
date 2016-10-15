@@ -41,7 +41,7 @@ void RootNode::UpdateData() {
   }
 
   for (const auto& kv : data.IntegralData()) {
-    assert(kv.first->buffer() == SupportedBuffers::INDICES);
+    // TODO indicees need to be treated differently from integral data...
     ibo = GLuint{0};
     const auto& buffer_dat = kv.second;
     glGenBuffers (1, &ibo);

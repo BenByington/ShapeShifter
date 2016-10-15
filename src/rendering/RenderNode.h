@@ -14,7 +14,6 @@
 #ifndef RENDERING_RENDERNODE_H
 #define RENDERING_RENDERNODE_H
 
-#include "data/BufferTypes.h"
 #include "data/MixedDataMap.h"
 #include "math/Quaternion.h"
 #include "math/Vector4.h"
@@ -55,7 +54,8 @@ protected:
 	Data::BufferIndex start() const {return start_; }
 	Data::BufferIndex end() const {return end_; }
   GLvoid* StartIndexAsVP() const {
-      return (GLvoid*)(start().triangle_*Data::floats_per_triangle*sizeof(uint32_t));
+    //TODO fix hardcode
+    return (GLvoid*)(start().triangle_*3*sizeof(uint32_t));
   }
 
 	// Compute how big the VAO should be
