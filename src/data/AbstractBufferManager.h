@@ -25,8 +25,12 @@ namespace Data {
 
 class AbstractManager {
 public:
-  //TODO rule of 5, this class and children
   AbstractManager(size_t idx) : idx_(idx) {}
+  AbstractManager(const AbstractManager&) = delete;
+  AbstractManager(AbstractManager&&) = delete;
+  AbstractManager& operator=(const AbstractManager&) = delete;
+  AbstractManager& operator=(AbstractManager&&) = delete;
+
   virtual ~AbstractManager(){}
 
   virtual void FillData(VectorSlice<float>& data, Rendering::RenderNode* node) = 0;

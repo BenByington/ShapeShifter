@@ -25,7 +25,7 @@ namespace ShapeShifter {
 namespace Rendering {
 
 namespace Shaders {
-// TODO clean up cycle?
+// TODO look for things to consolidate into forward includes
 class ShaderProgram;
 }
 

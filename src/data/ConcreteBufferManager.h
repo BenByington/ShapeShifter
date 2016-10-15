@@ -50,6 +50,11 @@ template <class Child>
 class BaseManager : public AbstractManager {
 public:
   BaseManager(size_t idx) : AbstractManager(idx) {}
+  BaseManager(const BaseManager&) = delete;
+  BaseManager(BaseManager&&) = delete;
+  BaseManager& operator=(const BaseManager&) = delete;
+  BaseManager& operator=(BaseManager&&) = delete;
+
   virtual ~BaseManager() {
     constexpr Child* temp = nullptr;
     static_assert(detail::type_exists::valid(temp),
@@ -66,7 +71,10 @@ public:
       assert(typed_node);
       typed_node->FillData(data);
     }
-    static void FillData(...) {} //TODO comment
+    // Dummy implementation, should never be called unless the types got
+    // mixed up.  Just needed as we can't tell in this class which type
+    // is used in this buffer storage.
+    static void FillData(...) { assert(false); }
   };
 
   virtual void FillData(VectorSlice<float>& data, Rendering::RenderNode* node) override {
