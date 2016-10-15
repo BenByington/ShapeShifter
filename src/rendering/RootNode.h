@@ -22,7 +22,7 @@
 namespace ShapeShifter {
 namespace Rendering {
 
-class RootNode : private TypedRenderNode<> {
+class RootNode : TypedRenderNode<> {
 public:
   template <typename Other, typename dummy =
 	    typename std::enable_if<
@@ -53,7 +53,6 @@ public:
 	void RenderTree(const Camera& camera) const;
 
 private:
-	virtual void FillVertexData(Data::VectorSlice<float>& data) const override {}
 	virtual Data::BufferIndex ExclusiveNodeDataCount() const { return Data::BufferIndex(); }
   virtual void DrawSelf() const override {}
   void CleanupBuffer();

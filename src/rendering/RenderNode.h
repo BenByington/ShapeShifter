@@ -74,10 +74,6 @@ private:
 	 * your own vertices.
    */
   virtual Data::BufferIndex ExclusiveNodeDataCount() const = 0;
-  virtual void FillIndexData(Data::VectorSlice<uint32_t>& data) const = 0;
-  virtual void FillTextureData(Data::VectorSlice<float>& data) const = 0;
-	virtual void FillColorData(Data::VectorSlice<float>& data) const = 0;
-	virtual void FillVertexData(Data::VectorSlice<float>& data) const = 0;
 	virtual void DrawSelf() const = 0;
 
   void DebugRotation(const Math::Matrix4& mat) const;

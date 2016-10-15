@@ -44,53 +44,22 @@ void RenderNode::PopulateBufferData(Data::MixedDataMap& data) {
 		child->PopulateBufferData(data);
 	}
 
-  auto local_data = data.NextSlice(ExclusiveNodeDataCount());
+  auto size = ExclusiveNodeDataCount();
+  if (size.vertex_ == 0 && size.triangle_ == 0) return;
+
+  auto local_data = data.NextSlice(size);
 	start_= local_data.start();
 	end_= local_data.end();
 
   for(auto& key: local_data.FloatData()) {
-    switch (key.first->buffer()) {
-      case SupportedBuffers::COLORS:
-      {
-        FillColorData(key.second);
-        break;
-      }
-      case SupportedBuffers::VERTICES:
-      {
-        FillVertexData(key.second);
-        break;
-      }
-      case SupportedBuffers::INDICES:
-      {
-        assert(false);
-        break;
-      }
-      case SupportedBuffers::TEXTURES:
-      {
-        FillTextureData(key.second);
-        break;
-      }
-    }
+    key.first->FillData(key.second, this);
   }
 
   for(auto& key: local_data.IntegralData()) {
-    switch (key.first->buffer()) {
-      case SupportedBuffers::INDICES:
-      {
-        FillIndexData(key.second);
-        size_t offset = start().vertex_;
-        for (auto& ind: key.second) {
-          ind += offset;
-        }
-        break;
-      }
-      case SupportedBuffers::COLORS:
-      case SupportedBuffers::VERTICES:
-      case SupportedBuffers::TEXTURES:
-      {
-        assert(false);
-        break;
-      }
+    key.first->FillData(key.second, this);
+    size_t offset = start().vertex_;
+    for (auto& ind: key.second) {
+      ind += offset;
     }
   }
 }

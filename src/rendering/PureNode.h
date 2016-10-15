@@ -29,7 +29,8 @@ public:
 	virtual ~PureNode() {}
 private:
 	virtual Data::BufferIndex ExclusiveNodeDataCount() const override { return Data::BufferIndex(); }
-	virtual void FillTextureData(Data::VectorSlice<float>& data) const override {};
+//	virtual void FillTextureData(Data::VectorSlice<float>& data) const override {};
+  // TODO this is broken
 	virtual void FillVertexData(Data::VectorSlice<float>& data) const override {};
 	virtual void FillColorData(Data::VectorSlice<float>& data) const override {};
 	virtual void FillIndexData(Data::VectorSlice<uint32_t>& data) const override {};

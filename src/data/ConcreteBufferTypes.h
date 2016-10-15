@@ -62,8 +62,8 @@ public:
   template <class Child_>
   struct Dispatch {
     static void FillData(VectorSlice<typename Child_::Type>& data, Rendering::RenderNode* node) {
-      assert(false);
       auto typed_node = dynamic_cast<typename Child_::Interface*>(node);
+      assert(typed_node);
       typed_node->FillData(data);
     }
     static void FillData(...) {} //TODO comment

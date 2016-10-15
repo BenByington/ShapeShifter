@@ -31,28 +31,6 @@ namespace Rendering {
 namespace detail {
 
 using Data::SupportedBufferFlags;
-
-template <bool Enabled> struct TextureInterface : public RenderNode {};
-template <>
-class TextureInterface<false> : public RenderNode {
-  virtual void FillTextureData(Data::VectorSlice<float>& data) const override {}
-};
-template <size_t Flags> using TextureNode = TextureInterface<Flags & SupportedBufferFlags::TEXTURES>;
-
-template <size_t Flags, bool enabled> struct ColorInterface : public TextureNode<Flags> {};
-template <size_t Flags>
-class ColorInterface<Flags, false> : public TextureNode<Flags> {
-	virtual void FillColorData(Data::VectorSlice<float>& data) const override {}
-};
-template <size_t Flags> using ColorNode = ColorInterface<Flags, Flags & SupportedBufferFlags::COLORS>;
-
-template <size_t Flags, bool enabled> struct IndexInterface : public ColorNode<Flags> {};
-template <size_t Flags>
-class IndexInterface<Flags, false> : public ColorNode<Flags> {
-	virtual void FillIndexData(Data::VectorSlice<uint32_t>& data) const override {}
-};
-template <size_t Flags> using IndexNode = IndexInterface<Flags, Flags & SupportedBufferFlags::INDICES>;
-
 template <class... Interface>
 struct extract_flags {
   static size_t constexpr impl() {
@@ -68,12 +46,12 @@ struct extract_flags {
 }
 
 
-template <class... Interface>
-class TypedRenderNode : public detail::IndexNode<detail::extract_flags<Interface...>::Flags> {
+template <class... Managers>
+struct TypedRenderNode : public RenderNode, Managers::Interface... {
 
   public:
-  static constexpr size_t Flags = detail::extract_flags<Interface...>::Flags;
-  using Interface_t = std::tuple<Interface...>;
+  static constexpr size_t Flags = detail::extract_flags<Managers...>::Flags;
+  using Interface_t = std::tuple<Managers...>;
 protected:
   using SupportedBufferFlags = Data::SupportedBufferFlags;
   using SupportedBuffers = Data::SupportedBuffers;
