@@ -13,8 +13,6 @@
 
 #include "Sphere.h"
 
-#include "data/BufferTypes.h"
-
 #include <iostream>
 
 namespace ShapeShifter {
@@ -115,7 +113,8 @@ void Sphere::DrawSelf() const {
 
   glDrawElements(
       GL_TRIANGLES,
-      ExclusiveNodeDataCount().triangle_*floats_per_triangle,
+      // TODO fix hard code
+      ExclusiveNodeDataCount().triangle_*3,
       GL_UNSIGNED_INT,
       StartIndexAsVP());
 }

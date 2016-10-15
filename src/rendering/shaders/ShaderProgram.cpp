@@ -24,9 +24,6 @@ namespace ShapeShifter {
 namespace Rendering {
 namespace Shaders {
 
-using Data::SupportedBuffers;
-using Data::SupportedBufferFlags;
-
 ShaderProgram::ShaderProgram(
     std::unique_ptr<VertexShader> vert,
     std::unique_ptr<FragmentShader> frag)
@@ -66,53 +63,6 @@ void ShaderProgram::uploadMatrix(const Math::Matrix4& mat) const {
   auto transform_location = glGetUniformLocation(program_, "transform");
   glUniformMatrix4fv(transform_location, 1, GL_FALSE, mat.data());
 }
-
-template <size_t Flags>
-std::map<SupportedBuffers, size_t> ShaderProgram::BufferMapping() const {
-  auto ret = vert_shader_->layout_map();
-
-  auto validate = [] (auto in, auto flag) {
-    static_assert(std::is_integral<decltype(in)>::value,"Need integral type for lambda");
-    static_assert(std::is_same<
-        decltype(in),
-        typename std::underlying_type<decltype(flag)>::type
-        >::value,"Need same type parameters for lambda");
-    if (!in & flag) throw std::runtime_error("Shader requires input buffer not supplied");
-    return in xor flag;
-  };
-
-  auto check = Flags;
-  auto found_vertex = false;
-  for (const auto& kv : ret) {
-    switch (kv.first) {
-      case SupportedBuffers::COLORS:
-        check = validate(check, SupportedBufferFlags::COLORS);
-        break;
-      case SupportedBuffers::INDICES:
-        check = validate(check, SupportedBufferFlags::INDICES);
-        break;
-      case SupportedBuffers::VERTICES:
-        found_vertex = true;
-        break;
-      case SupportedBuffers::TEXTURES:
-        check = validate(check, SupportedBufferFlags::TEXTURES);
-        break;
-    }
-  }
-
-  // TODO fix this hack.  Shader doesn't care about indices.
-  if (check == SupportedBufferFlags::INDICES) {
-    check = 0;
-    ret[SupportedBuffers::INDICES] = std::numeric_limits<size_t>::max();
-  }
-  if (check != 0 || !found_vertex) {
-    throw std::runtime_error("Shader program does not take the requested inputs");
-  }
-  return ret;
-}
-
-template std::map<SupportedBuffers, size_t> ShaderProgram::BufferMapping<SupportedBufferFlags::COLORS>() const;
-template std::map<SupportedBuffers, size_t> ShaderProgram::BufferMapping<SupportedBufferFlags::COLORS | SupportedBufferFlags::INDICES>() const;
 
 }}} // ShapeShifter::Rendering::Shaders
 

@@ -13,8 +13,6 @@
 
 #include "Cube.h"
 
-#include "data/BufferTypes.h"
-
 #include <iostream>
 
 namespace ShapeShifter {
@@ -103,7 +101,8 @@ void Cube::FillIndexData(VectorSlice<uint32_t>& data) const {
 void Cube::DrawSelf() const {
   glDrawElements(
       GL_TRIANGLES,
-      ExclusiveNodeDataCount().triangle_*floats_per_triangle,
+      // TODO fix hardcode
+      ExclusiveNodeDataCount().triangle_*3,
       GL_UNSIGNED_INT,
       StartIndexAsVP());
 }

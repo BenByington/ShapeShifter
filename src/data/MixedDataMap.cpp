@@ -4,71 +4,28 @@
  * and open the template in the editor.
  */
 
-#include "data/MixedDataMap.h"
+#include "data/MixedDataMapBase.h"
+
+#include "data/AbstractBufferManager.h"
 
 namespace ShapeShifter {
 namespace Data {
 
-MixedSliceMap::MixedSliceMap(
-    const std::vector<std::pair<SupportedBuffers, std::vector<float>&>>& float_data,
-    const std::vector<std::pair<SupportedBuffers, std::vector<uint32_t>&>>& int_data,
-    BufferIndex start, BufferIndex end)
-  : start_(start)
-  , end_(end) {
-
-  for (const auto& kv : float_data) {
-    switch (kv.first) {
-      case SupportedBuffers::COLORS:
-        get<SupportedBuffers::COLORS>() = VectorSlice<float>(
-            kv.second, start_.vertex_, end_.vertex_, floats_per_color);
-        break;
-      case SupportedBuffers::TEXTURES:
-        get<SupportedBuffers::TEXTURES>() = VectorSlice<float>(
-            kv.second, start_.vertex_, end_.vertex_, floats_per_text);
-        break;
-      case SupportedBuffers::VERTICES:
-        get<SupportedBuffers::VERTICES>() = VectorSlice<float>(
-            kv.second, start_.vertex_, end_.vertex_, floats_per_vert);
-        break;
-      case SupportedBuffers::INDICES:
-        assert(false);
-        break;
-    }
-  }
-
-  for (const auto& kv : int_data) {
-    switch (kv.first) {
-      case SupportedBuffers::INDICES:
-        get<SupportedBuffers::INDICES>() = VectorSlice<uint32_t>(
-            kv.second, start_.triangle_, end_.triangle_, floats_per_triangle);
-        break;
-      case SupportedBuffers::COLORS:
-      case SupportedBuffers::TEXTURES:
-      case SupportedBuffers::VERTICES:
-        assert(false);
-        break;
-    }
-  }
-}
-
 MixedDataMap::MixedDataMap(
-    std::set<SupportedBuffers> keys, BufferIndex count)
+    const std::vector<std::shared_ptr<Data::AbstractManager>>& managers,
+    BufferIndex count)
   : total_(count) {
 
-  for (const auto& key: keys) {
-    switch (key) {
-      case SupportedBuffers::COLORS:
-        get<SupportedBuffers::COLORS>().resize(count.vertex_*floats_per_color);
-        break;
-      case SupportedBuffers::INDICES:
-        get<SupportedBuffers::INDICES>().resize(count.triangle_*floats_per_triangle);
-        break;
-      case SupportedBuffers::TEXTURES:
-        get<SupportedBuffers::TEXTURES>().resize(count.vertex_*floats_per_text);
-        break;
-      case SupportedBuffers::VERTICES:
-        get<SupportedBuffers::VERTICES>().resize(count.vertex_*floats_per_vert);
-        break;
+  for (const auto& manager: managers) {
+    if (manager->isFloating()) {
+      // TODO write operator== for manager.  This should work, but that will make
+      // it explicit and guard against duplicate buffer types.
+      // Alternatively, prove there can be no duplicates and move to a vector
+      // instead of a map
+      float_data_[manager].resize(count.vertex_*manager->ElementsPerEntry());
+    } else {
+      // TODO integral will not always be synonymous with index...
+      integral_data_[manager].resize(count.triangle_*manager->ElementsPerEntry());
     }
   }
 }
@@ -85,8 +42,8 @@ MixedSliceMap MixedDataMap::NextSlice(BufferIndex count) {
   auto start = next_free_;
   next_free_ += count;
   return MixedSliceMap(
-      FloatData(),
-      IntegralData(),
+      float_data_,
+      integral_data_,
       start,
       next_free_
   );

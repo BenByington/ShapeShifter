@@ -14,6 +14,7 @@
 #ifndef SCENARIOS_TESTS_SQUARES2D_H
 #define SCENARIOS_TESTS_SQUARES2D_H
 
+#include "data/ConcreteBufferManager.h"
 #include "rendering/RenderNode.h"
 #include "rendering/World.h"
 #include "scenarios/Scenario.h"
@@ -43,7 +44,9 @@ namespace detail {
 /**
  * Simple test class that will draw a shaded square in the center of the screen
  */
-class SquareTest2D : public Rendering::TypedRenderNode<Data::SupportedBufferFlags::COLORS> {
+class SquareTest2D : public Rendering::TypedRenderNode<
+    Data::VertexManager,
+    Data::ColorManager> {
 public:
 	SquareTest2D() = default;
 	virtual ~SquareTest2D() {}

@@ -14,8 +14,6 @@
 #ifndef RENDERING_SHADERS_SHADER_H
 #define RENDERING_SHADERS_SHADER_H
 
-#include "data/BufferTypes.h"
-
 #include <map>
 #include <string>
 
@@ -45,7 +43,7 @@ public:
 
 public:
 	operator GLuint() const {return shader;}
-  const std::map<Data::SupportedBuffers, size_t>& layout_map() {
+  const std::map<std::string, size_t>& layout_map() {
     return layout_map_;
   }
 private:
@@ -53,7 +51,7 @@ private:
 
   void ParseLayouts(const std::string& data);
 
-  std::map<Data::SupportedBuffers, size_t> layout_map_;
+  std::map<std::string, size_t> layout_map_;
 };
 
 class VertexShader : public Shader {
