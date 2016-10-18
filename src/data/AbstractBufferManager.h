@@ -23,9 +23,14 @@
 namespace ShapeShifter {
 namespace Data {
 
+/*
+ * This is a base class that provides a polymorphic handle to a buffer manager.
+ * A buffer manager handles a data buffer that will be uploaded to the graphics
+ * card for a shader to use.  To create a new custom buffer type, inherit from
+ * the CRTP BaseManager class rather than this one.
+ */
 class AbstractManager {
 public:
-  AbstractManager(size_t idx) : idx_(idx) {}
   AbstractManager(const AbstractManager&) = delete;
   AbstractManager(AbstractManager&&) = delete;
   AbstractManager& operator=(const AbstractManager&) = delete;
@@ -33,13 +38,32 @@ public:
 
   virtual ~AbstractManager(){}
 
+  // WARNING: Only one of these will be valid at any time.  Having them both
+  // here is an interface cludge, but at this level of abstraction we can't
+  // know if this buffer managed float data or integral.  Sometimes all Managers
+  // are stored together and sometimes they are already separated by the data
+  // type they handle, so perhaps a template parameter should be added to
+  // this class forcing segregation.
+  /*
+   * Uses the supplied RenderNode to populate the supplied VectorSlice with data.
+   * It is intended that the CRTP BaseManager be the only implementation of this
+   * function, and it will handle the dispatch to make sure the correct function
+   * in the RenderNode gets called.
+   */
   virtual void FillData(VectorSlice<float>& data, Rendering::RenderNode* node) = 0;
   virtual void FillData(VectorSlice<uint32_t>& data, Rendering::RenderNode* node) = 0;
 
+  // E.g. vertices require three floats while textures only require two.
   virtual size_t ElementsPerEntry() = 0;
   virtual bool isFloating() = 0;
 
+  // Returns the layout index as defined by the shader program
   size_t idx() { return idx_; }
+
+protected:
+  // BaseManager should be the only deriving class.
+  // @param idx: the layout index as defined by the shader program
+  AbstractManager(size_t idx) : idx_(idx) {}
 private:
   size_t idx_;
 };

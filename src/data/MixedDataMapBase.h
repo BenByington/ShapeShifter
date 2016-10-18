@@ -26,6 +26,10 @@ namespace Data {
 
 class AbstractManager;
 
+/*
+ * Generic base class for both MixedDataMap and MixedSliceMap, giving them the
+ * same interface while allowing different storage types.
+ */
 template <template <typename...> class Storage>
 class MixedDataMapBase {
 public:
@@ -38,6 +42,10 @@ public:
   MixedDataMapBase& operator=(const MixedDataMapBase&) = delete;
   MixedDataMapBase& operator=(MixedDataMapBase&&) = default;
 
+  /*
+   * Returns all the buffers using floating point data.  Repacks things to return
+   * references to the actual data to avoid coppies, so beware dangling references!
+   */
   auto FloatData() {
     std::vector<std::pair<std::shared_ptr<AbstractManager>, Storage<float>&>> ret;
     for (auto& kv : float_data_) {
@@ -46,6 +54,10 @@ public:
     return ret;
   }
 
+  /*
+   * Returns all the buffers using integral data.  Repacks things to return
+   * references to the actual data to avoid coppies, so beware dangling references!
+   */
   auto IntegralData() {
     std::vector<std::pair<std::shared_ptr<AbstractManager>, Storage<uint32_t>&>> ret;
     for (auto& kv : integral_data_) {
@@ -59,6 +71,10 @@ protected:
   std::map<std::shared_ptr<AbstractManager>, Storage<uint32_t>> integral_data_;
 };
 
+/*
+ * Wraps together vertex_ and triangle_ counts to help simplify code, as they
+ * are almost always used in conjunction with each other.
+ */
 struct BufferIndex {
   BufferIndex() : vertex_(0), triangle_(0) {}
   BufferIndex(const BufferIndex& o)
@@ -72,6 +88,7 @@ struct BufferIndex {
     triangle_ += o.triangle_;
     return *this;
   }
+
   BufferIndex operator-(const BufferIndex& o) {
     BufferIndex ret;
     ret.vertex_ = vertex_ - o.vertex_;

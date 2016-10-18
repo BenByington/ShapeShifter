@@ -33,6 +33,9 @@ class ShaderProgram;
  * Basic vertex for a tree of objects to render.  The entire tree will share
  * a vertex array object, though each node can have it's own rotation relative
  * to it's parent
+ *
+ * Note: Implementation classes should inherit from TypedRenderNode rather
+ * than this class.
  */
 class RenderNode {
 public:
@@ -42,15 +45,12 @@ public:
   void SetTranslation(const Math::Vector4& trans);
 
 protected:
-	// Prevent any duplication so we can easier avoid conflicts over opengl
-	// resources.
   RenderNode() : translation_(0.0f, 0.0f, 0.0f, 1.0f) {}
   RenderNode(const RenderNode& orig) = delete;
 	RenderNode& operator=(RenderNode&) = delete;
 
 	// Functions for child classes to figure out what indices in the VAO they
-	// should be modifying.  Only guaranteed to be valid during calls to
-	// FillVertexData and FillColorData.
+	// should be modifying.
 	Data::BufferIndex start() const {return start_; }
 	Data::BufferIndex end() const {return end_; }
   GLvoid* StartIndexAsVP() const {
@@ -60,30 +60,35 @@ protected:
 
 	// Compute how big the VAO should be
 	Data::BufferIndex SubtreeCounts() const;
+
 	// Fill the VAO with data and push to card
   void PopulateBufferData(Data::MixedDataMap& data);
+
 	// Renders all children in the tree.
-	void DrawChildren(const Camera& camera, const Math::Quaternion& cumRot, const Math::Vector4& cumTrans, const Shaders::ShaderProgram& shader) const;
+	void DrawChildren(
+      const Camera& camera,
+      const Math::Quaternion& cumRot,
+      const Math::Vector4& cumTrans,
+      const Shaders::ShaderProgram& shader) const;
 
 	std::vector<std::shared_ptr<RenderNode>> children;
+
 private:
-  /**
-	 * Functions that must be implemented by any concrete child implementations.
-	 * These are used to figure out how much space each child needs in the VAO
-	 * (3x number of vertices) and to actually populate the data and render
-	 * your own vertices.
-   */
+  // Size required in the buffers, not counting children nodes
   virtual Data::BufferIndex ExclusiveNodeDataCount() const = 0;
+
+  // Personal rendering function
 	virtual void DrawSelf() const = 0;
 
   void DebugRotation(const Math::Matrix4& mat) const;
 
+  // Positions of personal data in the buffers.  Not valid until tree is
+  // finalized by creating a RootNode.
   Data::BufferIndex start_;
   Data::BufferIndex end_;
 
   Math::Quaternion rotation_;
   Math::Vector4 translation_;
-  size_t type_;
 };
 
 }} // ShapeShifter::Rendering

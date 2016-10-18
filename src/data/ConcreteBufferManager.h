@@ -26,6 +26,8 @@ namespace Data {
 
 namespace detail {
 
+// Helper class, used to guarantee that any buffer manager defined declares if
+// it utilizes floating point or integral data.
 struct type_exists {
   template <class T>
   static constexpr auto valid(T*) -> decltype(typename std::is_same<float, typename T::Type>::type{}, true) {
@@ -35,6 +37,14 @@ struct type_exists {
   static constexpr bool valid(...) { return false; }
 };
 
+// Helper class, used to guarantee that any buffer manager defined supplies an
+// inner class named Interface that has a FillData function.  It is assumed but
+// not enforced that this FillData function will in turn dispatch to a uniquely
+// named virtual function that RenderNode children classes will implement.
+// e.g. A RenderNode that supports the VertexManager will extend the
+// VertexManager::Interface class and be forced to implement the virtual
+// FillVertexData() function.  The BaseManager class will do a dynamic cast
+// under this assumption.
 struct interface_function_exists {
   template <class T>
   static constexpr auto valid(T*) -> decltype(&T::Interface::FillData, true) {
@@ -46,6 +56,11 @@ struct interface_function_exists {
 
 }
 
+/*
+ * CRTP base class, which all concrete buffer managers should extend from.
+ * The CRTP nature of this class allows it to know the full type of the
+ * final class, without having to write duplicate code in each of the children.
+ */
 template <class Child>
 class BaseManager : public AbstractManager {
 public:
@@ -55,6 +70,10 @@ public:
   BaseManager& operator=(const BaseManager&) = delete;
   BaseManager& operator=(BaseManager&&) = delete;
 
+  // Make sure that the Child class has the expected properties.  The
+  // static_asserts are thrown in this destructor instead of at class scope,
+  // because due to the CRTP patter, Child will not be fully defined at
+  // that point.
   virtual ~BaseManager() {
     constexpr Child* temp = nullptr;
     static_assert(detail::type_exists::valid(temp),
@@ -64,6 +83,8 @@ public:
         "which must have a function with the signature void FillData(VectorSlice<T>&) ");
   }
 
+  // Helper class, so that both FillData functions can direct to here, and
+  // only the correct (and expected) type will have an implementation
   template <class Child_>
   struct Dispatch {
     static void FillData(VectorSlice<typename Child_::Type>& data, Rendering::RenderNode* node) {
@@ -85,7 +106,7 @@ public:
   }
 };
 
-class ColorManager : public BaseManager<ColorManager> {
+class ColorManager final : public BaseManager<ColorManager> {
 public:
   using Type = float;
   static constexpr char key[] = "inColor";
@@ -103,7 +124,7 @@ public:
   };
 };
 
-class IndexManager : public BaseManager<IndexManager> {
+class IndexManager final : public BaseManager<IndexManager> {
 public:
   using Type = uint32_t;
   static constexpr char key[] = "pass";
@@ -122,7 +143,7 @@ public:
 };
 
 
-class VertexManager : public BaseManager<VertexManager> {
+class VertexManager final : public BaseManager<VertexManager> {
 public:
   using Type = float;
   static constexpr char key[] = "inPosition";

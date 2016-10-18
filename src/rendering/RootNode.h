@@ -22,7 +22,14 @@
 namespace ShapeShifter {
 namespace Rendering {
 
-class RootNode : TypedRenderNode<> {
+/*
+ * This node forms the root of a tree, and a tree is not valid until it is
+ * finalized by the addition of a root node.  It type erases the internal tree
+ * so that external code can hold this object without knowing what buffer types
+ * the tree requires.  Upon creation of this object it will allocate and fill
+ * all the buffers required by the shader program, and upload them to the gpu.
+ */
+class RootNode : public TypedRenderNode<> {
 public:
   template <typename Other, typename dummy =
 	    typename std::enable_if<
@@ -36,13 +43,6 @@ public:
     children.emplace_back(tree.release());
     managers_ = program->BufferMapping<typename Other::Interface_t>();
     UpdateData();
-  }
-
-  void SetRotation(const Math::Quaternion& rot) {
-    children.back()->SetRotation(rot);
-  }
-  void SetTranslation(const Math::Vector4& trans) {
-    children.back()->SetTranslation(trans);
   }
 
   virtual ~RootNode() { CleanupBuffer(); }

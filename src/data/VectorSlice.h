@@ -23,12 +23,19 @@ namespace Data {
 template <typename T>
 class SliceFiller;
 
-// Helper class to help make sure nodes don't overwrite each other's data
+/*
+ * Simple class that behaves similarly to std::vector, but does not own it's
+ * own data, rather provides a 'view' into an existing std::vector.
+ * Very little error checking, debug builds should assert out if you do something
+ * funny, but release builds will happily let you overrun array bounds if
+ * you're not careful.
+ */
 template <typename T>
 class VectorSlice final {
 public:
   VectorSlice(const VectorSlice& other) = default;
   VectorSlice(VectorSlice<T>&& other) = default;
+
   VectorSlice() : data_(nullptr), size_(0) {}
   VectorSlice(std::vector<T>& v, size_t start, size_t end, size_t elem_size)
     : data_(v.data() + start*elem_size)
@@ -51,12 +58,21 @@ public:
   T* end() {return data_ + size_; }
   size_t size() const { return size_; }
 
+  // Returns a helper object that lets you fill data without manually keeping
+  // track of current index.
   SliceFiller<T> Filler();
 private:
   T* data_;
   size_t size_;
 };
 
+/*
+ * Convenience class for populating a VectorSlice.
+ * It automatically keeps track of the next available index, so you can
+ * just call operator() instead of operator[].  It also has overloads allowing
+ * you to enter 1, 2 or 3 elements at a time, depending on what is convenient
+ * for the application.
+ */
 template <typename T>
 class SliceFiller final {
 public:

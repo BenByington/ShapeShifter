@@ -40,6 +40,7 @@ void RootNode::UpdateData() {
     glEnableVertexAttribArray(kv.first->idx());
   }
 
+  assert(data.IntegralData().size() <= 1);
   for (const auto& kv : data.IntegralData()) {
     // TODO indicees need to be treated differently from integral data...
     ibo = GLuint{0};

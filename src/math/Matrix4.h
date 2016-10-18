@@ -23,7 +23,11 @@
 namespace ShapeShifter {
 namespace Math {
 
-// column major for now
+/*
+ * Column major 4x4 matrix.  Data is 16 byte aligned, to allow sse operations
+ * This is really for operations on 3+1 vectors (3 dimensions and the 4th used
+ * for graphic tricks like the perspective computation
+ */
 class alignas(16) Matrix4 final {
 public:
 

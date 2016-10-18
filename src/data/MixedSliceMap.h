@@ -24,6 +24,11 @@
 namespace ShapeShifter {
 namespace Data {
 
+/*
+ * Class that combines the view functionality of a VectorSlice with the
+ * behaviour and interface of the MixedDataMap class.  Used when populating
+ * data from individual RenderNodes into the buffers.
+ */
 class MixedSliceMap final : public MixedDataMapBase<VectorSlice> {
 public:
   MixedSliceMap(const MixedSliceMap& other) = delete;

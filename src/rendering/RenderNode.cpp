@@ -21,11 +21,11 @@ namespace ShapeShifter {
 namespace Rendering {
 
 void RenderNode::SetRotation(const Math::Quaternion& rot) {
-  this->rotation_ = rot;
+  rotation_ = rot;
 }
 
 void RenderNode::SetTranslation(const Math::Vector4& trans) {
-  this->translation_ = trans;
+  translation_ = trans;
 }
 
 Data::BufferIndex RenderNode::SubtreeCounts() const {
@@ -42,6 +42,11 @@ void RenderNode::PopulateBufferData(Data::MixedDataMap& data) {
 	}
 
   auto size = ExclusiveNodeDataCount();
+
+  // WARNING: This is very brittle, but this statement is required to prevent
+  // nullptr exception, since neither the root node nor pure nodes will inherit
+  // from any of the interface classes, and the FillData function below will
+  // involve dynamic casts to those classes.
   if (size.vertex_ == 0 && size.triangle_ == 0) return;
 
   auto local_data = data.NextSlice(size);
@@ -52,6 +57,8 @@ void RenderNode::PopulateBufferData(Data::MixedDataMap& data) {
     key.first->FillData(key.second, this);
   }
 
+  // Need to fix things once there is a non-index integral data.
+  assert(local_data.IntegralData().size() <= 1);
   for(auto& key: local_data.IntegralData()) {
     key.first->FillData(key.second, this);
     size_t offset = start().vertex_;
