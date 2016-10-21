@@ -54,8 +54,7 @@ protected:
 	Data::BufferIndex start() const {return start_; }
 	Data::BufferIndex end() const {return end_; }
   GLvoid* StartIndexAsVP() const {
-    //TODO fix hardcode
-    return (GLvoid*)(start().triangle_*3*sizeof(uint32_t));
+    return (GLvoid*)(start().index_*sizeof(uint32_t));
   }
 
 	// Compute how big the VAO should be

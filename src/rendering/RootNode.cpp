@@ -25,7 +25,7 @@ void RootNode::UpdateData() {
 
 	PopulateBufferData(data);
 	assert(data.DataRemaining().vertex_ == 0);
-	assert(data.DataRemaining().triangle_ == 0);
+	assert(data.DataRemaining().index_ == 0);
 
   glGenVertexArrays (1, &vao);
   glBindVertexArray (vao);

@@ -29,9 +29,8 @@ MixedSliceMap::MixedSliceMap(
         kv.second, start_.vertex_, end_.vertex_, kv.first->ElementsPerEntry());
   }
 
-  // TODO fix hard code
   indices_ = VectorSlice<uint32_t>(
-      indices, start_.triangle_, end_.triangle_,3);
+      indices, start_.index_, end_.index_);
 }
 
 }} // ShapeShifter::Data

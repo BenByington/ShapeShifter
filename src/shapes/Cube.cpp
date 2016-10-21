@@ -24,7 +24,7 @@ Cube::Cube(float sx, float sy, float sz) : sx_(sx), sy_(sy), sz_(sz) {}
 
 BufferIndex Cube::ExclusiveNodeDataCount() const {
   auto ret = BufferIndex();
-  ret.triangle_ = 12;
+  ret.index_ = 0;
   ret.vertex_ = 36;
   return ret;
 }

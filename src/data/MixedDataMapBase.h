@@ -81,23 +81,23 @@ protected:
  * are almost always used in conjunction with each other.
  */
 struct BufferIndex {
-  BufferIndex() : vertex_(0), triangle_(0) {}
+  BufferIndex() : vertex_(0), index_(0) {}
   BufferIndex(const BufferIndex& o)
-  : vertex_(o.vertex_), triangle_(o.triangle_) {}
+  : vertex_(o.vertex_), index_(o.index_) {}
 
   size_t vertex_ = 0;
-  size_t triangle_ = 0;
+  size_t index_ = 0;
 
   BufferIndex& operator+=(const BufferIndex& o) {
     vertex_ += o.vertex_;
-    triangle_ += o.triangle_;
+    index_ += o.index_;
     return *this;
   }
 
   BufferIndex operator-(const BufferIndex& o) {
     BufferIndex ret;
     ret.vertex_ = vertex_ - o.vertex_;
-    ret.triangle_ = triangle_ - o.triangle_;
+    ret.index_ = index_ - o.index_;
     return ret;
   }
 };

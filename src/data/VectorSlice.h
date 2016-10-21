@@ -37,7 +37,7 @@ public:
   VectorSlice(VectorSlice<T>&& other) = default;
 
   VectorSlice() : data_(nullptr), size_(0) {}
-  VectorSlice(std::vector<T>& v, size_t start, size_t end, size_t elem_size)
+  VectorSlice(std::vector<T>& v, size_t start, size_t end, size_t elem_size = 1)
     : data_(v.data() + start*elem_size)
     , size_(elem_size * (end-start)) {
     assert(v.size() > 0 || (start == 0 && end == 0));

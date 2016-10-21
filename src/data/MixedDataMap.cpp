@@ -27,8 +27,8 @@ MixedDataMap::MixedDataMap(
       integral_data_[manager].resize(count.vertex_*manager->ElementsPerEntry());
     }
   }
-  // TODO fix hard code
-  indices_.resize(count.triangle_*3);
+
+  indices_.resize(count.index_);
 }
 
 BufferIndex MixedDataMap::DataRemaining() {
