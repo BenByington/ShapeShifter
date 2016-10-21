@@ -11,7 +11,6 @@ namespace Data {
 
 
   constexpr char ColorManager::key[];
-  constexpr char IndexManager::key[];
   constexpr char VertexManager::key[];
 
 

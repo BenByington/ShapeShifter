@@ -65,10 +65,15 @@ public:
     }
     return ret;
   }
+
+  Storage<uint32_t>& indices() {
+    return indices_;
+  }
 protected:
 
   std::map<std::shared_ptr<AbstractManager>, Storage<float>> float_data_;
   std::map<std::shared_ptr<AbstractManager>, Storage<uint32_t>> integral_data_;
+  Storage<uint32_t> indices_;
 };
 
 /*

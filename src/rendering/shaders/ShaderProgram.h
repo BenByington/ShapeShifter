@@ -42,10 +42,6 @@ namespace detail {
     static void foo(
         std::vector<std::shared_ptr<Data::AbstractManager>>& managers,
         std::map<std::string, size_t>& map) {
-      // TODO ugly hack
-      if (std::string(Head::key) == "pass") {
-        map["pass"] = std::numeric_limits<size_t>::max();
-      }
       if (map.count(Head::key) == 0) {
         throw std::runtime_error("Shader does not support required buffer");
       }

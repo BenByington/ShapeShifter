@@ -57,14 +57,15 @@ void RenderNode::PopulateBufferData(Data::MixedDataMap& data) {
     key.first->FillData(key.second, this);
   }
 
-  // Need to fix things once there is a non-index integral data.
-  assert(local_data.IntegralData().size() <= 1);
   for(auto& key: local_data.IntegralData()) {
     key.first->FillData(key.second, this);
-    size_t offset = start().vertex_;
-    for (auto& ind: key.second) {
-      ind += offset;
-    }
+  }
+
+  auto& indices = local_data.indices();
+  FillIndexData(indices);
+  size_t offset = start().vertex_;
+  for (auto& ind: indices) {
+    ind += offset;
   }
 }
 

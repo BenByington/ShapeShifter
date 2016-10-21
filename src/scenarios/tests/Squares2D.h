@@ -55,6 +55,7 @@ private:
 	virtual BufferIndex ExclusiveNodeDataCount() const override;
 	virtual void FillVertexData(Data::VectorSlice<float>& data) const override;
 	virtual void FillColorData(Data::VectorSlice<float>& data) const override;
+  virtual void FillIndexData(Data::VectorSlice<uint32_t>&) const override {}
 	virtual void DrawSelf() const override;
 };
 

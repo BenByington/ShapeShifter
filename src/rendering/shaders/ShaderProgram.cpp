@@ -14,7 +14,7 @@
  * Created on July 31, 2016, 3:08 PM
  */
 
-#include "ShaderProgram.h"
+#include "rendering/shaders/ShaderProgram.h"
 
 #include <cassert>
 #include <iostream>

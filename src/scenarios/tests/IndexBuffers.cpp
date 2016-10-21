@@ -40,8 +40,7 @@ std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
 
   auto pure = std::make_unique<Rendering::PureNode<
       Data::VertexManager,
-      Data::ColorManager,
-      Data::IndexManager
+      Data::ColorManager
   >>();
   pure->AddChild(std::move(sphere));
   pure->AddChild(std::move(cube));

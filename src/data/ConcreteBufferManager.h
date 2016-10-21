@@ -124,25 +124,6 @@ public:
   };
 };
 
-class IndexManager final : public BaseManager<IndexManager> {
-public:
-  using Type = uint32_t;
-  static constexpr char key[] = "pass";
-
-  IndexManager(size_t idx) : BaseManager<IndexManager>(idx) {}
-  virtual ~IndexManager(){}
-
-  virtual size_t ElementsPerEntry() override { return 3; }
-  virtual bool isFloating() { return false; }
-
-  class Interface {
-  public:
-    void FillData(VectorSlice<Type>& data) { FillIndexData(data); }
-	  virtual void FillIndexData(Data::VectorSlice<Type>& data) const = 0;
-  };
-};
-
-
 class VertexManager final : public BaseManager<VertexManager> {
 public:
   using Type = float;

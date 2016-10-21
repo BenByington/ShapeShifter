@@ -92,19 +92,12 @@ void Cube::FillColorData(VectorSlice<float>& data) const {
   FillFaceColor(0, 1, 1);
 }
 
-void Cube::FillIndexData(VectorSlice<uint32_t>& data) const {
-  for (uint32_t i = 0; i < ExclusiveNodeDataCount().vertex_; ++i) {
-    data[i] = i;
-  }
-}
-
 void Cube::DrawSelf() const {
-  glDrawElements(
+  glDrawArrays (
       GL_TRIANGLES,
-      // TODO fix hardcode
-      ExclusiveNodeDataCount().triangle_*3,
-      GL_UNSIGNED_INT,
-      StartIndexAsVP());
+      start().vertex_,
+      ExclusiveNodeDataCount().vertex_
+  );
 }
 
 }} // ShapeShifter::Shapes

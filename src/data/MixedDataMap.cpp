@@ -24,10 +24,11 @@ MixedDataMap::MixedDataMap(
       // instead of a map
       float_data_[manager].resize(count.vertex_*manager->ElementsPerEntry());
     } else {
-      // TODO integral will not always be synonymous with index...
-      integral_data_[manager].resize(count.triangle_*manager->ElementsPerEntry());
+      integral_data_[manager].resize(count.vertex_*manager->ElementsPerEntry());
     }
   }
+  // TODO fix hard code
+  indices_.resize(count.triangle_*3);
 }
 
 BufferIndex MixedDataMap::DataRemaining() {
@@ -44,6 +45,7 @@ MixedSliceMap MixedDataMap::NextSlice(BufferIndex count) {
   return MixedSliceMap(
       float_data_,
       integral_data_,
+      indices_,
       start,
       next_free_
   );

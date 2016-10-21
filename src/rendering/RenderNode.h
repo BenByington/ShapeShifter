@@ -77,6 +77,11 @@ private:
   // Size required in the buffers, not counting children nodes
   virtual Data::BufferIndex ExclusiveNodeDataCount() const = 0;
 
+  // Populates data for the index vector.  Children can implement this as
+  // a noop if they are drawing independent triangles that do not share
+  // vertices
+	virtual void FillIndexData(Data::VectorSlice<uint32_t>& data) const = 0;
+
   // Personal rendering function
 	virtual void DrawSelf() const = 0;
 

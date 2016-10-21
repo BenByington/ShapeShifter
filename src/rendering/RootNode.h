@@ -54,6 +54,7 @@ public:
 
 private:
 	virtual Data::BufferIndex ExclusiveNodeDataCount() const { return Data::BufferIndex(); }
+	virtual void FillIndexData(Data::VectorSlice<uint32_t>&) const override {}
   virtual void DrawSelf() const override {}
   void CleanupBuffer();
 
