@@ -11,17 +11,17 @@
  * Created on July 31, 2016, 3:08 PM
  */
 
-#ifndef RENDERING_SHADERS_SHADERPROGRAM_H
-#define RENDERING_SHADERS_SHADERPROGRAM_H
+#ifndef RENDERING_SHADERS_SHADER_PROGRAM_H
+#define RENDERING_SHADERS_SHADER_PROGRAM_H
+
+#include "rendering/shaders/ShaderProgramBase.h"
 
 #include "data/AbstractBufferManager.h"
-#include "math/Matrix4.h"
 #include "rendering/shaders/Shader.h"
 
 #include <limits>
 #include <map>
 #include <memory>
-#include <iostream>
 #include <vector>
 
 namespace ShapeShifter {
@@ -53,9 +53,8 @@ namespace detail {
     }
   };
 
-  template <class > struct instantiate_managers;
   template <class... Args>
-  struct instantiate_managers<std::tuple<Args...>> {
+  struct instantiate_managers {
     static auto foo(std::map<std::string, size_t>& mapper) {
       std::vector<std::shared_ptr<Data::AbstractManager>> ret;
       instantiate_managers_helper<Args...>::foo(ret, mapper);
@@ -68,32 +67,24 @@ namespace detail {
 
 }
 
-class ShaderProgram {
+template <class... Interface>
+class ShaderProgram : public ShaderProgramBase {
 public:
   ShaderProgram(const ShaderProgram&) = delete;
 	ShaderProgram& operator()(ShaderProgram&) = delete;
   ShaderProgram(
       std::unique_ptr<VertexShader> vert,
-      std::unique_ptr<FragmentShader> frag);
+      std::unique_ptr<FragmentShader> frag) : ShaderProgramBase(std::move(vert), std::move(frag)) {}
 
-  virtual ~ShaderProgram();
-
-	void UseProgram() const { glUseProgram(program_); }
-  void uploadMatrix(const Math::Matrix4& mat) const;
-
-  template <class Interface>
-  std::vector<std::shared_ptr<Data::AbstractManager>> BufferMapping() const {
-    auto map = vert_shader_->layout_map();
-    return detail::instantiate_managers<Interface>::foo(map);
+  virtual std::vector<std::shared_ptr<Data::AbstractManager>> BufferMapping() const override {
+    auto map = vert_shader().layout_map();
+    return detail::instantiate_managers<Interface...>::foo(map);
   }
 
-private:
-	std::unique_ptr<VertexShader> vert_shader_;
-	std::unique_ptr<FragmentShader> frag_shader_;
-	GLuint program_;
+  using Interface_t = std::tuple<Interface...>;
 };
 
 }}} // ShapeShifter::Rendering::Shaders
 
-#endif /* RENDERING_SHADERS_SHADERPROGRAM_H */
+#endif /* RENDERING_SHADERS_SHADER_PROGRAM_H */
 

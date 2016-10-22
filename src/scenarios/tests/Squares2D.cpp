@@ -13,6 +13,8 @@
 
 #include "scenarios/tests/Squares2D.h"
 
+#include "rendering/shaders/ShaderProgram.h"
+
 #include <cassert>
 #include <cmath>
 #include <memory>
@@ -59,7 +61,9 @@ std::unique_ptr<Rendering::World> Squares2D::Setup() {
 	    "/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert");
 	auto frag = std::make_unique<Rendering::Shaders::FragmentShader>(
 	    "/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag");
-	auto program = std::make_shared<Rendering::Shaders::ShaderProgram>(
+  // TODO find more succinct way to express ShaderProgram type
+  using ShaderProgram = Rendering::Shaders::ShaderProgram<Data::ColorManager, Data::VertexManager>;
+	auto program = std::make_shared<ShaderProgram>(
       std::move(vert), std::move(frag));
 
 	auto root = std::make_unique<Rendering::RootNode>(std::move(first),  program);

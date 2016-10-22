@@ -26,7 +26,7 @@ namespace Rendering {
 
 namespace Shaders {
 // TODO look for things to consolidate into forward includes
-class ShaderProgram;
+class ShaderProgramBase;
 }
 
 /**
@@ -68,7 +68,7 @@ protected:
       const Camera& camera,
       const Math::Quaternion& cumRot,
       const Math::Vector4& cumTrans,
-      const Shaders::ShaderProgram& shader) const;
+      const Shaders::ShaderProgramBase& shader) const;
 
 	std::vector<std::shared_ptr<RenderNode>> children;
 

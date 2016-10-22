@@ -13,7 +13,7 @@
 
 #include "RenderNode.h"
 
-#include "rendering/shaders/ShaderProgram.h"
+#include "rendering/shaders/ShaderProgramBase.h"
 
 #include <iostream>
 
@@ -73,7 +73,7 @@ void RenderNode::DrawChildren(
     const Camera& camera,
     const Math::Quaternion& cumRot,
     const Math::Vector4& cumTrans,
-    const Shaders::ShaderProgram& shader) const {
+    const Shaders::ShaderProgramBase& shader) const {
 
   auto localQuat = cumRot*rotation_;
   auto rot = localQuat.RotationMatrix();

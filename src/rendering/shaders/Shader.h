@@ -43,7 +43,7 @@ public:
 
 public:
 	operator GLuint() const {return shader;}
-  const std::map<std::string, size_t>& layout_map() {
+  const std::map<std::string, size_t>& layout_map() const {
     return layout_map_;
   }
 private:

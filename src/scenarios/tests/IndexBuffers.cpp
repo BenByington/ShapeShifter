@@ -15,6 +15,7 @@
 
 #include "math/Quaternion.h"
 #include "rendering/PureNode.h"
+#include "rendering/shaders/ShaderProgram.h"
 #include "shapes/Cube.h"
 #include "shapes/Sphere.h"
 
@@ -49,7 +50,10 @@ std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
 	    "/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert");
 	auto frag = std::make_unique<Rendering::Shaders::FragmentShader>(
 	    "/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag");
-	auto program = std::make_shared<Rendering::Shaders::ShaderProgram>(
+  using ShaderProgram = Rendering::Shaders::ShaderProgram<
+      Data::VertexManager,
+      Data::ColorManager>;
+	auto program = std::make_shared<ShaderProgram>(
       std::move(vert), std::move(frag));
 
 	auto root = std::make_unique<Rendering::RootNode>(std::move(pure),  program);
