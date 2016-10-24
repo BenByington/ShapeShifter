@@ -42,11 +42,11 @@ namespace detail {
     static void foo(
         std::vector<std::shared_ptr<Data::AbstractManager>>& managers,
         std::map<std::string, size_t>& map) {
-      if (map.count(Head::key) == 0) {
+      if (map.count(Head::Variable::name()) == 0) {
         throw std::runtime_error("Shader does not support required buffer");
       }
-      managers.emplace_back(std::make_shared<Head>(map.at(Head::key)));
-      map.erase(Head::key);
+      managers.emplace_back(std::make_shared<Head>(map.at(Head::Variable::name())));
+      map.erase(Head::Variable::name());
       if (sizeof...(Args) > 0) {
         instantiate_managers_helper<Args...>::foo(managers, map);
       }

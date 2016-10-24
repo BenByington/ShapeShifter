@@ -17,6 +17,7 @@
 #include "data/AbstractBufferManager.h"
 #include "data/MixedDataMapBase.h"
 #include "rendering/RenderNode.h"
+#include "rendering/shaders/InterfaceVariableBase.h"
 
 #include <cstdlib>
 #include <type_traits>
@@ -54,6 +55,15 @@ struct interface_function_exists {
   static constexpr bool valid(...) { return false; }
 };
 
+struct variable_member_exists {
+  template <class T>
+  static constexpr auto valid(T*) -> decltype(typename T::Variable{}, true) {
+    using Parent = Rendering::Shaders::InterfaceVariableBase<typename T::Variable>;
+    return std::is_base_of<Parent, typename T::Variable>::value;
+  }
+  static constexpr auto valid(...) { return false; }
+};
+
 }
 
 /*
@@ -81,6 +91,9 @@ public:
     static_assert(detail::interface_function_exists::valid(temp),
         "Children of BaseManager must define a type Interface for Render nodes to inherit, "
         "which must have a function with the signature void FillData(VectorSlice<T>&) ");
+    static_assert(detail::variable_member_exists::valid(temp),
+        "Children of BaseManager must declare an inner class that extends"
+        " InterfaceVariableBase and is named Variable, for use in the shader program");
   }
 
   // Helper class, so that both FillData functions can direct to here, and
@@ -109,13 +122,20 @@ public:
 class ColorManager final : public BaseManager<ColorManager> {
 public:
   using Type = float;
-  static constexpr char key[] = "inColor";
 
   ColorManager(size_t idx) : BaseManager<ColorManager>(idx) {}
   virtual ~ColorManager(){}
 
   virtual size_t ElementsPerEntry() override { return 3; }
   virtual bool isFloating() { return true; }
+
+  struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable> {
+    static constexpr const char* name() {
+      return "inColor";
+    }
+  };
+
+  Variable v{};
 
   class Interface {
   public:
@@ -127,13 +147,17 @@ public:
 class VertexManager final : public BaseManager<VertexManager> {
 public:
   using Type = float;
-  static constexpr char key[] = "inPosition";
-
   VertexManager(size_t idx) : BaseManager<VertexManager>(idx) {}
   virtual ~VertexManager(){}
 
   virtual size_t ElementsPerEntry() override { return 3; }
   virtual bool isFloating() { return true; }
+
+  struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable> {
+    static constexpr const char* name() {
+      return "inPosition";
+    }
+  };
 
   class Interface {
   public:
