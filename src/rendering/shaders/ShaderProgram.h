@@ -17,7 +17,7 @@
 #include "rendering/shaders/ShaderProgramBase.h"
 
 #include "data/AbstractBufferManager.h"
-#include "rendering/shaders/Shader.h"
+#include "rendering/shaders/RawShader.h"
 
 #include <limits>
 #include <map>
@@ -72,12 +72,19 @@ class ShaderProgram : public ShaderProgramBase {
 public:
   ShaderProgram(const ShaderProgram&) = delete;
 	ShaderProgram& operator()(ShaderProgram&) = delete;
+  //TODO put checks on these template parameters
+  //template <class VertexShader, class FragmentShader>
+  //ShaderProgram(
+  //    std::unique_ptr<VertexShader> vert,
+  //    std::unique_ptr<FragmentShader> frag)
+  //  : ShaderProgramBase(std::move(vert), std::move(frag)) {}
   ShaderProgram(
-      std::unique_ptr<VertexShader> vert,
-      std::unique_ptr<FragmentShader> frag) : ShaderProgramBase(std::move(vert), std::move(frag)) {}
+      std::unique_ptr<RawShader<RawShaderType::VERTEX>> vert,
+      std::unique_ptr<RawShader<RawShaderType::FRAGMENT>> frag)
+    : ShaderProgramBase(std::move(vert), std::move(frag)) {}
 
   virtual std::vector<std::shared_ptr<Data::AbstractManager>> BufferMapping() const override {
-    auto map = vert_shader().layout_map();
+    auto map = layout_map();
     return detail::instantiate_managers<Interface...>::foo(map);
   }
 

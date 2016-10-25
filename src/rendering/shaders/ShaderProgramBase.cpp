@@ -21,8 +21,8 @@ namespace Rendering {
 namespace Shaders {
 
 ShaderProgramBase::ShaderProgramBase(
-    std::unique_ptr<VertexShader> vert,
-    std::unique_ptr<FragmentShader> frag)
+    std::unique_ptr<ShaderBase> vert,
+    std::unique_ptr<ShaderBase> frag)
   : vert_shader_(std::move(vert))
   , frag_shader_(std::move(frag)) {
 

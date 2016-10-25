@@ -27,8 +27,8 @@ public:
   ShaderProgramBase(const ShaderProgramBase&) = delete;
 	ShaderProgramBase& operator()(ShaderProgramBase&) = delete;
   ShaderProgramBase(
-      std::unique_ptr<VertexShader> vert,
-      std::unique_ptr<FragmentShader> frag);
+      std::unique_ptr<ShaderBase> vert,
+      std::unique_ptr<ShaderBase> frag);
 
   virtual ~ShaderProgramBase();
 
@@ -39,17 +39,13 @@ public:
 
 protected:
 
-  const VertexShader& vert_shader() const {
-    return *vert_shader_;
-  }
-
-  const FragmentShader& frag_shader() const {
-    return *frag_shader_;
+  const auto& layout_map() const {
+    return vert_shader_->layout_map();
   }
 
 private:
-	std::unique_ptr<VertexShader> vert_shader_;
-	std::unique_ptr<FragmentShader> frag_shader_;
+	std::unique_ptr<ShaderBase> vert_shader_;
+	std::unique_ptr<ShaderBase> frag_shader_;
 	GLuint program_;
 };
 

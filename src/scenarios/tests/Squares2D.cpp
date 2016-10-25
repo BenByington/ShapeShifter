@@ -57,9 +57,12 @@ std::unique_ptr<Rendering::World> Squares2D::Setup() {
   manipulator = first->AddChild(std::move(second));
   manipulator->SetRotation({-pi/2, 0 , 1, 0});
 
-	auto vert = std::make_unique<Rendering::Shaders::VertexShader>(
+  // TODO make this more succinct
+  using VertexShader = Rendering::Shaders::RawShader<Rendering::Shaders::RawShaderType::VERTEX>;
+  using FragmentShader = Rendering::Shaders::RawShader<Rendering::Shaders::RawShaderType::FRAGMENT>;
+	auto vert = std::make_unique<VertexShader>(
 	    "/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert");
-	auto frag = std::make_unique<Rendering::Shaders::FragmentShader>(
+	auto frag = std::make_unique<FragmentShader>(
 	    "/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag");
   // TODO find more succinct way to express ShaderProgram type
   using ShaderProgram = Rendering::Shaders::ShaderProgram<Data::ColorManager, Data::VertexManager>;

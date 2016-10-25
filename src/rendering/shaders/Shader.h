@@ -14,57 +14,58 @@
 #ifndef RENDERING_SHADERS_SHADER_H
 #define RENDERING_SHADERS_SHADER_H
 
-#include <map>
-#include <string>
-
-#include <opengl/gl3.h>
+#include "rendering/shaders/InterfaceVariableBase.h"
+#include "rendering/shaders/ShaderBase.h"
 
 namespace ShapeShifter {
 namespace Rendering {
 namespace Shaders {
 
-/*
- * Class that wraps an opengl shader resource.  It expects the shader to
- * program to live in a separate text file, which it will load and parse
- * and compile.  Must use one of the children classes to actually instantiate.
- */
-class Shader {
-protected:
-  enum class ShaderType {
-		VERTEX,
-		FRAGMENT
-	};
+namespace detail {
+struct check_inputs {
 
-  Shader(const std::string& filename, ShaderType t);
+  template <class Input>
+  static constexpr bool is_child() {
+    return std::is_base_of<InterfaceVariableBase<Input>, Input>::value;
+  }
+  template <class... Inputs>
+  static constexpr bool valid() {
+    constexpr bool checks[] = { is_child<Inputs>()... };
+    bool ret = true;
+    for (auto b : checks) ret &= b;
+    return ret;
+  }
+  static constexpr bool valid(...) { return false; }
+};
+}
+
+template <class... Inputs>
+class Shader : public ShaderBase {
+  static_assert(detail::check_inputs::valid<Inputs...>(),
+      "Shader template parameters must be InterfaceVariable types");
+protected:
+  Shader(const std::string& data, GLenum shader_type) : ShaderBase(data, shader_type) {}
   Shader(const Shader&) = delete;
 	Shader& operator=(const Shader&) = delete;
 public:
-  virtual ~Shader();
-
-public:
-	operator GLuint() const {return shader;}
-  const std::map<std::string, size_t>& layout_map() const {
-    return layout_map_;
-  }
-private:
-  GLuint shader = 0;
-
-  void ParseLayouts(const std::string& data);
-
-  std::map<std::string, size_t> layout_map_;
+  virtual ~Shader() {}
 };
 
-class VertexShader : public Shader {
+template <class... Inputs>
+class VertexShader : public Shader<Inputs...> {
+  using Base = Shader<Inputs...>;
 public:
-	VertexShader(const std::string& filename) : Shader(filename, ShaderType::VERTEX) {}
+	VertexShader(const std::string& data) : Base(data, GL_VERTEX_SHADER) {}
 	VertexShader(const VertexShader&) = delete;
 	VertexShader& operator()(const VertexShader&) = delete;
 	virtual ~VertexShader() {}
 };
 
-class FragmentShader : public Shader {
+template <class... Inputs>
+class FragmentShader : public Shader<Inputs...> {
+  using Base = Shader<Inputs...>;
 public:
-	FragmentShader(const std::string& filename) : Shader(filename, ShaderType::FRAGMENT) {}
+	FragmentShader(const std::string& data) : Base(data, GL_FRAGMENT_SHADER) {}
 	FragmentShader(const FragmentShader&) = delete;
 	FragmentShader& operator()(const FragmentShader&) = delete;
 	virtual ~FragmentShader() {}

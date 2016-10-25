@@ -46,9 +46,12 @@ std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
   pure->AddChild(std::move(sphere));
   pure->AddChild(std::move(cube));
 
-	auto vert = std::make_unique<Rendering::Shaders::VertexShader>(
+  // TODO make this more succinct
+  using VertexShader = Rendering::Shaders::RawShader<Rendering::Shaders::RawShaderType::VERTEX>;
+  using FragmentShader = Rendering::Shaders::RawShader<Rendering::Shaders::RawShaderType::FRAGMENT>;
+	auto vert = std::make_unique<VertexShader>(
 	    "/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert");
-	auto frag = std::make_unique<Rendering::Shaders::FragmentShader>(
+	auto frag = std::make_unique<FragmentShader>(
 	    "/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag");
   using ShaderProgram = Rendering::Shaders::ShaderProgram<
       Data::VertexManager,

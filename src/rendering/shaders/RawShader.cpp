@@ -11,7 +11,7 @@
  * Created on July 29, 2016, 8:38 AM
  */
 
-#include "rendering/shaders/Shader.h"
+#include "rendering/shaders/RawShader.h"
 
 namespace ShapeShifter {
 namespace Rendering {
