@@ -14,6 +14,7 @@
 #ifndef RENDERING_SHADERS_INTERFACE_VARIABLE_BASE_H
 #define RENDERING_SHADERS_INTERFACE_VARIABLE_BASE_H
 
+#include <cstdlib>
 #include <type_traits>
 
 namespace ShapeShifter {
@@ -42,6 +43,8 @@ struct InterfaceVariableBase {
   InterfaceVariableBase& operator=(InterfaceVariableBase&&) = default;
 
   virtual ~InterfaceVariableBase() {};
+
+  void LayoutDeclaration(size_t idx) {}
 protected:
   InterfaceVariableBase() {
     constexpr Child* temp = nullptr;

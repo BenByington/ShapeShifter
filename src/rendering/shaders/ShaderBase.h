@@ -34,7 +34,9 @@ class ShaderBase {
 protected:
   ShaderBase(const std::string& data, GLenum shader_type);
   ShaderBase(const ShaderBase&) = delete;
+  ShaderBase(ShaderBase&& other);
 	ShaderBase& operator=(const ShaderBase&) = delete;
+	ShaderBase& operator=(ShaderBase&& other);
 public:
   virtual ~ShaderBase();
 

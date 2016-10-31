@@ -57,7 +57,9 @@ ShaderBase::ShaderBase(const std::string& data, GLenum shader_type) {
 }
 
 ShaderBase::~ShaderBase() {
-	glDeleteShader(shader);
+  if (shader != 0) {
+	  glDeleteShader(shader);
+  }
 }
 
 void ShaderBase::ParseLayouts(const std::string& data) {
@@ -88,5 +90,20 @@ void ShaderBase::ParseLayouts(const std::string& data) {
   }
 }
 
+ShaderBase::ShaderBase(ShaderBase&& other) {
+  layout_map_ = std::move(other.layout_map_);
+  shader = other.shader;
+
+  other.shader = 0;
+}
+
+ShaderBase& ShaderBase::operator =(ShaderBase&& other) {
+  layout_map_ = std::move(other.layout_map_);
+  shader = other.shader;
+
+  other.shader = 0;
+
+  return *this;
+}
 
 }}} // ShapeShifter::Rendering::Shaders

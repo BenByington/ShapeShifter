@@ -12,9 +12,23 @@
  */
 
 #include "rendering/shaders/Shader.h"
+#include "data/ConcreteBufferManager.h"
 
 namespace ShapeShifter {
 namespace Rendering {
 namespace Shaders {
+
+using Data::ColorManager;
+using Data::VertexManager;
+
+class test : public GLSLGeneratorBase<
+    std::tuple<ColorManager::Variable, VertexManager::Variable>,
+    std::tuple<>> {
+  using Base = GLSLGeneratorBase<pack<ColorManager::Variable, VertexManager::Variable>, pack<>>;
+public:
+  test(VariableFactory&& factory) : Base(std::move(factory)) {}
+};
+
+static auto instance = VertexShader<test>();
 
 }}} // ShapeShifter::Rendering::Shaders

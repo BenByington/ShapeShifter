@@ -14,7 +14,7 @@
 #ifndef RENDERING_SHADERS_RAW_SHADER_H
 #define RENDERING_SHADERS_RAW_SHADER_H
 
-#include "rendering/shaders/Shader.h"
+#include "rendering/shaders/ShaderBase.h"
 
 #include <iostream>
 #include <fstream>

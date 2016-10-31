@@ -17,9 +17,14 @@
 #include "rendering/shaders/InterfaceVariableBase.h"
 #include "rendering/shaders/ShaderBase.h"
 
+#include <sstream>
+
 namespace ShapeShifter {
 namespace Rendering {
 namespace Shaders {
+
+template <class ... Ts>
+using pack = std::tuple<Ts...>;
 
 namespace detail {
 struct check_inputs {
@@ -37,37 +42,96 @@ struct check_inputs {
   }
   static constexpr bool valid(...) { return false; }
 };
+
 }
 
-template <class... Inputs>
-class Shader : public ShaderBase {
+class VariableFactory {
+
+};
+
+template <class Input, class Output>
+class GLSLGeneratorBase;
+
+template <class... Inputs, class... Outputs>
+struct GLSLGeneratorBase<pack<Inputs...>, pack<Outputs...>>
+  : Inputs... , Outputs... {
+private:
   static_assert(detail::check_inputs::valid<Inputs...>(),
       "Shader template parameters must be InterfaceVariable types");
+
+public:
+  using InputTypes = std::tuple<Inputs...>;
+  using OutputTypes = std::tuple<Outputs...>;
+
+  GLSLGeneratorBase(const GLSLGeneratorBase&) = delete;
+  GLSLGeneratorBase(GLSLGeneratorBase&&) = delete;
+  GLSLGeneratorBase& operator=(const GLSLGeneratorBase&) = delete;
+  GLSLGeneratorBase& operator=(GLSLGeneratorBase&&) = delete;
+
+  GLSLGeneratorBase(VariableFactory&& factory) : factory_(std::move(factory)) {}
+
+  std::string program() {
+    std::tuple<Inputs&...> in_parents { static_cast<Inputs&>(*this)... };
+    size_t idx = 0;
+    auto temp = {(static_cast<Inputs&>(*this).LayoutDeclaration(++idx), 0)...};
+    return "";
+  }
+
+private:
+  VariableFactory factory_;
+  std::stringstream stream;
+};
+
+namespace detail {
+
+struct generator_traits {
+  template <class... Types>
+  static constexpr bool valid(GLSLGeneratorBase<Types...>*) {
+    return true;
+  }
+  static constexpr bool valid(...) {
+    return false;
+  }
+};
+
+}
+
+template <class Generator>
+class Shader : public ShaderBase {
+    static_assert(detail::generator_traits::valid((Generator*)nullptr),
+        "Template to Shader class must be a child of an GLSLGeneratorBase type");
 protected:
   Shader(const std::string& data, GLenum shader_type) : ShaderBase(data, shader_type) {}
   Shader(const Shader&) = delete;
+  Shader(Shader&&) = default;
 	Shader& operator=(const Shader&) = delete;
+	Shader& operator=(Shader&&) = default;
 public:
   virtual ~Shader() {}
 };
 
-template <class... Inputs>
-class VertexShader : public Shader<Inputs...> {
-  using Base = Shader<Inputs...>;
+template <class Generator>
+class VertexShader : public Shader<Generator> {
 public:
-	VertexShader(const std::string& data) : Base(data, GL_VERTEX_SHADER) {}
+	VertexShader()
+    : Shader<Generator>(Generator(VariableFactory()).program(), GL_VERTEX_SHADER) {}
+
 	VertexShader(const VertexShader&) = delete;
-	VertexShader& operator()(const VertexShader&) = delete;
+	VertexShader(VertexShader&&) = default;
+	VertexShader& operator=(const VertexShader&) = delete;
+	VertexShader& operator=(VertexShader&&) = default;
 	virtual ~VertexShader() {}
 };
 
-template <class... Inputs>
-class FragmentShader : public Shader<Inputs...> {
-  using Base = Shader<Inputs...>;
+template <class Generator>
+class FragmentShader : public Shader<Generator> {
 public:
-	FragmentShader(const std::string& data) : Base(data, GL_FRAGMENT_SHADER) {}
+	FragmentShader()
+    : Shader<Generator>(Generator().program(), GL_FRAGMENT_SHADER) {}
 	FragmentShader(const FragmentShader&) = delete;
-	FragmentShader& operator()(const FragmentShader&) = delete;
+	FragmentShader(FragmentShader&&) = default;
+	FragmentShader& operator=(const FragmentShader&) = delete;
+	FragmentShader& operator=(FragmentShader&&) = default;
 	virtual ~FragmentShader() {}
 };
 

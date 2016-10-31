@@ -16,7 +16,7 @@
 
 #include "data/AbstractBufferManager.h"
 #include "math/Matrix4.h"
-#include "rendering/shaders/Shader.h"
+#include "rendering/shaders/ShaderBase.h"
 
 namespace ShapeShifter {
 namespace Rendering {
