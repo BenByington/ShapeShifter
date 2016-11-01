@@ -58,7 +58,9 @@ struct interface_function_exists {
 struct variable_member_exists {
   template <class T>
   static constexpr auto valid(T*) -> decltype(typename T::Variable{}, true) {
-    using Parent = Rendering::Shaders::InterfaceVariableBase<typename T::Variable>;
+    using Parent = Rendering::Shaders::InterfaceVariableBase<
+        typename T::Variable,
+        typename T::Type>;
     return std::is_base_of<Parent, typename T::Variable>::value;
   }
   static constexpr auto valid(...) { return false; }
@@ -129,7 +131,7 @@ public:
   virtual size_t ElementsPerEntry() override { return 3; }
   virtual bool isFloating() { return true; }
 
-  struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable> {
+  struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable, Type> {
     static constexpr const char* name() {
       return "inColor";
     }
@@ -153,7 +155,7 @@ public:
   virtual size_t ElementsPerEntry() override { return 3; }
   virtual bool isFloating() { return true; }
 
-  struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable> {
+  struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable, Type> {
     static constexpr const char* name() {
       return "inPosition";
     }

@@ -16,6 +16,7 @@
 #include "math/Quaternion.h"
 #include "rendering/PureNode.h"
 #include "rendering/shaders/ShaderProgram.h"
+#include "rendering/shaders/programs/BasicShader.h"
 #include "shapes/Cube.h"
 #include "shapes/Sphere.h"
 
@@ -28,6 +29,11 @@ namespace scenarios{
 namespace tests {
 
 std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
+
+  using Rendering::Shaders::Programs::test;
+
+  test stupid(Rendering::Shaders::VariableFactory{});
+  stupid.program();
 
   using Math::Quaternion;
   using Math::Vector4;

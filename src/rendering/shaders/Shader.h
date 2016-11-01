@@ -17,6 +17,8 @@
 #include "rendering/shaders/InterfaceVariableBase.h"
 #include "rendering/shaders/ShaderBase.h"
 
+#include <cassert>
+#include <iostream>
 #include <sstream>
 
 namespace ShapeShifter {
@@ -31,7 +33,7 @@ struct check_inputs {
 
   template <class Input>
   static constexpr bool is_child() {
-    return std::is_base_of<InterfaceVariableBase<Input>, Input>::value;
+    return std::is_base_of<InterfaceVariableBase<Input, typename Input::Type>, Input>::value;
   }
   template <class... Inputs>
   static constexpr bool valid() {
@@ -44,10 +46,6 @@ struct check_inputs {
 };
 
 }
-
-class VariableFactory {
-
-};
 
 template <class Input, class Output>
 class GLSLGeneratorBase;
@@ -71,10 +69,20 @@ public:
   GLSLGeneratorBase(VariableFactory&& factory) : factory_(std::move(factory)) {}
 
   std::string program() {
+    // TODO wrap stream to handle own indentation levels
+    // TODO have stream automatically handle newlines
+    factory_.stream() << "#version 410\n\n";
     std::tuple<Inputs&...> in_parents { static_cast<Inputs&>(*this)... };
     size_t idx = 0;
-    auto temp = {(static_cast<Inputs&>(*this).LayoutDeclaration(++idx), 0)...};
-    return "";
+    auto temp = {(static_cast<Inputs&>(*this).LayoutDeclaration(factory_, idx++), 0)...};
+    factory_.stream() << "\n";
+    temp = {(static_cast<Outputs&>(*this).OutputDeclaration(factory_), 0)...};
+
+    factory_.stream() << "\nvoid main() {\n";
+    factory_.stream() << "}\n";
+    std::cerr << factory_.stream().str();
+    exit(0);
+    return " ";
   }
 
 private:
