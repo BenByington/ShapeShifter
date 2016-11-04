@@ -24,6 +24,7 @@ namespace Rendering {
 namespace Shaders {
 
 class VariableFactory;
+class Vec3 {};
 
 template <typename T>
 class Variable {
@@ -35,6 +36,17 @@ public:
   Variable& operator=(const Variable&) = delete;
   Variable& operator=(Variable&&) = delete;
 
+  static constexpr const char* TypeName() {
+    if (std::is_same<float, T>::value) {
+      return "float";
+    } else if (std::is_same<int, T>::value) {
+      return "int";
+    } else if (std::is_same<Vec3, T>::value) {
+      return "vec3";
+    } else {
+      return "Monsters in the soup!\n";
+    }
+  }
 private:
   std::reference_wrapper<std::stringstream> stream_;
   std::string state_;
@@ -66,6 +78,21 @@ struct name_function_exists {
   static constexpr bool valid(...) { return false; }
 };
 
+struct declares_smooth {
+  static constexpr bool is_bool(bool b) { return true; }
+  template <typename T>
+  static constexpr bool is_bool(T b) { return false; }
+  template <class T>
+  static constexpr auto valid(T*) ->decltype(T::smooth, true) {
+    if (is_bool(T::smooth)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  static constexpr bool valid(...) { return false; }
+};
+
 }
 
 template <class Child, typename T>
@@ -76,8 +103,11 @@ protected:
     static_assert(detail::name_function_exists::valid(temp),
         "Children of InterfaceVariableBase must supply a (preferably"
         "constexpr) static function called name that returns a char*");
-    static_assert(std::is_arithmetic<T>::value,
+    static_assert(std::is_arithmetic<T>::value || std::is_same<Vec3, T>::value,
         "Children of InterfaceVariableBase have an arithmetic type");
+    static_assert(detail::declares_smooth::valid(temp),
+        "Children of InterfaceVariableBase must have a static constexpr bool "
+        "indicating if the variable should be smoothed");
   };
 
 public:
@@ -93,18 +123,17 @@ public:
 
   void LayoutDeclaration(VariableFactory& factory, size_t idx) {
     var = factory.createUP<Type>();
-    // TODO vec3 needs to be configurable
     // TODO save the idx.  Only the raw text version needs to parse the string
-    factory.stream() << "layout (location = " << idx << ") vec3 " << Child::name()<< ";\n";
+    factory.stream() << "layout (location = " << idx << ") " << Variable<Type>::TypeName() << " " << Child::name()<< ";\n";
   }
 
   void OutputDeclaration(VariableFactory& factory) {
-    // TODO fix vec3 and make 'smooth' configurable
-    factory.stream() << "smooth out vec3 " << Child::name() << ";\n";
+    if (Child::smooth) factory.stream() << "smooth ";
+    factory.stream() << "out " << Variable<Type>::TypeName() << " " << Child::name() << ";\n";
   }
 
 protected:
-  std::unique_ptr<Rendering::Shaders::Variable<Type>> var;
+  std::unique_ptr<Variable<Type>> var;
 };
 
 }}} // ShapeShifter::Rendering::Shaders

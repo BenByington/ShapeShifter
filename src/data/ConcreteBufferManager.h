@@ -60,7 +60,7 @@ struct variable_member_exists {
   static constexpr auto valid(T*) -> decltype(typename T::Variable{}, true) {
     using Parent = Rendering::Shaders::InterfaceVariableBase<
         typename T::Variable,
-        typename T::Type>;
+        typename T::Type2>;
     return std::is_base_of<Parent, typename T::Variable>::value;
   }
   static constexpr auto valid(...) { return false; }
@@ -124,6 +124,7 @@ public:
 class ColorManager final : public BaseManager<ColorManager> {
 public:
   using Type = float;
+  using Type2 = Rendering::Shaders::Vec3;
 
   ColorManager(size_t idx) : BaseManager<ColorManager>(idx) {}
   virtual ~ColorManager(){}
@@ -131,10 +132,11 @@ public:
   virtual size_t ElementsPerEntry() override { return 3; }
   virtual bool isFloating() { return true; }
 
-  struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable, Type> {
+  struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable, Type2> {
     static constexpr const char* name() {
       return "inColor";
     }
+    static constexpr bool smooth = false;
   };
 
   Variable v{};
@@ -149,16 +151,18 @@ public:
 class VertexManager final : public BaseManager<VertexManager> {
 public:
   using Type = float;
+  using Type2 = Rendering::Shaders::Vec3;
   VertexManager(size_t idx) : BaseManager<VertexManager>(idx) {}
   virtual ~VertexManager(){}
 
   virtual size_t ElementsPerEntry() override { return 3; }
   virtual bool isFloating() { return true; }
 
-  struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable, Type> {
+  struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable, Type2> {
     static constexpr const char* name() {
       return "inPosition";
     }
+    static constexpr bool smooth = false;
   };
 
   class Interface {

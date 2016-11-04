@@ -26,10 +26,11 @@ using Data::ColorManager;
 using Data::VertexManager;
 
 namespace detail {
-struct ColorPass : InterfaceVariableBase<ColorPass, float> {
+struct ColorPass : InterfaceVariableBase<ColorPass, Vec3> {
   static constexpr const char* name() {
     return "theColor";
   }
+  static constexpr bool smooth = true;
 };
 }
 
