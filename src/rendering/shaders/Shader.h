@@ -21,6 +21,9 @@
 #include <iostream>
 #include <sstream>
 
+// remove
+#include <vector>
+
 namespace ShapeShifter {
 namespace Rendering {
 namespace Shaders {
@@ -68,20 +71,23 @@ public:
 
   GLSLGeneratorBase(VariableFactory&& factory) : factory_(std::move(factory)) {}
 
-  std::string program() {
+  std::string program(bool vertex) {
     // TODO wrap stream to handle own indentation levels
     // TODO have stream automatically handle newlines
     factory_.stream() << "#version 410\n\n";
-    std::tuple<Inputs&...> in_parents { static_cast<Inputs&>(*this)... };
-    size_t idx = 0;
-    auto temp = {(static_cast<Inputs&>(*this).LayoutDeclaration(factory_, idx++), 0)...};
+    if (vertex) {
+      size_t idx = 0;
+      auto temp = {(static_cast<Inputs&>(*this).LayoutDeclaration(factory_, idx++), 0)...};
+    } else {
+      auto temp = {(static_cast<Inputs&>(*this).InputDeclaration(factory_), 0)...};
+    }
     factory_.stream() << "\n";
-    temp = {(static_cast<Outputs&>(*this).OutputDeclaration(factory_), 0)...};
+    // TODO figure out why auto doesn't work here, but does above
+    std::initializer_list<int> temp = {(static_cast<Outputs&>(*this).OutputDeclaration(factory_), 0)...};
 
     factory_.stream() << "\nvoid main() {\n";
     factory_.stream() << "}\n";
     std::cerr << factory_.stream().str();
-    exit(0);
     return " ";
   }
 

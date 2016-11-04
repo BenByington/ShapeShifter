@@ -30,10 +30,14 @@ namespace tests {
 
 std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
 
-  using Rendering::Shaders::Programs::test;
+  using Rendering::Shaders::Programs::BasicVertexShader;
+  using Rendering::Shaders::Programs::BasicFragmentShader;
 
-  test stupid(Rendering::Shaders::VariableFactory{});
-  stupid.program();
+  BasicVertexShader stupid(Rendering::Shaders::VariableFactory{});
+  stupid.program(true);
+  BasicFragmentShader stupid2(Rendering::Shaders::VariableFactory{});
+  stupid2.program(false);
+  exit(0);
 
   using Math::Quaternion;
   using Math::Vector4;

@@ -132,6 +132,12 @@ public:
     factory.stream() << "out " << Variable<Type>::TypeName() << " " << Child::name() << ";\n";
   }
 
+  // TODO unify with output?
+  void InputDeclaration(VariableFactory& factory) {
+    if (Child::smooth) factory.stream() << "smooth ";
+    factory.stream() << "in " << Variable<Type>::TypeName() << " " << Child::name() << ";\n";
+  }
+
 protected:
   std::unique_ptr<Variable<Type>> var;
 };

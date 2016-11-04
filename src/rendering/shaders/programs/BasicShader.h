@@ -34,12 +34,21 @@ struct ColorPass : InterfaceVariableBase<ColorPass, Vec3> {
 };
 }
 
-class test : public GLSLGeneratorBase<
-    std::tuple<ColorManager::Variable, VertexManager::Variable>,
-    std::tuple<detail::ColorPass>> {
+class BasicVertexShader : public GLSLGeneratorBase<
+    pack<ColorManager::Variable, VertexManager::Variable>,
+    pack<detail::ColorPass>> {
   using Base = GLSLGeneratorBase<pack<ColorManager::Variable, VertexManager::Variable>, pack<detail::ColorPass>>;
 public:
-  test(VariableFactory&& factory) : Base(std::move(factory)) {}
+  BasicVertexShader(VariableFactory&& factory) : Base(std::move(factory)) {}
+};
+
+class BasicFragmentShader : public GLSLGeneratorBase<
+    pack<detail::ColorPass>,
+    pack<>> {
+  using Base = GLSLGeneratorBase<pack<detail::ColorPass>, pack<>>;
+public:
+  BasicFragmentShader(VariableFactory&& factory) : Base(std::move(factory)) {}
+
 };
 
 }}}} // ShapeShifter::Rendering::Shaders::Programs
