@@ -13,4 +13,17 @@
 
 #include "BasicShader.h"
 
+namespace ShapeShifter {
+namespace Rendering {
+namespace Shaders {
+namespace Programs {
 
+void BasicVertexShader::DefineMain(const VariableFactory& factory) const {
+
+}
+
+void BasicFragmentShader::DefineMain(const VariableFactory& factory) const {
+
+}
+
+}}}} // ShapeShifter::Rendering::Shaders::Programs

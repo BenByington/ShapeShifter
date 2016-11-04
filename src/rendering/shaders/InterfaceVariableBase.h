@@ -32,9 +32,9 @@ class Variable {
   Variable(std::stringstream& stream) : stream_(stream) {}
 public:
   Variable(const Variable&) = delete;
-  Variable(Variable&&) = delete;
+  Variable(Variable&&) = default;
   Variable& operator=(const Variable&) = delete;
-  Variable& operator=(Variable&&) = delete;
+  Variable& operator=(Variable&&) = default;
 
   static constexpr const char* TypeName() {
     if (std::is_same<float, T>::value) {
@@ -57,8 +57,8 @@ private:
 class VariableFactory {
 public:
   template <typename T>
-  std::unique_ptr<Variable<T>> createUP() {
-    return std::unique_ptr<Variable<T>>(new Variable<T>(s));
+  Variable<T> create() {
+    return Variable<T>(s);
   }
 
   std::stringstream& stream() { return s; };
@@ -98,7 +98,8 @@ struct declares_smooth {
 template <class Child, typename T>
 struct InterfaceVariableBase {
 protected:
-  InterfaceVariableBase() {
+  InterfaceVariableBase(VariableFactory& factory)
+    : factory_(factory), var(factory.create<T>()) {
     constexpr Child* temp = nullptr;
     static_assert(detail::name_function_exists::valid(temp),
         "Children of InterfaceVariableBase must supply a (preferably"
@@ -112,6 +113,7 @@ protected:
 
 public:
   using Type = T;
+  using Variable_T = Variable<T>;
 
   InterfaceVariableBase(const InterfaceVariableBase&) = default;
   InterfaceVariableBase(InterfaceVariableBase&&) = default;
@@ -122,7 +124,6 @@ public:
   virtual ~InterfaceVariableBase() {};
 
   void LayoutDeclaration(VariableFactory& factory, size_t idx) {
-    var = factory.createUP<Type>();
     // TODO save the idx.  Only the raw text version needs to parse the string
     factory.stream() << "layout (location = " << idx << ") " << Variable<Type>::TypeName() << " " << Child::name()<< ";\n";
   }
@@ -139,7 +140,8 @@ public:
   }
 
 protected:
-  std::unique_ptr<Variable<Type>> var;
+  Variable_T var;
+  std::reference_wrapper<VariableFactory> factory_;
 };
 
 }}} // ShapeShifter::Rendering::Shaders

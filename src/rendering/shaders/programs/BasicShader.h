@@ -27,10 +27,15 @@ using Data::VertexManager;
 
 namespace detail {
 struct ColorPass : InterfaceVariableBase<ColorPass, Vec3> {
+  ColorPass() = delete;
+
+  using Base = InterfaceVariableBase<ColorPass, Vec3>;
+  using Base::InterfaceVariableBase;
   static constexpr const char* name() {
     return "theColor";
   }
   static constexpr bool smooth = true;
+  Variable_T& theColor = Base::var;
 };
 }
 
@@ -40,6 +45,8 @@ class BasicVertexShader : public GLSLGeneratorBase<
   using Base = GLSLGeneratorBase<pack<ColorManager::Variable, VertexManager::Variable>, pack<detail::ColorPass>>;
 public:
   BasicVertexShader(VariableFactory&& factory) : Base(std::move(factory)) {}
+private:
+  void DefineMain(const VariableFactory& factory) const override;
 };
 
 class BasicFragmentShader : public GLSLGeneratorBase<
@@ -48,7 +55,8 @@ class BasicFragmentShader : public GLSLGeneratorBase<
   using Base = GLSLGeneratorBase<pack<detail::ColorPass>, pack<>>;
 public:
   BasicFragmentShader(VariableFactory&& factory) : Base(std::move(factory)) {}
-
+private:
+  void DefineMain(const VariableFactory& factory) const override;
 };
 
 }}}} // ShapeShifter::Rendering::Shaders::Programs

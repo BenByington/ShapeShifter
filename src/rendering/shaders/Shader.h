@@ -69,7 +69,7 @@ public:
   GLSLGeneratorBase& operator=(const GLSLGeneratorBase&) = delete;
   GLSLGeneratorBase& operator=(GLSLGeneratorBase&&) = delete;
 
-  GLSLGeneratorBase(VariableFactory&& factory) : factory_(std::move(factory)) {}
+  GLSLGeneratorBase(VariableFactory&& factory) : factory_(std::move(factory)), Inputs(factory)..., Outputs(factory)... {}
 
   std::string program(bool vertex) {
     // TODO wrap stream to handle own indentation levels
@@ -92,6 +92,8 @@ public:
   }
 
 private:
+  virtual void DefineMain(const VariableFactory& factory) const = 0;
+
   VariableFactory factory_;
   std::stringstream stream;
 };

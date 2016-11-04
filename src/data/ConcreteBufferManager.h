@@ -55,9 +55,11 @@ struct interface_function_exists {
   static constexpr bool valid(...) { return false; }
 };
 
+// TODO this is a confusing requirement, since the name might be confused
+// with the Variable class in Rendering::Shaders
 struct variable_member_exists {
   template <class T>
-  static constexpr auto valid(T*) -> decltype(typename T::Variable{}, true) {
+  static constexpr auto valid(T*) -> decltype(typename std::unique_ptr<typename T::Variable>{}, true) {
     using Parent = Rendering::Shaders::InterfaceVariableBase<
         typename T::Variable,
         typename T::Type2>;
@@ -133,13 +135,14 @@ public:
   virtual bool isFloating() { return true; }
 
   struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable, Type2> {
+    using Base = Rendering::Shaders::InterfaceVariableBase<Variable, Type2>;
+    using Base::InterfaceVariableBase;
     static constexpr const char* name() {
       return "inColor";
     }
     static constexpr bool smooth = false;
+    Variable_T& inColor = Base::var;
   };
-
-  Variable v{};
 
   class Interface {
   public:
@@ -159,10 +162,13 @@ public:
   virtual bool isFloating() { return true; }
 
   struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable, Type2> {
+    using Base = Rendering::Shaders::InterfaceVariableBase<Variable, Type2>;
+    using Base::InterfaceVariableBase;
     static constexpr const char* name() {
       return "inPosition";
     }
     static constexpr bool smooth = false;
+    Variable_T& inPosition = Base::var;
   };
 
   class Interface {
