@@ -69,7 +69,7 @@ public:
   GLSLGeneratorBase& operator=(const GLSLGeneratorBase&) = delete;
   GLSLGeneratorBase& operator=(GLSLGeneratorBase&&) = delete;
 
-  GLSLGeneratorBase(VariableFactory&& factory) : factory_(std::move(factory)), Inputs(factory)..., Outputs(factory)... {}
+  GLSLGeneratorBase(VariableFactory&& factory) : factory_(std::move(factory)), Inputs(factory_)..., Outputs(factory_)... {}
 
   std::string program(bool vertex) {
     // TODO wrap stream to handle own indentation levels
@@ -85,8 +85,8 @@ public:
     // TODO figure out why auto doesn't work here, but does above
     std::initializer_list<int> temp = {(static_cast<Outputs&>(*this).OutputDeclaration(factory_), 0)...};
 
-    factory_.stream() << "\nvoid main() {\n";
-    factory_.stream() << "}\n";
+    factory_.stream() << "\nvoid main() {\n\n";
+    factory_.stream() << "\n}\n\n";
     std::cerr << factory_.stream().str();
     return " ";
   }

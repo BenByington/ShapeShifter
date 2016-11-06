@@ -26,10 +26,34 @@ namespace Shaders {
 class VariableFactory;
 class Vec3 {};
 
+class IndentedStringStream {
+public:
+  IndentedStringStream() = default;
+  IndentedStringStream(const IndentedStringStream&) = delete;
+  IndentedStringStream(IndentedStringStream&&) = default;
+  IndentedStringStream& operator=(const IndentedStringStream&) = delete;
+  IndentedStringStream& operator=(IndentedStringStream&&) = default;
+
+  template <class T>
+  std::stringstream& operator<<(T&& t) {
+    for (size_t i = 0; i < indentation_; ++i) stream_ << " ";
+    stream_ << t;
+    return stream_;
+  }
+
+  // TODO delete?
+  std::string str() {
+    return stream_.str();
+  }
+private:
+  std::stringstream stream_;
+  size_t indentation_ = 0;
+};
+
 template <typename T>
 class Variable {
   friend class VariableFactory;
-  Variable(std::stringstream& stream) : stream_(stream) {}
+  Variable(IndentedStringStream& stream) : stream_(stream) {}
 public:
   Variable(const Variable&) = delete;
   Variable(Variable&&) = default;
@@ -48,7 +72,7 @@ public:
     }
   }
 private:
-  std::reference_wrapper<std::stringstream> stream_;
+  std::reference_wrapper<IndentedStringStream> stream_;
   std::string state_;
   bool initialized_ = false;
   bool used_ = false;
@@ -61,10 +85,10 @@ public:
     return Variable<T>(s);
   }
 
-  std::stringstream& stream() { return s; };
+  IndentedStringStream& stream() { return s; };
 
 private:
-  std::stringstream s;
+  IndentedStringStream s;
 };
 
 namespace detail {
