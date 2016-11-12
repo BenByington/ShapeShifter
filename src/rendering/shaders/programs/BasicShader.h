@@ -51,26 +51,26 @@ struct Transform : InterfaceVariableBase<Transform, Mat4> {
 
 }
 
-class BasicVertexShader : public GLSLGeneratorBase<
+class BasicVertexShader : public GLSLVertexGeneratorBase<
     pack<ColorManager::Variable, VertexManager::Variable>,
     pack<detail::Transform>,
     pack<detail::ColorPass>> {
-  using Base = GLSLGeneratorBase<pack<ColorManager::Variable, VertexManager::Variable>, pack<detail::Transform>, pack<detail::ColorPass>>;
+  using Base = GLSLVertexGeneratorBase<pack<ColorManager::Variable, VertexManager::Variable>, pack<detail::Transform>, pack<detail::ColorPass>>;
 public:
   BasicVertexShader(VariableFactory&& factory) : Base(std::move(factory)) {}
 private:
-  void DefineMain(const VariableFactory& factory) const override;
+  void DefineMain(const VariableFactory& factory) override;
 };
 
-class BasicFragmentShader : public GLSLGeneratorBase<
+class BasicFragmentShader : public GLSLFragmentGeneratorBase<
     pack<detail::ColorPass>,
     pack<>,
     pack<>> {
-  using Base = GLSLGeneratorBase<pack<detail::ColorPass>, pack<>, pack<>>;
+  using Base = GLSLFragmentGeneratorBase<pack<detail::ColorPass>, pack<>, pack<>>;
 public:
   BasicFragmentShader(VariableFactory&& factory) : Base(std::move(factory)) {}
 private:
-  void DefineMain(const VariableFactory& factory) const override;
+  void DefineMain(const VariableFactory& factory) override;
 };
 
 }}}} // ShapeShifter::Rendering::Shaders::Programs

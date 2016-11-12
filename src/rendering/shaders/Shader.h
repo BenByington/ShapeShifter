@@ -52,6 +52,10 @@ struct check_inputs {
 
 template <class Input, class Uniform, class Output>
 class GLSLGeneratorBase;
+template <class Input, class Uniform, class Output>
+class GLSLVertexGeneratorBase;
+template <class Input, class Uniform, class Output>
+class GLSLFragmentGeneratorBase;
 
 template <class... Inputs, class... Uniforms, class... Outputs>
 struct GLSLGeneratorBase<pack<Inputs...>, pack<Uniforms...>, pack<Outputs...>>
@@ -95,21 +99,68 @@ public:
     return " ";
   }
 
-private:
-  virtual void DefineMain(const VariableFactory& factory) const = 0;
+protected:
+  virtual void DefineMain(const VariableFactory& factory) = 0;
 
   VariableFactory factory_;
   std::stringstream stream;
+};
+
+
+template <class... Inputs, class... Uniforms, class... Outputs>
+class GLSLVertexGeneratorBase<pack<Inputs...>, pack<Uniforms...>, pack<Outputs...>>
+  : public GLSLGeneratorBase<pack<Inputs...>, pack<Uniforms...>, pack<Outputs...>> {
+
+using  Base = GLSLGeneratorBase<pack<Inputs...>, pack<Uniforms...>, pack<Outputs...>>;
+
+public:
+
+  GLSLVertexGeneratorBase(VariableFactory&& factory)
+    : Base(std::move(factory))
+    , gl_Position(this->factory_.template create<Vec4>("gl_Position")){}
+
+  GLSLVertexGeneratorBase(const GLSLVertexGeneratorBase&) = delete;
+  GLSLVertexGeneratorBase(GLSLVertexGeneratorBase&&) = delete;
+  GLSLVertexGeneratorBase& operator=(const GLSLVertexGeneratorBase&) = delete;
+  GLSLVertexGeneratorBase& operator=(GLSLVertexGeneratorBase&&) = delete;
+
+protected:
+  Variable<Vec4>  gl_Position;
+};
+
+template <class... Inputs, class... Uniforms, class... Outputs>
+class GLSLFragmentGeneratorBase<pack<Inputs...>, pack<Uniforms...>, pack<Outputs...>>
+  : public GLSLGeneratorBase<pack<Inputs...>, pack<Uniforms...>, pack<Outputs...>> {
+
+using  Base = GLSLGeneratorBase<pack<Inputs...>, pack<Uniforms...>, pack<Outputs...>>;
+
+public:
+
+  GLSLFragmentGeneratorBase(VariableFactory&& factory) : Base(std::move(factory)) {}
+
+  GLSLFragmentGeneratorBase(const GLSLFragmentGeneratorBase&) = delete;
+  GLSLFragmentGeneratorBase(GLSLFragmentGeneratorBase&&) = delete;
+  GLSLFragmentGeneratorBase& operator=(const GLSLFragmentGeneratorBase&) = delete;
+  GLSLFragmentGeneratorBase& operator=(GLSLFragmentGeneratorBase&&) = delete;
+
 };
 
 namespace detail {
 
 struct generator_traits {
   template <class... Types>
-  static constexpr bool valid(GLSLGeneratorBase<Types...>*) {
-    return true;
+  static constexpr bool valid_vertex_shader(GLSLVertexGeneratorBase<Types...>*) {
+    return false;
   }
-  static constexpr bool valid(...) {
+  static constexpr bool valid_vertex_shader(...) {
+    return false;
+  }
+
+  template <class... Types>
+  static constexpr bool valid_fragment_shader(GLSLFragmentGeneratorBase<Types...>*) {
+    return false;
+  }
+  static constexpr bool valid_fragment_shader(...) {
     return false;
   }
 };
@@ -118,8 +169,6 @@ struct generator_traits {
 
 template <class Generator>
 class Shader : public ShaderBase {
-    static_assert(detail::generator_traits::valid((Generator*)nullptr),
-        "Template to Shader class must be a child of an GLSLGeneratorBase type");
 protected:
   Shader(const std::string& data, GLenum shader_type) : ShaderBase(data, shader_type) {}
   Shader(const Shader&) = delete;
@@ -132,6 +181,8 @@ public:
 
 template <class Generator>
 class VertexShader : public Shader<Generator> {
+    static_assert(detail::generator_traits::valid_fragment_shader((Generator*)nullptr),
+        "Template to Shader class must be a child of an GLSLGeneratorBase type");
 public:
 	VertexShader()
     : Shader<Generator>(Generator(VariableFactory()).program(), GL_VERTEX_SHADER) {}
@@ -145,6 +196,8 @@ public:
 
 template <class Generator>
 class FragmentShader : public Shader<Generator> {
+    static_assert(detail::generator_traits::valid_vertex_shader((Generator*)nullptr),
+        "Template to Shader class must be a child of an GLSLGeneratorBase type");
 public:
 	FragmentShader()
     : Shader<Generator>(Generator().program(), GL_FRAGMENT_SHADER) {}

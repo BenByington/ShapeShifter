@@ -18,11 +18,12 @@ namespace Rendering {
 namespace Shaders {
 namespace Programs {
 
-void BasicVertexShader::DefineMain(const VariableFactory& factory) const {
+void BasicVertexShader::DefineMain(const VariableFactory& factory) {
+   gl_Position = factory_.template temporary<Vec4>(inPosition, 1.0f);
    theColor = inColor;
 }
 
-void BasicFragmentShader::DefineMain(const VariableFactory& factory) const {
+void BasicFragmentShader::DefineMain(const VariableFactory& factory) {
 
 }
 

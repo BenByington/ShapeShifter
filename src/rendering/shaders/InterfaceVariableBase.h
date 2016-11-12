@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <memory>
 #include <sstream>
+#include <vector>
 #include <type_traits>
 
 namespace ShapeShifter {
@@ -26,6 +27,10 @@ namespace Shaders {
 
 class VariableFactory;
 class Vec3 {};
+class Vec4 {
+public:
+  static Vec4 Create(Vec3, float) {}
+};
 class Mat4 {};
 
 class IndentedStringStream {
@@ -60,18 +65,37 @@ public:
   Expression(IndentedStringStream& stream, const std::string& name)
     : stream_(stream)
     , state_(name) {}
+
+  // TODO make this less centralized...
+  static constexpr const char* TypeName() {
+    if (std::is_same<float, T>::value) {
+      return "float";
+    } else if (std::is_same<int, T>::value) {
+      return "int";
+    } else if (std::is_same<Vec3, T>::value) {
+      return "vec3";
+    } else if (std::is_same<Vec4, T>::value) {
+      return "vec4";
+    } else if (std::is_same<Mat4, T>::value) {
+      return "mat4";
+    } else {
+      return "Monsters in the soup!\n";
+    }
+  }
+
+  // TODO: Make this safer somehow?
+  std::string state_;
 protected:
   Expression(const Expression&) = delete;
   Expression& operator=(const Expression&) = delete;
   Expression& operator=(Expression&&) = delete;
 
   std::reference_wrapper<IndentedStringStream> stream_;
-  std::string state_;
 
 public:
   Expression(Expression&&) = default;
   virtual ~Expression() {
-    if(!state_.empty()) stream_.get() << state_;
+    if(!state_.empty()) stream_.get() << state_ << std::endl;
   }
 };
 
@@ -86,7 +110,8 @@ public:
 
   // Allow any implicit conversions?
   template <typename U>
-  Expression<T> operator=(Expression<U>&& other) {
+  typename std::enable_if<std::is_same<U,T>::value, Expression<T>>::type
+  operator=(Expression<U>&& other) {
     // TODO precidence for other operators?
     std::string result = this->state_ + " = " + other.state_;
     other.state_.clear();
@@ -98,27 +123,86 @@ public:
     return Expression<T>(this->stream_, result);
   }
 
-  static constexpr const char* TypeName() {
-    if (std::is_same<float, T>::value) {
-      return "float";
-    } else if (std::is_same<int, T>::value) {
-      return "int";
-    } else if (std::is_same<Vec3, T>::value) {
-      return "vec3";
-    } else if (std::is_same<Mat4, T>::value) {
-      return "mat4";
-    } else {
-      return "Monsters in the soup!\n";
-    }
-  }
 private:
 };
+
+namespace detail {
+
+template <typename... Args>
+struct can_create {
+  template <typename T>
+  static constexpr auto valid(T*) -> decltype(&T::Create, true) {
+    using Type = decltype(&T::Create);
+    return std::is_same<Type, T (*)(Args...)>::value;
+  }
+  static bool constexpr valid(...) { return false; }
+};
+
+template <typename T>
+struct strip_variable {
+  using Type = T;
+};
+template <typename T>
+struct strip_variable<Variable<T>> {
+  using Type = T;
+};
+template <typename T>
+struct strip_variable<Expression<T>> {
+  using Type = T;
+};
+
+template <typename T>
+struct extract {
+  static std::string name(const T& t) {
+    return std::to_string(t);
+  }
+};
+
+template <typename T>
+struct extract<Variable<T>>{
+  static std::string name(const Variable<T>& t) {
+    return t.state_;
+  }
+};
+
+template <typename T>
+struct extract<Expression<T>>{
+  static std::string name(const Expression<T>& t) {
+    return t.state_;
+  }
+};
+
+}
 
 class VariableFactory {
 public:
   template <typename T>
   Variable<T> create(const std::string& name) {
     return Variable<T>(s, name);
+  }
+
+  template <typename T, typename... Args>
+  Expression<T> temporary(Args&&... args) {
+    static_assert(
+        detail::can_create<
+            // std::decay may potentially not be what we want?  Does things to arrays
+            typename detail::strip_variable<typename std::decay<Args>::type>::Type...
+        >::valid((T*)nullptr),
+        //  TODO see if we can somehow print the current template arguments
+        //  out with this message to make it clearer
+        "Cannot instantiate Expression<T> unless T defines a static"
+        " `Create` function with the appropriate arguments\n");
+
+    using Type = Expression<T>;
+    std::vector<std::string> names{detail::extract<typename std::decay<Args>::type>::name(args)...};
+    std::string argument;
+    for (size_t i = 0; i < names.size() - 1; ++i) {
+      argument += names[i] + ", ";
+    }
+    if (names.size() > 0) {
+      argument += names.back();
+    }
+    return Type(s, std::string(Type::TypeName()) + "(" + argument + ")");
   }
 
   IndentedStringStream& stream() { return s; };
