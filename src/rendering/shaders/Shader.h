@@ -94,7 +94,7 @@ public:
 
     factory_.stream() << "\nvoid main() {\n\n";
     DefineMain(factory_);
-    factory_.stream() << "\n\n}\n\n";
+    factory_.stream() << "\n}\n\n";
     std::cerr << factory_.stream().str();
     return " ";
   }

@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <memory>
 #include <sstream>
+#include <utility>
 #include <vector>
 #include <type_traits>
 
@@ -30,8 +31,12 @@ class Vec3 {};
 class Vec4 {
 public:
   static Vec4 Create(Vec3, float) {}
+
 };
-class Mat4 {};
+class Mat4 {
+public:
+  Vec4 operator*(const Vec4& other) {}
+};
 
 class IndentedStringStream {
 public:
@@ -84,7 +89,10 @@ public:
   }
 
   // TODO: Make this safer somehow?
-  std::string state_;
+  // TODO: kill mutable!
+  mutable std::string state_;
+  virtual void clear_state() const { state_ = ""; }
+
 protected:
   Expression(const Expression&) = delete;
   Expression& operator=(const Expression&) = delete;
@@ -96,6 +104,16 @@ public:
   Expression(Expression&&) = default;
   virtual ~Expression() {
     if(!state_.empty()) stream_.get() << state_ << std::endl;
+  }
+
+  // TODO need to handle precidence!  Right now, a * (b+c) will get written as
+  // a * b + c;
+  template <typename U>
+  auto operator*(const Expression<U>& other) -> Expression<decltype(std::declval<T>()*std::declval<U>())> {
+    using Type = Expression<decltype(std::declval<T>()*std::declval<U>())>;
+    std::string result = state_ + " * " + other.state_;
+    other.clear_state();
+    return Type(this->stream_, result);
   }
 };
 
@@ -123,6 +141,7 @@ public:
     return Expression<T>(this->stream_, result);
   }
 
+  virtual void clear_state() const {}
 private:
 };
 

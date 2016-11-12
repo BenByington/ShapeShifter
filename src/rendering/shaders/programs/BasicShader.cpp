@@ -19,7 +19,7 @@ namespace Shaders {
 namespace Programs {
 
 void BasicVertexShader::DefineMain(const VariableFactory& factory) {
-   gl_Position = factory_.template temporary<Vec4>(inPosition, 1.0f);
+   gl_Position = transform * factory_.template temporary<Vec4>(inPosition, 1.0f);
    theColor = inColor;
 }
 
