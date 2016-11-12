@@ -50,26 +50,27 @@ struct check_inputs {
 
 }
 
-template <class Input, class Output>
+template <class Input, class Uniform, class Output>
 class GLSLGeneratorBase;
 
-template <class... Inputs, class... Outputs>
-struct GLSLGeneratorBase<pack<Inputs...>, pack<Outputs...>>
-  : Inputs... , Outputs... {
+template <class... Inputs, class... Uniforms, class... Outputs>
+struct GLSLGeneratorBase<pack<Inputs...>, pack<Uniforms...>, pack<Outputs...>>
+  : Inputs... , Uniforms..., Outputs... {
 private:
   static_assert(detail::check_inputs::valid<Inputs...>(),
       "Shader template parameters must be InterfaceVariable types");
 
 public:
-  using InputTypes = std::tuple<Inputs...>;
-  using OutputTypes = std::tuple<Outputs...>;
+  using InputTypes = pack<Inputs...>;
+  using UniformTypes = pack<Uniforms...>;
+  using OutputTypes = pack<Outputs...>;
 
   GLSLGeneratorBase(const GLSLGeneratorBase&) = delete;
   GLSLGeneratorBase(GLSLGeneratorBase&&) = delete;
   GLSLGeneratorBase& operator=(const GLSLGeneratorBase&) = delete;
   GLSLGeneratorBase& operator=(GLSLGeneratorBase&&) = delete;
 
-  GLSLGeneratorBase(VariableFactory&& factory) : factory_(std::move(factory)), Inputs(factory_)..., Outputs(factory_)... {}
+  GLSLGeneratorBase(VariableFactory&& factory) : factory_(std::move(factory)), Inputs(factory_)..., Uniforms(factory_)..., Outputs(factory_)... {}
 
   std::string program(bool vertex) {
     // TODO wrap stream to handle own indentation levels
@@ -83,10 +84,13 @@ public:
     }
     factory_.stream() << "\n";
     // TODO figure out why auto doesn't work here, but does above
-    std::initializer_list<int> temp = {(static_cast<Outputs&>(*this).OutputDeclaration(factory_), 0)...};
+    std::initializer_list<int> temp = {(static_cast<Uniforms&>(*this).UniformDeclaration(factory_), 0)...};
+    factory_.stream() << "\n";
+    temp = {(static_cast<Outputs&>(*this).OutputDeclaration(factory_), 0)...};
 
     factory_.stream() << "\nvoid main() {\n\n";
-    factory_.stream() << "\n}\n\n";
+    DefineMain(factory_);
+    factory_.stream() << "\n\n}\n\n";
     std::cerr << factory_.stream().str();
     return " ";
   }

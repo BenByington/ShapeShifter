@@ -19,7 +19,7 @@ namespace Shaders {
 namespace Programs {
 
 void BasicVertexShader::DefineMain(const VariableFactory& factory) const {
-
+   theColor = inColor;
 }
 
 void BasicFragmentShader::DefineMain(const VariableFactory& factory) const {

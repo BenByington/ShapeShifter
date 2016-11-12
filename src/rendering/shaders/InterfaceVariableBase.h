@@ -14,6 +14,7 @@
 #ifndef RENDERING_SHADERS_INTERFACE_VARIABLE_BASE_H
 #define RENDERING_SHADERS_INTERFACE_VARIABLE_BASE_H
 
+#include <cassert>
 #include <cstdlib>
 #include <memory>
 #include <sstream>
@@ -25,6 +26,7 @@ namespace Shaders {
 
 class VariableFactory;
 class Vec3 {};
+class Mat4 {};
 
 class IndentedStringStream {
 public:
@@ -51,14 +53,50 @@ private:
 };
 
 template <typename T>
-class Variable {
+class Expression {
+public:
+  //  TODO can this be protected somehow?  Child class needs to be able to
+  //  create instances, but for some reason I can't.
+  Expression(IndentedStringStream& stream, const std::string& name)
+    : stream_(stream)
+    , state_(name) {}
+protected:
+  Expression(const Expression&) = delete;
+  Expression& operator=(const Expression&) = delete;
+  Expression& operator=(Expression&&) = delete;
+
+  std::reference_wrapper<IndentedStringStream> stream_;
+  std::string state_;
+
+public:
+  Expression(Expression&&) = default;
+  virtual ~Expression() {
+    if(!state_.empty()) stream_.get() << state_;
+  }
+};
+
+template <typename T>
+class Variable : public Expression<T> {
   friend class VariableFactory;
-  Variable(IndentedStringStream& stream) : stream_(stream) {}
+  Variable(IndentedStringStream& stream, const std::string& name)
+    : Expression<T>(stream, name) {}
 public:
   Variable(const Variable&) = delete;
   Variable(Variable&&) = default;
-  Variable& operator=(const Variable&) = delete;
-  Variable& operator=(Variable&&) = default;
+
+  // Allow any implicit conversions?
+  template <typename U>
+  Expression<T> operator=(Expression<U>&& other) {
+    // TODO precidence for other operators?
+    std::string result = this->state_ + " = " + other.state_;
+    other.state_.clear();
+    return Expression<T>(this->stream_, result);
+  }
+
+  Expression<T> operator=(const Variable<T>& other) {
+    std::string result = this->state_ + " = " + other.state_;
+    return Expression<T>(this->stream_, result);
+  }
 
   static constexpr const char* TypeName() {
     if (std::is_same<float, T>::value) {
@@ -67,22 +105,20 @@ public:
       return "int";
     } else if (std::is_same<Vec3, T>::value) {
       return "vec3";
+    } else if (std::is_same<Mat4, T>::value) {
+      return "mat4";
     } else {
       return "Monsters in the soup!\n";
     }
   }
 private:
-  std::reference_wrapper<IndentedStringStream> stream_;
-  std::string state_;
-  bool initialized_ = false;
-  bool used_ = false;
 };
 
 class VariableFactory {
 public:
   template <typename T>
-  Variable<T> create() {
-    return Variable<T>(s);
+  Variable<T> create(const std::string& name) {
+    return Variable<T>(s, name);
   }
 
   IndentedStringStream& stream() { return s; };
@@ -123,12 +159,12 @@ template <class Child, typename T>
 struct InterfaceVariableBase {
 protected:
   InterfaceVariableBase(VariableFactory& factory)
-    : factory_(factory), var(factory.create<T>()) {
+    : factory_(factory), var(factory.create<T>(Child::name())) {
     constexpr Child* temp = nullptr;
     static_assert(detail::name_function_exists::valid(temp),
         "Children of InterfaceVariableBase must supply a (preferably"
         "constexpr) static function called name that returns a char*");
-    static_assert(std::is_arithmetic<T>::value || std::is_same<Vec3, T>::value,
+    static_assert(std::is_arithmetic<T>::value || std::is_same<Vec3, T>::value || std::is_same<Mat4, T>::value,
         "Children of InterfaceVariableBase have an arithmetic type");
     static_assert(detail::declares_smooth::valid(temp),
         "Children of InterfaceVariableBase must have a static constexpr bool "
@@ -150,6 +186,10 @@ public:
   void LayoutDeclaration(VariableFactory& factory, size_t idx) {
     // TODO save the idx.  Only the raw text version needs to parse the string
     factory.stream() << "layout (location = " << idx << ") " << Variable<Type>::TypeName() << " " << Child::name()<< ";\n";
+  }
+
+  void UniformDeclaration(VariableFactory& factory) {
+    factory.stream() << "uniform " << Variable<Type>::TypeName() << " " << Child::name() << ";\n";
   }
 
   void OutputDeclaration(VariableFactory& factory) {

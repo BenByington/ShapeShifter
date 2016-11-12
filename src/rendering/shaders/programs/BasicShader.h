@@ -37,12 +37,25 @@ struct ColorPass : InterfaceVariableBase<ColorPass, Vec3> {
   static constexpr bool smooth = true;
   Variable_T& theColor = Base::var;
 };
+
+struct Transform : InterfaceVariableBase<Transform, Mat4> {
+  Transform() = delete;
+  using Base = InterfaceVariableBase<Transform, Mat4>;
+  using Base::InterfaceVariableBase;
+  static constexpr const char* name() {
+    return "transform";
+  }
+  static constexpr bool smooth = false;
+  Variable_T& transform = Base::var;
+};
+
 }
 
 class BasicVertexShader : public GLSLGeneratorBase<
     pack<ColorManager::Variable, VertexManager::Variable>,
+    pack<detail::Transform>,
     pack<detail::ColorPass>> {
-  using Base = GLSLGeneratorBase<pack<ColorManager::Variable, VertexManager::Variable>, pack<detail::ColorPass>>;
+  using Base = GLSLGeneratorBase<pack<ColorManager::Variable, VertexManager::Variable>, pack<detail::Transform>, pack<detail::ColorPass>>;
 public:
   BasicVertexShader(VariableFactory&& factory) : Base(std::move(factory)) {}
 private:
@@ -51,8 +64,9 @@ private:
 
 class BasicFragmentShader : public GLSLGeneratorBase<
     pack<detail::ColorPass>,
+    pack<>,
     pack<>> {
-  using Base = GLSLGeneratorBase<pack<detail::ColorPass>, pack<>>;
+  using Base = GLSLGeneratorBase<pack<detail::ColorPass>, pack<>, pack<>>;
 public:
   BasicFragmentShader(VariableFactory&& factory) : Base(std::move(factory)) {}
 private:
