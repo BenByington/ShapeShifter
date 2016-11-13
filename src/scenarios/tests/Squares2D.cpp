@@ -31,6 +31,10 @@ std::unique_ptr<Rendering::World> Squares2D::Setup() {
 
   auto pi = 4*std::atan(1.0f);
 
+  using namespace Rendering::Shaders;
+  using namespace Rendering::Shaders::Programs;
+  auto program = CreateShaderProgram<BasicVertexShader, BasicFragmentShader>();
+
   auto sixth = std::make_unique<SquareTest2D>();
 
   // Could set the rotation/translation of sixth before adding it to fifth, but
@@ -57,16 +61,6 @@ std::unique_ptr<Rendering::World> Squares2D::Setup() {
 	auto first = std::make_unique<SquareTest2D>();
   manipulator = first->AddChild(std::move(second));
   manipulator->SetRotation({-pi/2, 0 , 1, 0});
-
-  // TODO make this more succinct
-  using namespace Rendering::Shaders;
-  using namespace Rendering::Shaders::Programs;
-  auto vert = std::make_unique<VertexShader<BasicVertexShader>>();
-  auto frag = std::make_unique<FragmentShader<BasicFragmentShader>>();
-  // TODO find more succinct way to express ShaderProgram type
-  using ShaderProgram = Rendering::Shaders::ShaderProgram<Data::ColorManager, Data::VertexManager>;
-	auto program = std::make_shared<ShaderProgram>(
-      std::move(vert), std::move(frag));
 
 	auto root = std::make_unique<Rendering::RootNode>(std::move(first),  program);
   root->SetTranslation(Vector4(-.5, -.5, -2.5, 1));

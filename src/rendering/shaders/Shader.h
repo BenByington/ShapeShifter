@@ -14,6 +14,7 @@
 #ifndef RENDERING_SHADERS_SHADER_H
 #define RENDERING_SHADERS_SHADER_H
 
+#include "data/ConcreteBufferManager.h"
 #include "rendering/shaders/InterfaceVariableBase.h"
 #include "rendering/shaders/ShaderBase.h"
 
@@ -61,6 +62,7 @@ template <class... Inputs, class... Uniforms, class... Outputs>
 struct GLSLGeneratorBase<pack<Inputs...>, pack<Uniforms...>, pack<Outputs...>>
   : Inputs... , Uniforms..., Outputs... {
 private:
+  //using stpuid = pack<typename Inputs::Variable...>;
   static_assert(detail::check_inputs::valid<Inputs...>(),
       "Shader template parameters must be InterfaceVariable types");
 
@@ -107,14 +109,36 @@ protected:
   std::stringstream stream;
 };
 
+namespace detail {
+
+template <class T>
+struct is_manager {
+  static constexpr bool value = std::is_base_of<Data::BaseManager<T>,T>::value;
+};
+
+template <class... Ts>
+struct are_managers {
+  static constexpr const bool check() {
+    const std::array<bool, sizeof...(Ts)> check { is_manager<Ts>::value... };
+    bool ret = true;
+    for (size_t i = 0; i < sizeof...(Ts); ++i) ret = ret && check[i];
+    return ret;
+  }
+};
+
+}
 
 template <class... Inputs, class... Uniforms, class... Outputs>
 class GLSLVertexGeneratorBase<pack<Inputs...>, pack<Uniforms...>, pack<Outputs...>>
-  : public GLSLGeneratorBase<pack<Inputs...>, pack<Uniforms...>, pack<Outputs...>> {
+  : public GLSLGeneratorBase<pack<typename Inputs::Variable...>, pack<Uniforms...>, pack<Outputs...>> {
 
-using  Base = GLSLGeneratorBase<pack<Inputs...>, pack<Uniforms...>, pack<Outputs...>>;
+using  Base = GLSLGeneratorBase<pack<typename Inputs::Variable...>, pack<Uniforms...>, pack<Outputs...>>;
+static_assert(detail::are_managers<Inputs...>::check(),
+    "GLSLVertexGeneratorBase only accepts BufferManagers within the Inputs pack.");
 
 public:
+
+  using Inputs_t = pack<Inputs...>;
 
   GLSLVertexGeneratorBase(VariableFactory&& factory)
     : Base(std::move(factory))

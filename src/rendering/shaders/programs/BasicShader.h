@@ -64,10 +64,10 @@ struct Transform : InterfaceVariableBase<Transform, Mat4> {
 }
 
 class BasicVertexShader : public GLSLVertexGeneratorBase<
-    pack<ColorManager::Variable, VertexManager::Variable>,
+    pack<ColorManager, VertexManager>,
     pack<detail::Transform>,
     pack<detail::ColorPass>> {
-  using Base = GLSLVertexGeneratorBase<pack<ColorManager::Variable, VertexManager::Variable>, pack<detail::Transform>, pack<detail::ColorPass>>;
+  using Base = GLSLVertexGeneratorBase<pack<ColorManager, VertexManager>, pack<detail::Transform>, pack<detail::ColorPass>>;
 public:
   BasicVertexShader(VariableFactory&& factory) : Base(std::move(factory)) {}
 private:

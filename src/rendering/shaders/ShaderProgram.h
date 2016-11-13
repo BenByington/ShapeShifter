@@ -72,6 +72,7 @@ class ShaderProgram : public ShaderProgramBase {
 public:
   ShaderProgram(const ShaderProgram&) = delete;
 	ShaderProgram& operator()(ShaderProgram&) = delete;
+  // TODO: Need constraints here to check against the Interface
   template <class Vertex, class Fragment>
   ShaderProgram(
       std::unique_ptr<VertexShader<Vertex>> vert,
@@ -91,6 +92,25 @@ public:
 
   using Interface_t = std::tuple<Interface...>;
 };
+
+namespace detail {
+template <typename Input>
+struct get_program_type;
+
+template <typename... Inputs>
+struct get_program_type<std::tuple<Inputs...>> {
+  using Type = Rendering::Shaders::ShaderProgram<Inputs...>;
+};
+
+}
+
+template <class VertexGenerator, class FragmentGenerator>
+decltype(auto) CreateShaderProgram() {
+  auto vert = std::make_unique<VertexShader<VertexGenerator>>();
+  auto frag = std::make_unique<FragmentShader<FragmentGenerator>>();
+  using ShaderProgram = typename detail::get_program_type<typename VertexGenerator::Inputs_t>::Type;
+	return std::make_shared<ShaderProgram>(std::move(vert), std::move(frag));
+}
 
 }}} // ShapeShifter::Rendering::Shaders
 

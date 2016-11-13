@@ -33,29 +33,19 @@ std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
   using Math::Quaternion;
   using Math::Vector4;
 
+  using namespace Rendering::Shaders;
+  using namespace Rendering::Shaders::Programs;
+  auto program = CreateShaderProgram<BasicVertexShader, BasicFragmentShader>();
+
   auto cube = std::make_unique<Shapes::Cube>(.5f, .7f, .85f);
   cube->SetRotation(Quaternion(.5, 1, 1, 1));
   cube->SetTranslation(Vector4(.7, .2, -.4, 1));
 
   auto sphere = std::make_unique<Shapes::Sphere>(0.2);
 
-  auto pure = std::make_unique<Rendering::PureNode<
-      Data::VertexManager,
-      Data::ColorManager
-  >>();
+  auto pure = Rendering::CompatiblePureNode(*program);
   pure->AddChild(std::move(sphere));
   pure->AddChild(std::move(cube));
-
-  // TODO make this more succinct
-  using namespace Rendering::Shaders;
-  using namespace Rendering::Shaders::Programs;
-  auto vert = std::make_unique<VertexShader<BasicVertexShader>>();
-  auto frag = std::make_unique<FragmentShader<BasicFragmentShader>>();
-  using ShaderProgram = Rendering::Shaders::ShaderProgram<
-      Data::VertexManager,
-      Data::ColorManager>;
-	auto program = std::make_shared<ShaderProgram>(
-      std::move(vert), std::move(frag));
 
 	auto root = std::make_unique<Rendering::RootNode>(std::move(pure),  program);
   root->SetTranslation(Vector4(-.5, -.5, -2.5, 1));

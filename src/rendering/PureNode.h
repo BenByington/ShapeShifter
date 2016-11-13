@@ -33,6 +33,21 @@ private:
   virtual void DrawSelf() const override {}
 };
 
+namespace detail {
+template <typename Interface>
+struct pure_type;
+template <typename... Interface>
+struct pure_type<std::tuple<Interface...>> {
+  using Type = PureNode<Interface...>;
+};
+}
+
+template <class ShaderProgram>
+decltype(auto) CompatiblePureNode(const ShaderProgram&) {
+  using Type = typename detail::pure_type<typename ShaderProgram::Interface_t>::Type;
+  return std::make_unique<Type>();
+}
+
 }} //namespace Shapeshifter::Rendering
 
 #endif /* RENDERING_PURE_NODE_H */
