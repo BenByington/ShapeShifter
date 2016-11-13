@@ -24,7 +24,7 @@ void BasicVertexShader::DefineMain(const VariableFactory& factory) {
 }
 
 void BasicFragmentShader::DefineMain(const VariableFactory& factory) {
-
+  outputColor = factory_.template temporary<Vec4>(theColor, 1.0f);
 }
 
 }}}} // ShapeShifter::Rendering::Shaders::Programs

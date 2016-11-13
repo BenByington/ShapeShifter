@@ -86,14 +86,16 @@ public:
     } else {
       auto temp = {(static_cast<Inputs&>(*this).InputDeclaration(factory_), 0)...};
     }
-    factory_.stream() << "\n";
+    //factory_.stream() << "\n";
     // TODO figure out why auto doesn't work here, but does above
     std::initializer_list<int> temp = {(static_cast<Uniforms&>(*this).UniformDeclaration(factory_), 0)...};
-    factory_.stream() << "\n";
+    //factory_.stream() << "\n";
     temp = {(static_cast<Outputs&>(*this).OutputDeclaration(factory_), 0)...};
 
     factory_.stream() << "\nvoid main() {\n\n";
+    factory_.stream().incIndent();
     DefineMain(factory_);
+    factory_.stream().decIndent();
     factory_.stream() << "\n}\n\n";
     std::cerr << factory_.stream().str();
     return " ";

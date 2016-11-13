@@ -48,10 +48,13 @@ public:
 
   template <class T>
   std::stringstream& operator<<(T&& t) {
-    for (size_t i = 0; i < indentation_; ++i) stream_ << " ";
+    for (size_t i = 0; i < indentation_; ++i) stream_ << "  ";
     stream_ << t;
     return stream_;
   }
+
+  void incIndent() { ++indentation_; }
+  void decIndent() { assert(indentation_ >= 0); --indentation_; }
 
   // TODO delete?
   std::string str() {
@@ -103,7 +106,7 @@ protected:
 public:
   Expression(Expression&&) = default;
   virtual ~Expression() {
-    if(!state_.empty()) stream_.get() << state_ << std::endl;
+    if(!state_.empty()) stream_.get() << state_ << ";" << std::endl;
   }
 
   // TODO need to handle precidence!  Right now, a * (b+c) will get written as
@@ -267,7 +270,8 @@ protected:
     static_assert(detail::name_function_exists::valid(temp),
         "Children of InterfaceVariableBase must supply a (preferably"
         "constexpr) static function called name that returns a char*");
-    static_assert(std::is_arithmetic<T>::value || std::is_same<Vec3, T>::value || std::is_same<Mat4, T>::value,
+    // TODO trim this down, it's getting crazy
+    static_assert(std::is_arithmetic<T>::value || std::is_same<Vec3, T>::value || std::is_same<Mat4, T>::value || std::is_same<Vec4, T>::value,
         "Children of InterfaceVariableBase have an arithmetic type");
     static_assert(detail::declares_smooth::valid(temp),
         "Children of InterfaceVariableBase must have a static constexpr bool "
