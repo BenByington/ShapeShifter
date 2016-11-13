@@ -292,7 +292,7 @@ public:
 
   void LayoutDeclaration(VariableFactory& factory, size_t idx) {
     // TODO save the idx.  Only the raw text version needs to parse the string
-    factory.stream() << "layout (location = " << idx << ") " << Variable<Type>::TypeName() << " " << Child::name()<< ";\n";
+    factory.stream() << "layout (location = " << idx << ") in " << Variable<Type>::TypeName() << " " << Child::name()<< ";\n";
   }
 
   void UniformDeclaration(VariableFactory& factory) {

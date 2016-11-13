@@ -15,6 +15,7 @@
 #define RENDERING_SHADERS_SHADER_PROGRAM_H
 
 #include "rendering/shaders/ShaderProgramBase.h"
+#include "rendering/shaders/Shader.h"
 
 #include "data/AbstractBufferManager.h"
 #include "rendering/shaders/RawShader.h"
@@ -64,7 +65,6 @@ namespace detail {
       return ret;
     }
   };
-
 }
 
 template <class... Interface>
@@ -72,12 +72,13 @@ class ShaderProgram : public ShaderProgramBase {
 public:
   ShaderProgram(const ShaderProgram&) = delete;
 	ShaderProgram& operator()(ShaderProgram&) = delete;
-  //TODO put checks on these template parameters
-  //template <class VertexShader, class FragmentShader>
-  //ShaderProgram(
-  //    std::unique_ptr<VertexShader> vert,
-  //    std::unique_ptr<FragmentShader> frag)
-  //  : ShaderProgramBase(std::move(vert), std::move(frag)) {}
+  template <class Vertex, class Fragment>
+  ShaderProgram(
+      std::unique_ptr<VertexShader<Vertex>> vert,
+      std::unique_ptr<FragmentShader<Fragment>> frag)
+    : ShaderProgramBase(std::move(vert), std::move(frag)) {
+
+  }
   ShaderProgram(
       std::unique_ptr<RawShader<RawShaderType::VERTEX>> vert,
       std::unique_ptr<RawShader<RawShaderType::FRAGMENT>> frag)

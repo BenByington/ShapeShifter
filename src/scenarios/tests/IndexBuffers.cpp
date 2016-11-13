@@ -30,22 +30,12 @@ namespace tests {
 
 std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
 
-  using Rendering::Shaders::Programs::BasicVertexShader;
-  using Rendering::Shaders::Programs::BasicFragmentShader;
-
-  BasicVertexShader stupid(Rendering::Shaders::VariableFactory{});
-  stupid.program(true);
-  BasicFragmentShader stupid2(Rendering::Shaders::VariableFactory{});
-  stupid2.program(false);
-  exit(0);
-
   using Math::Quaternion;
   using Math::Vector4;
 
   auto cube = std::make_unique<Shapes::Cube>(.5f, .7f, .85f);
   cube->SetRotation(Quaternion(.5, 1, 1, 1));
   cube->SetTranslation(Vector4(.7, .2, -.4, 1));
-
 
   auto sphere = std::make_unique<Shapes::Sphere>(0.2);
 
@@ -57,12 +47,10 @@ std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
   pure->AddChild(std::move(cube));
 
   // TODO make this more succinct
-  using VertexShader = Rendering::Shaders::RawShader<Rendering::Shaders::RawShaderType::VERTEX>;
-  using FragmentShader = Rendering::Shaders::RawShader<Rendering::Shaders::RawShaderType::FRAGMENT>;
-	auto vert = std::make_unique<VertexShader>(
-	    "/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert");
-	auto frag = std::make_unique<FragmentShader>(
-	    "/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag");
+  using namespace Rendering::Shaders;
+  using namespace Rendering::Shaders::Programs;
+  auto vert = std::make_unique<VertexShader<BasicVertexShader>>();
+  auto frag = std::make_unique<FragmentShader<BasicFragmentShader>>();
   using ShaderProgram = Rendering::Shaders::ShaderProgram<
       Data::VertexManager,
       Data::ColorManager>;

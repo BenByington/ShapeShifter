@@ -14,6 +14,7 @@
 #include "scenarios/tests/Squares2D.h"
 
 #include "rendering/shaders/ShaderProgram.h"
+#include "rendering/shaders/programs/BasicShader.h"
 
 #include <cassert>
 #include <cmath>
@@ -58,12 +59,10 @@ std::unique_ptr<Rendering::World> Squares2D::Setup() {
   manipulator->SetRotation({-pi/2, 0 , 1, 0});
 
   // TODO make this more succinct
-  using VertexShader = Rendering::Shaders::RawShader<Rendering::Shaders::RawShaderType::VERTEX>;
-  using FragmentShader = Rendering::Shaders::RawShader<Rendering::Shaders::RawShaderType::FRAGMENT>;
-	auto vert = std::make_unique<VertexShader>(
-	    "/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert");
-	auto frag = std::make_unique<FragmentShader>(
-	    "/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag");
+  using namespace Rendering::Shaders;
+  using namespace Rendering::Shaders::Programs;
+  auto vert = std::make_unique<VertexShader<BasicVertexShader>>();
+  auto frag = std::make_unique<FragmentShader<BasicFragmentShader>>();
   // TODO find more succinct way to express ShaderProgram type
   using ShaderProgram = Rendering::Shaders::ShaderProgram<Data::ColorManager, Data::VertexManager>;
 	auto program = std::make_shared<ShaderProgram>(

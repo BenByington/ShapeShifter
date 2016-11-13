@@ -97,8 +97,7 @@ public:
     DefineMain(factory_);
     factory_.stream().decIndent();
     factory_.stream() << "\n}\n\n";
-    std::cerr << factory_.stream().str();
-    return " ";
+    return factory_.stream().str();
   }
 
 protected:
@@ -152,7 +151,7 @@ namespace detail {
 struct generator_traits {
   template <class... Types>
   static constexpr bool valid_vertex_shader(GLSLVertexGeneratorBase<Types...>*) {
-    return false;
+    return true;
   }
   static constexpr bool valid_vertex_shader(...) {
     return false;
@@ -160,7 +159,7 @@ struct generator_traits {
 
   template <class... Types>
   static constexpr bool valid_fragment_shader(GLSLFragmentGeneratorBase<Types...>*) {
-    return false;
+    return true;
   }
   static constexpr bool valid_fragment_shader(...) {
     return false;
@@ -183,11 +182,11 @@ public:
 
 template <class Generator>
 class VertexShader : public Shader<Generator> {
-    static_assert(detail::generator_traits::valid_fragment_shader((Generator*)nullptr),
+    static_assert(detail::generator_traits::valid_vertex_shader((Generator*)nullptr),
         "Template to Shader class must be a child of an GLSLGeneratorBase type");
 public:
 	VertexShader()
-    : Shader<Generator>(Generator(VariableFactory()).program(), GL_VERTEX_SHADER) {}
+    : Shader<Generator>(Generator(VariableFactory()).program(true), GL_VERTEX_SHADER) {}
 
 	VertexShader(const VertexShader&) = delete;
 	VertexShader(VertexShader&&) = default;
@@ -198,11 +197,11 @@ public:
 
 template <class Generator>
 class FragmentShader : public Shader<Generator> {
-    static_assert(detail::generator_traits::valid_vertex_shader((Generator*)nullptr),
+    static_assert(detail::generator_traits::valid_fragment_shader((Generator*)nullptr),
         "Template to Shader class must be a child of an GLSLGeneratorBase type");
 public:
 	FragmentShader()
-    : Shader<Generator>(Generator().program(), GL_FRAGMENT_SHADER) {}
+    : Shader<Generator>(Generator(VariableFactory()).program(false), GL_FRAGMENT_SHADER) {}
 	FragmentShader(const FragmentShader&) = delete;
 	FragmentShader(FragmentShader&&) = default;
 	FragmentShader& operator=(const FragmentShader&) = delete;
