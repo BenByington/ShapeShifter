@@ -16,6 +16,7 @@
 
 #include "data/ConcreteBufferManager.h"
 #include "rendering/shaders/Shader.h"
+#include "rendering/shaders/language/GLSLGeneratorBase.h"
 
 namespace ShapeShifter {
 namespace Rendering {
@@ -26,10 +27,10 @@ using Data::ColorManager;
 using Data::VertexManager;
 
 namespace detail {
-struct ColorPass : InterfaceVariableBase<ColorPass, Vec3> {
+struct ColorPass : InterfaceVariableBase<ColorPass, Language::Vec3> {
   ColorPass() = delete;
 
-  using Base = InterfaceVariableBase<ColorPass, Vec3>;
+  using Base = InterfaceVariableBase<ColorPass, Language::Vec3>;
   using Base::InterfaceVariableBase;
   static constexpr const char* name() {
     return "theColor";
@@ -38,10 +39,10 @@ struct ColorPass : InterfaceVariableBase<ColorPass, Vec3> {
   Variable_T& theColor = Base::var;
 };
 
-struct OutputColor : InterfaceVariableBase<OutputColor, Vec4> {
+struct OutputColor : InterfaceVariableBase<OutputColor, Language::Vec4> {
   OutputColor() = delete;
 
-  using Base = InterfaceVariableBase<OutputColor, Vec4>;
+  using Base = InterfaceVariableBase<OutputColor, Language::Vec4>;
   using Base::InterfaceVariableBase;
   static constexpr const char* name() {
     return "outputColor";
@@ -50,9 +51,9 @@ struct OutputColor : InterfaceVariableBase<OutputColor, Vec4> {
   Variable_T& outputColor = Base::var;
 };
 
-struct Transform : InterfaceVariableBase<Transform, Mat4> {
+struct Transform : InterfaceVariableBase<Transform, Language::Mat4> {
   Transform() = delete;
-  using Base = InterfaceVariableBase<Transform, Mat4>;
+  using Base = InterfaceVariableBase<Transform, Language::Mat4>;
   using Base::InterfaceVariableBase;
   static constexpr const char* name() {
     return "transform";
@@ -63,22 +64,28 @@ struct Transform : InterfaceVariableBase<Transform, Mat4> {
 
 }
 
-class BasicVertexShader : public GLSLVertexGeneratorBase<
-    pack<ColorManager, VertexManager>,
-    pack<detail::Transform>,
-    pack<detail::ColorPass>> {
-  using Base = GLSLVertexGeneratorBase<pack<ColorManager, VertexManager>, pack<detail::Transform>, pack<detail::ColorPass>>;
+class BasicVertexShader : public Language::GLSLVertexGeneratorBase<
+    Pack<ColorManager, VertexManager>,
+    Pack<detail::Transform>,
+    Pack<detail::ColorPass>> {
+  using Base = Language::GLSLVertexGeneratorBase<
+      Pack<ColorManager, VertexManager>,
+      Pack<detail::Transform>,
+      Pack<detail::ColorPass>>;
 public:
   BasicVertexShader(VariableFactory&& factory) : Base(std::move(factory)) {}
 private:
   void DefineMain(const VariableFactory& factory) override;
 };
 
-class BasicFragmentShader : public GLSLFragmentGeneratorBase<
-    pack<detail::ColorPass>,
-    pack<>,
-    pack<detail::OutputColor>> {
-  using Base = GLSLFragmentGeneratorBase<pack<detail::ColorPass>, pack<>, pack<detail::OutputColor>>;
+class BasicFragmentShader : public Language::GLSLFragmentGeneratorBase<
+    Pack<detail::ColorPass>,
+    Pack<>,
+    Pack<detail::OutputColor>> {
+  using Base = Language::GLSLFragmentGeneratorBase<
+      Pack<detail::ColorPass>,
+      Pack<>,
+      Pack<detail::OutputColor>>;
 public:
   BasicFragmentShader(VariableFactory&& factory) : Base(std::move(factory)) {}
 private:

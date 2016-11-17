@@ -14,8 +14,6 @@
 #ifndef RENDERING_SHADERS_SHADER_BASE_H
 #define RENDERING_SHADERS_SHADER_BASE_H
 
-#include "rendering/shaders/InterfaceVariableBase.h"
-
 #include <map>
 #include <string>
 

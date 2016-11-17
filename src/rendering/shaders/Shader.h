@@ -15,166 +15,25 @@
 #define RENDERING_SHADERS_SHADER_H
 
 #include "data/ConcreteBufferManager.h"
+#include "rendering/shaders/language/GLSLGeneratorBase.h"
 #include "rendering/shaders/InterfaceVariableBase.h"
+#include "rendering/shaders/Pack.h"
 #include "rendering/shaders/ShaderBase.h"
+#include "rendering/shaders/VariableFactory.h"
 
 #include <cassert>
 #include <iostream>
 #include <sstream>
 
-// remove
-#include <vector>
-
 namespace ShapeShifter {
 namespace Rendering {
 namespace Shaders {
-
-template <class ... Ts>
-using pack = std::tuple<Ts...>;
-
-namespace detail {
-struct check_inputs {
-
-  template <class Input>
-  static constexpr bool is_child() {
-    return std::is_base_of<InterfaceVariableBase<Input, typename Input::Type>, Input>::value;
-  }
-  template <class... Inputs>
-  static constexpr bool valid() {
-    constexpr bool checks[] = { is_child<Inputs>()... };
-    bool ret = true;
-    for (auto b : checks) ret &= b;
-    return ret;
-  }
-  static constexpr bool valid(...) { return false; }
-};
-
-}
-
-template <class Input, class Uniform, class Output>
-class GLSLGeneratorBase;
-template <class Input, class Uniform, class Output>
-class GLSLVertexGeneratorBase;
-template <class Input, class Uniform, class Output>
-class GLSLFragmentGeneratorBase;
-
-template <class... Inputs, class... Uniforms, class... Outputs>
-struct GLSLGeneratorBase<pack<Inputs...>, pack<Uniforms...>, pack<Outputs...>>
-  : Inputs... , Uniforms..., Outputs... {
-private:
-  //using stpuid = pack<typename Inputs::Variable...>;
-  static_assert(detail::check_inputs::valid<Inputs...>(),
-      "Shader template parameters must be InterfaceVariable types");
-
-public:
-  using InputTypes = pack<Inputs...>;
-  using UniformTypes = pack<Uniforms...>;
-  using OutputTypes = pack<Outputs...>;
-
-  GLSLGeneratorBase(const GLSLGeneratorBase&) = delete;
-  GLSLGeneratorBase(GLSLGeneratorBase&&) = delete;
-  GLSLGeneratorBase& operator=(const GLSLGeneratorBase&) = delete;
-  GLSLGeneratorBase& operator=(GLSLGeneratorBase&&) = delete;
-
-  GLSLGeneratorBase(VariableFactory&& factory) : factory_(std::move(factory)), Inputs(factory_)..., Uniforms(factory_)..., Outputs(factory_)... {}
-
-  std::string program(bool vertex) {
-    // TODO wrap stream to handle own indentation levels
-    // TODO have stream automatically handle newlines
-    factory_.stream() << "#version 410\n\n";
-    if (vertex) {
-      size_t idx = 0;
-      auto temp = {(static_cast<Inputs&>(*this).LayoutDeclaration(factory_, idx++), 0)...};
-    } else {
-      auto temp = {(static_cast<Inputs&>(*this).InputDeclaration(factory_), 0)...};
-    }
-    //factory_.stream() << "\n";
-    // TODO figure out why auto doesn't work here, but does above
-    std::initializer_list<int> temp = {(static_cast<Uniforms&>(*this).UniformDeclaration(factory_), 0)...};
-    //factory_.stream() << "\n";
-    temp = {(static_cast<Outputs&>(*this).OutputDeclaration(factory_), 0)...};
-
-    factory_.stream() << "\nvoid main() {\n\n";
-    factory_.stream().incIndent();
-    DefineMain(factory_);
-    factory_.stream().decIndent();
-    factory_.stream() << "\n}\n\n";
-    return factory_.stream().str();
-  }
-
-protected:
-  virtual void DefineMain(const VariableFactory& factory) = 0;
-
-  VariableFactory factory_;
-  std::stringstream stream;
-};
-
-namespace detail {
-
-template <class T>
-struct is_manager {
-  static constexpr bool value = std::is_base_of<Data::BaseManager<T>,T>::value;
-};
-
-template <class... Ts>
-struct are_managers {
-  static constexpr const bool check() {
-    const std::array<bool, sizeof...(Ts)> check { is_manager<Ts>::value... };
-    bool ret = true;
-    for (size_t i = 0; i < sizeof...(Ts); ++i) ret = ret && check[i];
-    return ret;
-  }
-};
-
-}
-
-template <class... Inputs, class... Uniforms, class... Outputs>
-class GLSLVertexGeneratorBase<pack<Inputs...>, pack<Uniforms...>, pack<Outputs...>>
-  : public GLSLGeneratorBase<pack<typename Inputs::Variable...>, pack<Uniforms...>, pack<Outputs...>> {
-
-using  Base = GLSLGeneratorBase<pack<typename Inputs::Variable...>, pack<Uniforms...>, pack<Outputs...>>;
-static_assert(detail::are_managers<Inputs...>::check(),
-    "GLSLVertexGeneratorBase only accepts BufferManagers within the Inputs pack.");
-
-public:
-
-  using Inputs_t = pack<Inputs...>;
-
-  GLSLVertexGeneratorBase(VariableFactory&& factory)
-    : Base(std::move(factory))
-    , gl_Position(this->factory_.template create<Vec4>("gl_Position")){}
-
-  GLSLVertexGeneratorBase(const GLSLVertexGeneratorBase&) = delete;
-  GLSLVertexGeneratorBase(GLSLVertexGeneratorBase&&) = delete;
-  GLSLVertexGeneratorBase& operator=(const GLSLVertexGeneratorBase&) = delete;
-  GLSLVertexGeneratorBase& operator=(GLSLVertexGeneratorBase&&) = delete;
-
-protected:
-  Variable<Vec4>  gl_Position;
-};
-
-template <class... Inputs, class... Uniforms, class... Outputs>
-class GLSLFragmentGeneratorBase<pack<Inputs...>, pack<Uniforms...>, pack<Outputs...>>
-  : public GLSLGeneratorBase<pack<Inputs...>, pack<Uniforms...>, pack<Outputs...>> {
-
-using  Base = GLSLGeneratorBase<pack<Inputs...>, pack<Uniforms...>, pack<Outputs...>>;
-
-public:
-
-  GLSLFragmentGeneratorBase(VariableFactory&& factory) : Base(std::move(factory)) {}
-
-  GLSLFragmentGeneratorBase(const GLSLFragmentGeneratorBase&) = delete;
-  GLSLFragmentGeneratorBase(GLSLFragmentGeneratorBase&&) = delete;
-  GLSLFragmentGeneratorBase& operator=(const GLSLFragmentGeneratorBase&) = delete;
-  GLSLFragmentGeneratorBase& operator=(GLSLFragmentGeneratorBase&&) = delete;
-
-};
 
 namespace detail {
 
 struct generator_traits {
   template <class... Types>
-  static constexpr bool valid_vertex_shader(GLSLVertexGeneratorBase<Types...>*) {
+  static constexpr bool valid_vertex_shader(Language::GLSLVertexGeneratorBase<Types...>*) {
     return true;
   }
   static constexpr bool valid_vertex_shader(...) {
@@ -182,7 +41,7 @@ struct generator_traits {
   }
 
   template <class... Types>
-  static constexpr bool valid_fragment_shader(GLSLFragmentGeneratorBase<Types...>*) {
+  static constexpr bool valid_fragment_shader(Language::GLSLFragmentGeneratorBase<Types...>*) {
     return true;
   }
   static constexpr bool valid_fragment_shader(...) {

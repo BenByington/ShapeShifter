@@ -98,7 +98,7 @@ template <typename Input>
 struct get_program_type;
 
 template <typename... Inputs>
-struct get_program_type<std::tuple<Inputs...>> {
+struct get_program_type<Pack<Inputs...>> {
   using Type = Rendering::Shaders::ShaderProgram<Inputs...>;
 };
 

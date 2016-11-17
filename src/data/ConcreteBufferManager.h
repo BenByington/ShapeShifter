@@ -126,7 +126,7 @@ public:
 class ColorManager final : public BaseManager<ColorManager> {
 public:
   using Type = float;
-  using Type2 = Rendering::Shaders::Vec3;
+  using Type2 = Rendering::Shaders::Language::Vec3;
 
   ColorManager(size_t idx) : BaseManager<ColorManager>(idx) {}
   virtual ~ColorManager(){}
@@ -154,7 +154,7 @@ public:
 class VertexManager final : public BaseManager<VertexManager> {
 public:
   using Type = float;
-  using Type2 = Rendering::Shaders::Vec3;
+  using Type2 = Rendering::Shaders::Language::Vec3;
   VertexManager(size_t idx) : BaseManager<VertexManager>(idx) {}
   virtual ~VertexManager(){}
 
