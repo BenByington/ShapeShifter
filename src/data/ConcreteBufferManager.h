@@ -55,8 +55,6 @@ struct interface_function_exists {
   static constexpr bool valid(...) { return false; }
 };
 
-// TODO this is a confusing requirement, since the name might be confused
-// with the Variable class in Rendering::Shaders
 struct variable_member_exists {
   template <class T>
   static constexpr auto valid(T*) -> decltype(typename std::unique_ptr<typename T::Variable>{}, true) {

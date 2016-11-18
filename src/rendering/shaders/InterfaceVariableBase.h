@@ -85,22 +85,38 @@ public:
 
   void LayoutDeclaration(VariableFactory& factory, size_t idx) {
     // TODO save the idx.  Only the raw text version needs to parse the string
-    factory.stream() << "layout (location = " << idx << ") in " << Variable_T::TypeName() << " " << Child::name()<< ";\n";
+    factory.stream()
+        << "layout (location = "
+        << idx << ") in "
+        << Variable_T::TypeName()
+        << " " << Child::name()
+        << ";\n";
   }
 
   void UniformDeclaration(VariableFactory& factory) {
-    factory.stream() << "uniform " << Variable_T::TypeName() << " " << Child::name() << ";\n";
+    factory.stream()
+        << "uniform "
+        << Variable_T::TypeName()
+        << " " << Child::name()
+        << ";\n";
   }
 
   void OutputDeclaration(VariableFactory& factory) {
     if (Child::smooth) factory.stream() << "smooth ";
-    factory.stream() << "out " << Variable_T::TypeName() << " " << Child::name() << ";\n";
+    factory.stream()
+        << "out "
+        << Variable_T::TypeName()
+        << " " << Child::name()
+        << ";\n";
   }
 
-  // TODO unify with output?
   void InputDeclaration(VariableFactory& factory) {
     if (Child::smooth) factory.stream() << "smooth ";
-    factory.stream() << "in " << Variable_T::TypeName() << " " << Child::name() << ";\n";
+    factory.stream()
+        << "in "
+        << Variable_T::TypeName()
+        << " " << Child::name()
+        << ";\n";
   }
 
 protected:

@@ -62,6 +62,8 @@ ShaderBase::~ShaderBase() {
   }
 }
 
+// TODO this only needs to be part of the RawShader.  The normal type
+// Shouldn't need to parse the resulting text
 void ShaderBase::ParseLayouts(const std::string& data) {
 
   auto stream = std::istringstream(data);

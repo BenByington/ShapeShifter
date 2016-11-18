@@ -88,13 +88,12 @@ public:
             // std::decay may potentially not be what we want?  Does things to arrays
             typename detail::strip_variable<typename std::decay<Args>::type>::Type...
         >::valid((T*)nullptr),
-        //  TODO see if we can somehow print the current template arguments
-        //  out with this message to make it clearer
         "Cannot instantiate Expression<T> unless T defines a static"
         " `Create` function with the appropriate arguments\n");
 
     using Type = Language::Expression<T>;
-    std::vector<std::string> names{detail::extract<typename std::decay<Args>::type>::name(args)...};
+    std::vector<std::string> names {
+      detail::extract<typename std::decay<Args>::type>::name(args)...};
     std::string argument;
     for (size_t i = 0; i < names.size() - 1; ++i) {
       argument += names[i] + ", ";

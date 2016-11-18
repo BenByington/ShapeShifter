@@ -18,10 +18,6 @@ MixedDataMap::MixedDataMap(
 
   for (const auto& manager: managers) {
     if (manager->isFloating()) {
-      // TODO write operator== for manager.  This should work, but that will make
-      // it explicit and guard against duplicate buffer types.
-      // Alternatively, prove there can be no duplicates and move to a vector
-      // instead of a map
       float_data_[manager].resize(count.vertex_*manager->ElementsPerEntry());
     } else {
       integral_data_[manager].resize(count.vertex_*manager->ElementsPerEntry());

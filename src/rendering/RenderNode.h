@@ -25,7 +25,7 @@ namespace ShapeShifter {
 namespace Rendering {
 
 namespace Shaders {
-// TODO look for things to consolidate into forward includes
+// forward declare
 class ShaderProgramBase;
 }
 

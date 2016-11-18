@@ -35,7 +35,8 @@ public:
 	void UseProgram() const { glUseProgram(program_); }
   void uploadMatrix(const Math::Matrix4& mat) const;
 
-  virtual std::vector<std::shared_ptr<Data::AbstractManager>> BufferMapping() const = 0;
+  virtual std::vector<std::shared_ptr<Data::AbstractManager>>
+  BufferMapping() const = 0;
 
 protected:
 

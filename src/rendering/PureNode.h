@@ -28,7 +28,9 @@ public:
 	PureNode() = default;
 	virtual ~PureNode() {}
 private:
-	virtual Data::BufferIndex ExclusiveNodeDataCount() const override { return Data::BufferIndex(); }
+	virtual Data::BufferIndex ExclusiveNodeDataCount() const override {
+    return Data::BufferIndex();
+  }
   virtual void FillIndexData(Data::VectorSlice<uint32_t>&) const override {}
   virtual void DrawSelf() const override {}
 };

@@ -16,6 +16,7 @@
 
 #include "data/MixedDataMapBase.h"
 #include "rendering/RenderNode.h"
+#include "rendering/shaders/Pack.h"
 
 namespace ShapeShifter {
 namespace Rendering {
@@ -51,10 +52,6 @@ struct is_subset<std::tuple<A...>, std::tuple<B...>> {
   }
 };
 
-// Forward declare so we can do some template specialization magic.
-template <class...>
-struct TypedRenderNode_;
-
 /*
  * This is the main base class for all custom concrete RenderNode
  * implementations, though it should not be instantiated directly but rather
@@ -72,11 +69,18 @@ struct TypedRenderNode_;
  * namespace, and external code should use the TypedRenderNode alias defined
  * below.
  */
-// TODO: Should put in a check...  Either types==Managers or Managers is empty
+template <class...>
+struct TypedRenderNode_;
 template <class... Types, class... Managers>
-struct TypedRenderNode_<std::tuple<Types...>, Managers...> : RenderNode, Managers::Interface... {
+struct TypedRenderNode_<Pack<Types...>, Managers...> : RenderNode, Managers::Interface... {
   TypedRenderNode_() {}
   virtual ~TypedRenderNode_() {}
+
+  static_assert(
+      std::is_same<Pack<Types...>, Pack<Managers...>>::value
+      || std::is_same<Pack<Managers...>, Pack<>>::value
+    , "Unexpected Types: Managers should be the same as Types, save in the "
+      "case of a PureNode where Managers is empty");
 
 	/**
 	 * Adds a child to this node.
@@ -107,7 +111,7 @@ struct TypedRenderNode_<std::tuple<Types...>, Managers...> : RenderNode, Manager
  * child of RenderNode
  */
 template <class... Types>
-using TypedRenderNode = detail::TypedRenderNode_<std::tuple<Types...>, Types...>;
+using TypedRenderNode = detail::TypedRenderNode_<Pack<Types...>, Types...>;
 
 /*
  * Used to create a 'pure' node that has the right types to be part of a
@@ -116,7 +120,7 @@ using TypedRenderNode = detail::TypedRenderNode_<std::tuple<Types...>, Types...>
  * from this, so it is unlikely any other child class need exist.
  */
 template <class... Types>
-using PureTypedRenderNode = detail::TypedRenderNode_<std::tuple<Types...>>;
+using PureTypedRenderNode = detail::TypedRenderNode_<Pack<Types...>>;
 
 }} // ShapeShifter::Rendering
 

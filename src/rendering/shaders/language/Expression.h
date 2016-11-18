@@ -20,6 +20,10 @@
 namespace ShapeShifter {
 namespace Rendering {
 namespace Shaders {
+
+// forward declare
+class VariableFactory;
+
 namespace Language {
 
 template <typename T>
@@ -66,7 +70,7 @@ public:
     if(!state_.empty()) stream_.get() << state_ << ";" << std::endl;
   }
 
-  // TODO need to handle precidence!  Right now, a * (b+c) will get written as
+  // ISSUE need to handle precidence!  Right now, a * (b+c) will get written as
   // a * b + c;
   template <typename U>
   auto operator*(const Expression<U>& other) -> Expression<decltype(std::declval<T>()*std::declval<U>())> {

@@ -14,16 +14,12 @@
 #ifndef RENDERING_SHADERS_SHADER_H
 #define RENDERING_SHADERS_SHADER_H
 
-#include "data/ConcreteBufferManager.h"
 #include "rendering/shaders/language/GLSLGeneratorBase.h"
 #include "rendering/shaders/InterfaceVariableBase.h"
 #include "rendering/shaders/Pack.h"
 #include "rendering/shaders/ShaderBase.h"
-#include "rendering/shaders/VariableFactory.h"
 
 #include <cassert>
-#include <iostream>
-#include <sstream>
 
 namespace ShapeShifter {
 namespace Rendering {
@@ -33,7 +29,8 @@ namespace detail {
 
 struct generator_traits {
   template <class... Types>
-  static constexpr bool valid_vertex_shader(Language::GLSLVertexGeneratorBase<Types...>*) {
+  static constexpr bool valid_vertex_shader(
+      Language::GLSLVertexGeneratorBase<Types...>*) {
     return true;
   }
   static constexpr bool valid_vertex_shader(...) {
@@ -41,7 +38,8 @@ struct generator_traits {
   }
 
   template <class... Types>
-  static constexpr bool valid_fragment_shader(Language::GLSLFragmentGeneratorBase<Types...>*) {
+  static constexpr bool valid_fragment_shader(
+      Language::GLSLFragmentGeneratorBase<Types...>*) {
     return true;
   }
   static constexpr bool valid_fragment_shader(...) {
@@ -54,7 +52,8 @@ struct generator_traits {
 template <class Generator>
 class Shader : public ShaderBase {
 protected:
-  Shader(const std::string& data, GLenum shader_type) : ShaderBase(data, shader_type) {}
+  Shader(const std::string& data, GLenum shader_type)
+    : ShaderBase(data, shader_type) {}
   Shader(const Shader&) = delete;
   Shader(Shader&&) = default;
 	Shader& operator=(const Shader&) = delete;
@@ -65,11 +64,15 @@ public:
 
 template <class Generator>
 class VertexShader : public Shader<Generator> {
-    static_assert(detail::generator_traits::valid_vertex_shader((Generator*)nullptr),
+    static_assert(
+        detail::generator_traits::valid_vertex_shader((Generator*)nullptr),
         "Template to Shader class must be a child of an GLSLGeneratorBase type");
 public:
 	VertexShader()
-    : Shader<Generator>(Generator(VariableFactory()).program(true), GL_VERTEX_SHADER) {}
+    : Shader<Generator>(
+        Generator(VariableFactory()).program(true)
+      , GL_VERTEX_SHADER)
+    {}
 
 	VertexShader(const VertexShader&) = delete;
 	VertexShader(VertexShader&&) = default;
@@ -80,11 +83,15 @@ public:
 
 template <class Generator>
 class FragmentShader : public Shader<Generator> {
-    static_assert(detail::generator_traits::valid_fragment_shader((Generator*)nullptr),
+    static_assert(
+        detail::generator_traits::valid_fragment_shader((Generator*)nullptr),
         "Template to Shader class must be a child of an GLSLGeneratorBase type");
 public:
 	FragmentShader()
-    : Shader<Generator>(Generator(VariableFactory()).program(false), GL_FRAGMENT_SHADER) {}
+    : Shader<Generator>(
+        Generator(VariableFactory()).program(false)
+      , GL_FRAGMENT_SHADER)
+    {}
 	FragmentShader(const FragmentShader&) = delete;
 	FragmentShader(FragmentShader&&) = default;
 	FragmentShader& operator=(const FragmentShader&) = delete;

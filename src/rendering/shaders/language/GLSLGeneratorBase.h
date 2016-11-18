@@ -30,7 +30,10 @@ namespace detail {
 struct check_inputs {
   template <class Input>
   static constexpr bool is_child() {
-    return std::is_base_of<InterfaceVariableBase<Input, typename Input::Type>, Input>::value;
+    return std::is_base_of<
+        InterfaceVariableBase<Input, typename Input::Type>,
+        Input
+    >::value;
   }
   template <class... Inputs>
   static constexpr bool valid() {
@@ -71,7 +74,6 @@ template <class... Inputs, class... Uniforms, class... Outputs>
 struct GLSLGeneratorBase<Pack<Inputs...>, Pack<Uniforms...>, Pack<Outputs...>>
   : Inputs... , Uniforms..., Outputs... {
 private:
-  //using stpuid = pack<typename Inputs::Variable...>;
   static_assert(detail::check_inputs::valid<Inputs...>(),
       "Shader template parameters must be InterfaceVariable types");
 
@@ -99,8 +101,7 @@ public:
     } else {
       auto temp = {(static_cast<Inputs&>(*this).InputDeclaration(factory_), 0)...};
     }
-    //factory_.stream() << "\n";
-    // TODO figure out why auto doesn't work here, but does above
+
     std::initializer_list<int> temp = {(static_cast<Uniforms&>(*this).UniformDeclaration(factory_), 0)...};
     //factory_.stream() << "\n";
     temp = {(static_cast<Outputs&>(*this).OutputDeclaration(factory_), 0)...};

@@ -20,6 +20,7 @@ namespace ShapeShifter {
 namespace Rendering {
 namespace Shaders {
 
+// forward declare
 class VariableFactory;
 
 namespace Language {
@@ -37,7 +38,7 @@ public:
   template <typename U>
   typename std::enable_if<std::is_same<U,T>::value, Expression<T>>::type
   operator=(Expression<U>&& other) {
-    // TODO precidence for other operators?
+    // ISSUE precidence for other operators?
     std::string result = this->state_ + " = " + other.state_;
     other.state_.clear();
     return Expression<T>(this->stream_, result);

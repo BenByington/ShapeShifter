@@ -30,7 +30,7 @@ MixedSliceMap::MixedSliceMap(
   }
 
   indices_ = VectorSlice<uint32_t>(
-      indices, start_.index_, end_.index_);
+      indices, start_.index_, end_.index_, 1);
 }
 
 }} // ShapeShifter::Data

@@ -48,8 +48,8 @@ void Camera::ChangePosition(const Math::Vector4& trans) {
 void Camera::PivotAroundLook(const std::pair<float,float>& start, const std::pair<float,float>& end) {
   if (start == end) return;
   auto proj_width = look_depth_*tan(frust_.aspect());
-  // TODO make this configurable?
-  // TODO this might behave oddly with tall narrow windows
+  // ISSUE Add camera controls so this can be configurable.  Currently things
+  // are a bit odd when there is a very large or very small aspect ratio
   auto ball_rad = proj_width;
   auto ball_rad2 = ball_rad * ball_rad;
 
