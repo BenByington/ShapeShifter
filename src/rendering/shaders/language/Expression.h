@@ -54,10 +54,10 @@ public:
     return VariableTraits<T>::name();
   }
 
-  // TODO: Make this safer somehow?
-  // TODO: kill mutable!
-  mutable std::string state_;
-  virtual void clear_state() const { state_ = ""; }
+  using Type = T;
+
+  std::string state_;
+  virtual void clear_state() { state_ = ""; }
 
 protected:
   Expression(const Expression&) = delete;
@@ -77,8 +77,8 @@ public:
   // ISSUE need to handle precidence!  Right now, a * (b+c) will get written as
   // a * b + c;
   template <typename U>
-  auto operator*(const Expression<U>& other) -> Expression<decltype(std::declval<T>()*std::declval<U>())> {
-    using Type = Expression<decltype(std::declval<T>()*std::declval<U>())>;
+  auto operator*(U&& other) -> Expression<decltype(std::declval<T>()*std::declval<typename U::Type>())> {
+    using Type = Expression<decltype(std::declval<T>()*std::declval<typename U::Type>())>;
     std::string result = state_ + " * " + other.state_;
     other.clear_state();
     return Type(this->stream_, result, Key());
