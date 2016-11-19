@@ -13,6 +13,9 @@
 
 #include "scenarios/tests/Squares2D.h"
 
+#include "rendering/shaders/ShaderProgram.h"
+#include "rendering/shaders/programs/BasicShader.h"
+
 #include <cassert>
 #include <cmath>
 #include <memory>
@@ -27,6 +30,10 @@ std::unique_ptr<Rendering::World> Squares2D::Setup() {
   using Math::Vector4;
 
   auto pi = 4*std::atan(1.0f);
+
+  using namespace Rendering::Shaders;
+  using namespace Rendering::Shaders::Programs;
+  auto program = CreateShaderProgram<BasicVertexShader, BasicFragmentShader>();
 
   auto sixth = std::make_unique<SquareTest2D>();
 
@@ -54,13 +61,6 @@ std::unique_ptr<Rendering::World> Squares2D::Setup() {
 	auto first = std::make_unique<SquareTest2D>();
   manipulator = first->AddChild(std::move(second));
   manipulator->SetRotation({-pi/2, 0 , 1, 0});
-
-	auto vert = std::make_unique<Rendering::Shaders::VertexShader>(
-	    "/Users/bbyington/ShapeShifter/shaders/vertex/BasicVertexShader.vert");
-	auto frag = std::make_unique<Rendering::Shaders::FragmentShader>(
-	    "/Users/bbyington/ShapeShifter/shaders/fragment/BasicFragmentShader.frag");
-	auto program = std::make_shared<Rendering::Shaders::ShaderProgram>(
-      std::move(vert), std::move(frag));
 
 	auto root = std::make_unique<Rendering::RootNode>(std::move(first),  program);
   root->SetTranslation(Vector4(-.5, -.5, -2.5, 1));

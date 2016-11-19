@@ -40,6 +40,7 @@ public:
   MixedSliceMap(
       std::map<std::shared_ptr<AbstractManager>, std::vector<float>>& float_data,
       std::map<std::shared_ptr<AbstractManager>, std::vector<uint32_t>>& int_data,
+      std::vector<uint32_t>& indices,
       BufferIndex start, BufferIndex end);
 
   BufferIndex start() { return start_; }

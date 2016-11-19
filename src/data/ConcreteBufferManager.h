@@ -17,6 +17,7 @@
 #include "data/AbstractBufferManager.h"
 #include "data/MixedDataMapBase.h"
 #include "rendering/RenderNode.h"
+#include "rendering/shaders/InterfaceVariableBase.h"
 
 #include <cstdlib>
 #include <type_traits>
@@ -54,6 +55,17 @@ struct interface_function_exists {
   static constexpr bool valid(...) { return false; }
 };
 
+struct variable_member_exists {
+  template <class T>
+  static constexpr auto valid(T*) -> decltype(typename std::unique_ptr<typename T::Variable>{}, true) {
+    using Parent = Rendering::Shaders::InterfaceVariableBase<
+        typename T::Variable,
+        typename T::Type2>;
+    return std::is_base_of<Parent, typename T::Variable>::value;
+  }
+  static constexpr auto valid(...) { return false; }
+};
+
 }
 
 /*
@@ -81,6 +93,9 @@ public:
     static_assert(detail::interface_function_exists::valid(temp),
         "Children of BaseManager must define a type Interface for Render nodes to inherit, "
         "which must have a function with the signature void FillData(VectorSlice<T>&) ");
+    static_assert(detail::variable_member_exists::valid(temp),
+        "Children of BaseManager must declare an inner class that extends"
+        " InterfaceVariableBase and is named Variable, for use in the shader program");
   }
 
   // Helper class, so that both FillData functions can direct to here, and
@@ -109,13 +124,23 @@ public:
 class ColorManager final : public BaseManager<ColorManager> {
 public:
   using Type = float;
-  static constexpr char key[] = "inColor";
+  using Type2 = Rendering::Shaders::Language::Vec3;
 
   ColorManager(size_t idx) : BaseManager<ColorManager>(idx) {}
   virtual ~ColorManager(){}
 
   virtual size_t ElementsPerEntry() override { return 3; }
   virtual bool isFloating() { return true; }
+
+  struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable, Type2> {
+    using Base = Rendering::Shaders::InterfaceVariableBase<Variable, Type2>;
+    using Base::InterfaceVariableBase;
+    static constexpr const char* name() {
+      return "inColor";
+    }
+    static constexpr bool smooth = false;
+    Variable_T& inColor = Base::var;
+  };
 
   class Interface {
   public:
@@ -124,35 +149,25 @@ public:
   };
 };
 
-class IndexManager final : public BaseManager<IndexManager> {
-public:
-  using Type = uint32_t;
-  static constexpr char key[] = "pass";
-
-  IndexManager(size_t idx) : BaseManager<IndexManager>(idx) {}
-  virtual ~IndexManager(){}
-
-  virtual size_t ElementsPerEntry() override { return 3; }
-  virtual bool isFloating() { return false; }
-
-  class Interface {
-  public:
-    void FillData(VectorSlice<Type>& data) { FillIndexData(data); }
-	  virtual void FillIndexData(Data::VectorSlice<Type>& data) const = 0;
-  };
-};
-
-
 class VertexManager final : public BaseManager<VertexManager> {
 public:
   using Type = float;
-  static constexpr char key[] = "inPosition";
-
+  using Type2 = Rendering::Shaders::Language::Vec3;
   VertexManager(size_t idx) : BaseManager<VertexManager>(idx) {}
   virtual ~VertexManager(){}
 
   virtual size_t ElementsPerEntry() override { return 3; }
   virtual bool isFloating() { return true; }
+
+  struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable, Type2> {
+    using Base = Rendering::Shaders::InterfaceVariableBase<Variable, Type2>;
+    using Base::InterfaceVariableBase;
+    static constexpr const char* name() {
+      return "inPosition";
+    }
+    static constexpr bool smooth = false;
+    Variable_T& inPosition = Base::var;
+  };
 
   class Interface {
   public:

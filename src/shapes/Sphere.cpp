@@ -25,7 +25,7 @@ Sphere::Sphere(float radius) : radius_(radius) {}
 BufferIndex Sphere::ExclusiveNodeDataCount() const {
   auto ret = BufferIndex();
   ret.vertex_ = 12;
-  ret.triangle_ = 20;
+  ret.index_ = 60;
   return ret;
 }
 
@@ -113,8 +113,7 @@ void Sphere::DrawSelf() const {
 
   glDrawElements(
       GL_TRIANGLES,
-      // TODO fix hard code
-      ExclusiveNodeDataCount().triangle_*3,
+      ExclusiveNodeDataCount().index_,
       GL_UNSIGNED_INT,
       StartIndexAsVP());
 }

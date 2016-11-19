@@ -4,11 +4,13 @@
  * and open the template in the editor.
  */
 
-#include "data/ConcreteBufferManager.h"
+/*
+ * File:   InterfaceVariableBase.cpp
+ * Author: bbyington
+ *
+ * Created on October 24, 2016, 8:18 AM
+ */
 
-namespace ShapeShifter {
-namespace Data {
+#include "rendering/shaders/InterfaceVariableBase.h"
 
 
-}
-}

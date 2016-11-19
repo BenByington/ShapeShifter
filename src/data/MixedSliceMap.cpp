@@ -14,6 +14,7 @@ namespace Data {
 MixedSliceMap::MixedSliceMap(
     std::map<std::shared_ptr<AbstractManager>, std::vector<float>>& float_data,
     std::map<std::shared_ptr<AbstractManager>, std::vector<uint32_t>>& int_data,
+    std::vector<uint32_t>& indices,
     BufferIndex start, BufferIndex end)
   : start_(start)
   , end_(end) {
@@ -25,8 +26,11 @@ MixedSliceMap::MixedSliceMap(
 
   for (auto& kv : int_data) {
     integral_data_[kv.first] = VectorSlice<uint32_t>(
-        kv.second, start_.triangle_, end_.triangle_, kv.first->ElementsPerEntry());
+        kv.second, start_.vertex_, end_.vertex_, kv.first->ElementsPerEntry());
   }
+
+  indices_ = VectorSlice<uint32_t>(
+      indices, start_.index_, end_.index_, 1);
 }
 
 }} // ShapeShifter::Data

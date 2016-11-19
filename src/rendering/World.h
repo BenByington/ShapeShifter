@@ -15,7 +15,6 @@
 #define RENDERING_WORLD_H
 
 #include "rendering/Camera.h"
-#include "rendering/shaders/ShaderProgram.h"
 #include "rendering/RootNode.h"
 
 #include <memory>

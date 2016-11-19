@@ -13,7 +13,7 @@
 
 #include "RenderNode.h"
 
-#include "rendering/shaders/ShaderProgram.h"
+#include "rendering/shaders/ShaderProgramBase.h"
 
 #include <iostream>
 
@@ -47,7 +47,7 @@ void RenderNode::PopulateBufferData(Data::MixedDataMap& data) {
   // nullptr exception, since neither the root node nor pure nodes will inherit
   // from any of the interface classes, and the FillData function below will
   // involve dynamic casts to those classes.
-  if (size.vertex_ == 0 && size.triangle_ == 0) return;
+  if (size.vertex_ == 0 && size.index_ == 0) return;
 
   auto local_data = data.NextSlice(size);
 	start_= local_data.start();
@@ -57,14 +57,15 @@ void RenderNode::PopulateBufferData(Data::MixedDataMap& data) {
     key.first->FillData(key.second, this);
   }
 
-  // Need to fix things once there is a non-index integral data.
-  assert(local_data.IntegralData().size() <= 1);
   for(auto& key: local_data.IntegralData()) {
     key.first->FillData(key.second, this);
-    size_t offset = start().vertex_;
-    for (auto& ind: key.second) {
-      ind += offset;
-    }
+  }
+
+  auto& indices = local_data.indices();
+  FillIndexData(indices);
+  size_t offset = start().vertex_;
+  for (auto& ind: indices) {
+    ind += offset;
   }
 }
 
@@ -72,7 +73,7 @@ void RenderNode::DrawChildren(
     const Camera& camera,
     const Math::Quaternion& cumRot,
     const Math::Vector4& cumTrans,
-    const Shaders::ShaderProgram& shader) const {
+    const Shaders::ShaderProgramBase& shader) const {
 
   auto localQuat = cumRot*rotation_;
   auto rot = localQuat.RotationMatrix();

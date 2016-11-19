@@ -14,59 +14,112 @@
 #ifndef RENDERING_SHADERS_SHADER_H
 #define RENDERING_SHADERS_SHADER_H
 
-#include <map>
-#include <string>
+#include "rendering/shaders/language/GLSLGeneratorBase.h"
+#include "rendering/shaders/InterfaceVariableBase.h"
+#include "rendering/shaders/Pack.h"
+#include "rendering/shaders/ShaderBase.h"
 
-#include <opengl/gl3.h>
+#include <cassert>
 
 namespace ShapeShifter {
 namespace Rendering {
 namespace Shaders {
 
+namespace detail {
+
+struct generator_traits {
+  template <class... Types>
+  static constexpr bool valid_vertex_shader(
+      Language::GLSLVertexGeneratorBase<Types...>*) {
+    return true;
+  }
+  static constexpr bool valid_vertex_shader(...) {
+    return false;
+  }
+
+  template <class... Types>
+  static constexpr bool valid_fragment_shader(
+      Language::GLSLFragmentGeneratorBase<Types...>*) {
+    return true;
+  }
+  static constexpr bool valid_fragment_shader(...) {
+    return false;
+  }
+};
+
+}
+
 /*
- * Class that wraps an opengl shader resource.  It expects the shader to
- * program to live in a separate text file, which it will load and parse
- * and compile.  Must use one of the children classes to actually instantiate.
+ * Generic shader class.  Use the Specific Vertex and Fragment
+ * versions below.
  */
-class Shader {
+template <class Generator>
+class Shader : public ShaderBase {
 protected:
-  enum class ShaderType {
-		VERTEX,
-		FRAGMENT
-	};
-
-  Shader(const std::string& filename, ShaderType t);
+  Shader(Generator&& generator, GLenum shader_type)
+    : ShaderBase(generator.program(), shader_type)
+    , layout_map_(generator.layout_map()) {}
   Shader(const Shader&) = delete;
+  Shader(Shader&&) = default;
 	Shader& operator=(const Shader&) = delete;
+	Shader& operator=(Shader&&) = default;
 public:
-  virtual ~Shader();
+  virtual ~Shader() {}
 
-public:
-	operator GLuint() const {return shader;}
-  const std::map<std::string, size_t>& layout_map() {
+  const std::map<std::string, size_t>& layout_map() const override {
     return layout_map_;
   }
+
 private:
-  GLuint shader = 0;
-
-  void ParseLayouts(const std::string& data);
-
   std::map<std::string, size_t> layout_map_;
 };
 
-class VertexShader : public Shader {
+/*
+ * Vertex shader class, that mostly just acts as a plugin layer between
+ * the actual Shader class interfacting with opengl, and the
+ * VertexGenerator that actually specifies the shader program to be
+ * compiled
+ */
+template <class Generator>
+class VertexShader : public Shader<Generator> {
+    static_assert(
+        detail::generator_traits::valid_vertex_shader((Generator*)nullptr),
+        "Template to Shader class must be a child of an GLSLGeneratorBase type");
 public:
-	VertexShader(const std::string& filename) : Shader(filename, ShaderType::VERTEX) {}
+	VertexShader()
+    : Shader<Generator>(
+        Generator(VariableFactory())
+      , GL_VERTEX_SHADER)
+    {}
+
 	VertexShader(const VertexShader&) = delete;
-	VertexShader& operator()(const VertexShader&) = delete;
+	VertexShader(VertexShader&&) = default;
+	VertexShader& operator=(const VertexShader&) = delete;
+	VertexShader& operator=(VertexShader&&) = default;
 	virtual ~VertexShader() {}
 };
 
-class FragmentShader : public Shader {
+/*
+ * Fragment shader class, that mostly just acts as a plugin layer between
+ * the actual Shader class interfacting with opengl, and the
+ * FragmentGenerator that actually specifies the shader program to be
+ * compiled
+ */
+template <class Generator>
+class FragmentShader : public Shader<Generator> {
+    static_assert(
+        detail::generator_traits::valid_fragment_shader((Generator*)nullptr),
+        "Template to Shader class must be a child of an GLSLGeneratorBase type");
 public:
-	FragmentShader(const std::string& filename) : Shader(filename, ShaderType::FRAGMENT) {}
+	FragmentShader()
+    : Shader<Generator>(
+        Generator(VariableFactory())
+      , GL_FRAGMENT_SHADER)
+    {}
 	FragmentShader(const FragmentShader&) = delete;
-	FragmentShader& operator()(const FragmentShader&) = delete;
+	FragmentShader(FragmentShader&&) = default;
+	FragmentShader& operator=(const FragmentShader&) = delete;
+	FragmentShader& operator=(FragmentShader&&) = default;
 	virtual ~FragmentShader() {}
 };
 

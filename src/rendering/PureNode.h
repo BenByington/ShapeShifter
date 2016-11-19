@@ -28,9 +28,32 @@ public:
 	PureNode() = default;
 	virtual ~PureNode() {}
 private:
-	virtual Data::BufferIndex ExclusiveNodeDataCount() const override { return Data::BufferIndex(); }
+	virtual Data::BufferIndex ExclusiveNodeDataCount() const override {
+    return Data::BufferIndex();
+  }
+  virtual void FillIndexData(Data::VectorSlice<uint32_t>&) const override {}
   virtual void DrawSelf() const override {}
 };
+
+namespace detail {
+template <typename Interface>
+struct pure_type;
+template <typename... Interface>
+struct pure_type<Pack<Interface...>> {
+  using Type = PureNode<Interface...>;
+};
+}
+
+/*
+ * Helper function, to avoid typing out explicit long type names. As
+ * long as you have a ShaderProgram laying around, you can easily retrieve
+ * a pure node that will be compatible with it.
+ */
+template <class ShaderProgram>
+decltype(auto) CompatiblePureNode(const ShaderProgram&) {
+  using Type = typename detail::pure_type<typename ShaderProgram::Interface_t>::Type;
+  return std::make_unique<Type>();
+}
 
 }} //namespace Shapeshifter::Rendering
 

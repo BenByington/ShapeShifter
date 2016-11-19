@@ -15,7 +15,7 @@
 #define RENDERING_ROOT_NODE_H
 
 #include "rendering/TypedRenderNode.h"
-#include "rendering/shaders/ShaderProgram.h"
+#include "rendering/shaders/ShaderProgramBase.h"
 
 #include <map>
 
@@ -31,17 +31,28 @@ namespace Rendering {
  */
 class RootNode : public TypedRenderNode<> {
 public:
-  template <typename Other, typename dummy =
+  template <typename TreeNode,
+            typename ShaderProgram,
+            typename dummy =
 	    typename std::enable_if<
-          std::is_base_of<RenderNode, Other>::value
+          std::is_base_of<RenderNode, TreeNode>::value &&
+          std::is_base_of<Shaders::ShaderProgramBase, ShaderProgram>::value
       >::type
   >
   RootNode(
-      std::unique_ptr<Other> tree,
-      std::shared_ptr<Shaders::ShaderProgram> program)
+      std::unique_ptr<TreeNode> tree,
+      std::shared_ptr<ShaderProgram> program)
     : program_(program) {
+
+    using T1 = typename TreeNode::Interface_t;
+    using T2 = typename ShaderProgram::Interface_t;
+    constexpr bool sub1 = detail::is_subset<T1, T2>::value();
+    constexpr bool sub2 = detail::is_subset<T2, T1>::value();
+    static_assert(sub1 && sub2,
+                  "Incompatible shader handed in with rendering tree\n");
+
     children.emplace_back(tree.release());
-    managers_ = program->BufferMapping<typename Other::Interface_t>();
+    managers_ = program->BufferMapping();
     UpdateData();
   }
 
@@ -54,6 +65,7 @@ public:
 
 private:
 	virtual Data::BufferIndex ExclusiveNodeDataCount() const { return Data::BufferIndex(); }
+	virtual void FillIndexData(Data::VectorSlice<uint32_t>&) const override {}
   virtual void DrawSelf() const override {}
   void CleanupBuffer();
 
@@ -66,7 +78,7 @@ private:
 
   GLuint vao = 0;
   GLuint ibo = 0;
-  std::shared_ptr<Shaders::ShaderProgram> program_;
+  std::shared_ptr<Shaders::ShaderProgramBase> program_;
   std::vector<std::shared_ptr<Data::AbstractManager>> managers_;
 };
 

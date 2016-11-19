@@ -24,7 +24,7 @@ Cube::Cube(float sx, float sy, float sz) : sx_(sx), sy_(sy), sz_(sz) {}
 
 BufferIndex Cube::ExclusiveNodeDataCount() const {
   auto ret = BufferIndex();
-  ret.triangle_ = 12;
+  ret.index_ = 0;
   ret.vertex_ = 36;
   return ret;
 }
@@ -92,19 +92,12 @@ void Cube::FillColorData(VectorSlice<float>& data) const {
   FillFaceColor(0, 1, 1);
 }
 
-void Cube::FillIndexData(VectorSlice<uint32_t>& data) const {
-  for (uint32_t i = 0; i < ExclusiveNodeDataCount().vertex_; ++i) {
-    data[i] = i;
-  }
-}
-
 void Cube::DrawSelf() const {
-  glDrawElements(
+  glDrawArrays (
       GL_TRIANGLES,
-      // TODO fix hardcode
-      ExclusiveNodeDataCount().triangle_*3,
-      GL_UNSIGNED_INT,
-      StartIndexAsVP());
+      start().vertex_,
+      ExclusiveNodeDataCount().vertex_
+  );
 }
 
 }} // ShapeShifter::Shapes

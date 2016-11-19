@@ -22,8 +22,7 @@ namespace Shapes {
 
 class Cube final : public Rendering::TypedRenderNode<
     Data::VertexManager,
-    Data::ColorManager,
-    Data::IndexManager
+    Data::ColorManager
 >{
 
   using BufferIndex = Data::BufferIndex;
@@ -39,7 +38,7 @@ private:
   virtual BufferIndex ExclusiveNodeDataCount() const override;
 	virtual void FillVertexData(Data::VectorSlice<float>& data) const override;
 	virtual void FillColorData(Data::VectorSlice<float>& data) const override;
-	virtual void FillIndexData(Data::VectorSlice<uint32_t>& data) const override;
+	virtual void FillIndexData(Data::VectorSlice<uint32_t>& data) const {}
   virtual void DrawSelf() const override;
 
   float sx_;

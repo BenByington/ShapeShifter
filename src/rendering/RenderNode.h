@@ -25,8 +25,8 @@ namespace ShapeShifter {
 namespace Rendering {
 
 namespace Shaders {
-// TODO look for things to consolidate into forward includes
-class ShaderProgram;
+// forward declare
+class ShaderProgramBase;
 }
 
 /**
@@ -54,8 +54,7 @@ protected:
 	Data::BufferIndex start() const {return start_; }
 	Data::BufferIndex end() const {return end_; }
   GLvoid* StartIndexAsVP() const {
-    //TODO fix hardcode
-    return (GLvoid*)(start().triangle_*3*sizeof(uint32_t));
+    return (GLvoid*)(start().index_*sizeof(uint32_t));
   }
 
 	// Compute how big the VAO should be
@@ -69,13 +68,18 @@ protected:
       const Camera& camera,
       const Math::Quaternion& cumRot,
       const Math::Vector4& cumTrans,
-      const Shaders::ShaderProgram& shader) const;
+      const Shaders::ShaderProgramBase& shader) const;
 
 	std::vector<std::shared_ptr<RenderNode>> children;
 
 private:
   // Size required in the buffers, not counting children nodes
   virtual Data::BufferIndex ExclusiveNodeDataCount() const = 0;
+
+  // Populates data for the index vector.  Children may implement this as
+  // a noop if they are drawing independent triangles that do not share
+  // vertices
+	virtual void FillIndexData(Data::VectorSlice<uint32_t>& data) const = 0;
 
   // Personal rendering function
 	virtual void DrawSelf() const = 0;

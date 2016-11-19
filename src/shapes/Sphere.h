@@ -24,8 +24,7 @@ namespace Shapes {
 
 class Sphere final : public Rendering::TypedRenderNode<
     Data::VertexManager,
-    Data::ColorManager,
-    Data::IndexManager
+    Data::ColorManager
 >{
   using BufferIndex = Data::BufferIndex;
   constexpr static const auto phi = (1.0f + std::sqrt(5.0f))/2.0f;

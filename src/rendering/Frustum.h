@@ -63,7 +63,6 @@ struct Frustum {
     return std::unique_ptr<detail::FrustumAspect>(new detail::FrustumBuilder());
   }
 
-  // TODO add validation
   void SetAspect(const float aspect);
   void SetFov(const float fov);
   void SetFar(const float far);
