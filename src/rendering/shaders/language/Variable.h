@@ -29,8 +29,10 @@ template <typename T>
 class Variable : public Expression<T> {
   friend class ShapeShifter::Rendering::Shaders::VariableFactory;
   Variable(IndentedStringStream& stream, const std::string& name)
-    : Expression<T>(stream, name) {}
+    : Expression<T>(stream, name, Expression<T>::Key()) {}
 public:
+  using Base = Expression<T>;
+
   Variable(const Variable&) = delete;
   Variable(Variable&&) = default;
 
@@ -41,12 +43,12 @@ public:
     // ISSUE precidence for other operators?
     std::string result = this->state_ + " = " + other.state_;
     other.state_.clear();
-    return Expression<T>(this->stream_, result);
+    return Expression<T>(this->stream_, result, Base::Key());
   }
 
   Expression<T> operator=(const Variable<T>& other) {
     std::string result = this->state_ + " = " + other.state_;
-    return Expression<T>(this->stream_, result);
+    return Expression<T>(this->stream_, result, Base::Key());
   }
 
   virtual void clear_state() const {}

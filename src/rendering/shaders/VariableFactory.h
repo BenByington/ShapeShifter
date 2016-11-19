@@ -101,7 +101,7 @@ public:
     if (names.size() > 0) {
       argument += names.back();
     }
-    return Type(s, std::string(Type::TypeName()) + "(" + argument + ")");
+    return Type(s, std::string(Type::TypeName()) + "(" + argument + ")", Type::Key());
   }
 
   Language::IndentedStringStream& stream() { return s; };

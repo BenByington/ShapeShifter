@@ -26,13 +26,28 @@ class VariableFactory;
 
 namespace Language {
 
-template <typename T>
-class Expression {
+// Sole purpose of base class is to provide the Key function so that
+// sibling classes can create each other, but external code cannot
+// instantiate new objects (save for the VariableFactor that has friend
+// status)
+class ExpressionBase {
+private:
+  ExpressionBase() {}
+protected:
+  static ExpressionBase Key() {
+    return ExpressionBase{};
+  }
 public:
-  //  TODO can this be protected somehow?  Child class needs to be able to
-  //  create instances, but for some reason I can't.
-  Expression(IndentedStringStream& stream, const std::string& name)
-    : stream_(stream)
+  ExpressionBase(ExpressionBase&&) = default;
+};
+
+template <typename T>
+class Expression : private ExpressionBase{
+  friend class ShapeShifter::Rendering::Shaders::VariableFactory;
+public:
+  Expression(IndentedStringStream& stream, const std::string& name, ExpressionBase b)
+    : ExpressionBase(std::move(b))
+    , stream_(stream)
     , state_(name) {}
 
   static constexpr const char* TypeName() {
@@ -49,6 +64,8 @@ protected:
   Expression& operator=(const Expression&) = delete;
   Expression& operator=(Expression&&) = delete;
 
+  using ExpressionBase::Key;
+
   std::reference_wrapper<IndentedStringStream> stream_;
 
 public:
@@ -64,7 +81,7 @@ public:
     using Type = Expression<decltype(std::declval<T>()*std::declval<U>())>;
     std::string result = state_ + " * " + other.state_;
     other.clear_state();
-    return Type(this->stream_, result);
+    return Type(this->stream_, result, Key());
   }
 };
 
