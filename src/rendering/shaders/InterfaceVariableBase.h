@@ -59,15 +59,12 @@ protected:
     static_assert(detail::name_function_exists::valid(temp),
         "Children of InterfaceVariableBase must supply a (preferably"
         "constexpr) static function called name that returns a char*");
-    // TODO trim this down, it's getting crazy
     static_assert(
-        std::is_arithmetic<T>::value
-        || std::is_same<Language::Vec3, T>::value
-        || std::is_same<Language::Mat4, T>::value
-        || std::is_same<Language::Vec4, T>::value
-        , "Children of InterfaceVariableBase have an arithmetic type");
-    static_assert(detail::declares_smooth::valid(temp),
-        "Children of InterfaceVariableBase must have a static constexpr bool "
+        Language::VariableTraits<T>::InterfaceAllowed
+      , "Type not allowed in InterfaceVariable");
+    static_assert(
+        detail::declares_smooth::valid(temp)
+      , "Children of InterfaceVariableBase must have a static constexpr bool "
         "indicating if the variable should be smoothed");
   };
 

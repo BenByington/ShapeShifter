@@ -35,21 +35,8 @@ public:
     : stream_(stream)
     , state_(name) {}
 
-  // TODO make this less centralized...
   static constexpr const char* TypeName() {
-    if (std::is_same<float, T>::value) {
-      return "float";
-    } else if (std::is_same<int, T>::value) {
-      return "int";
-    } else if (std::is_same<Vec3, T>::value) {
-      return "vec3";
-    } else if (std::is_same<Vec4, T>::value) {
-      return "vec4";
-    } else if (std::is_same<Mat4, T>::value) {
-      return "mat4";
-    } else {
-      return "Monsters in the soup!\n";
-    }
+    return VariableTraits<T>::name();
   }
 
   // TODO: Make this safer somehow?
