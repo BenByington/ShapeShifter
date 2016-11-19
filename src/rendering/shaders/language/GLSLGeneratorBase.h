@@ -132,6 +132,7 @@ static_assert(detail::are_managers<Inputs...>::check(),
 public:
 
   using Inputs_t = Pack<Inputs...>;
+  using Outputs_t = Pack<Outputs...>;
 
   GLSLVertexGeneratorBase(VariableFactory&& factory)
     : Base(std::move(factory))
@@ -149,11 +150,9 @@ protected:
 template <class... Inputs, class... Uniforms, class... Outputs>
 class GLSLFragmentGeneratorBase<Pack<Inputs...>, Pack<Uniforms...>, Pack<Outputs...>>
   : public GLSLGeneratorBase<Pack<Inputs...>, Pack<Uniforms...>, Pack<Outputs...>> {
-
 using  Base = GLSLGeneratorBase<Pack<Inputs...>, Pack<Uniforms...>, Pack<Outputs...>>;
 
 public:
-
   GLSLFragmentGeneratorBase(VariableFactory&& factory) : Base(std::move(factory)) {}
 
   GLSLFragmentGeneratorBase(const GLSLFragmentGeneratorBase&) = delete;
@@ -161,6 +160,7 @@ public:
   GLSLFragmentGeneratorBase& operator=(const GLSLFragmentGeneratorBase&) = delete;
   GLSLFragmentGeneratorBase& operator=(GLSLFragmentGeneratorBase&&) = delete;
 
+  using Inputs_t = Pack<Inputs...>;
 };
 
 }}}} // ShapeShifter::Rendering::Shaders::Language
