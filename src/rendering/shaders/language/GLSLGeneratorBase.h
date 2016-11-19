@@ -97,13 +97,12 @@ public:
     factory_.stream() << "#version 410\n\n";
     if (vertex) {
       size_t idx = 0;
-      auto temp = {(static_cast<Inputs&>(*this).LayoutDeclaration(factory_, idx++), 0)...};
+      layout_map_ = {static_cast<Inputs&>(*this).LayoutDeclaration(factory_, idx++)...};
     } else {
       auto temp = {(static_cast<Inputs&>(*this).InputDeclaration(factory_), 0)...};
     }
 
     std::initializer_list<int> temp = {(static_cast<Uniforms&>(*this).UniformDeclaration(factory_), 0)...};
-    //factory_.stream() << "\n";
     temp = {(static_cast<Outputs&>(*this).OutputDeclaration(factory_), 0)...};
 
     factory_.stream() << "\nvoid main() {\n\n";
@@ -114,11 +113,16 @@ public:
     return factory_.stream().str();
   }
 
+  decltype(auto) layout_map() { return layout_map_; }
+
 protected:
   virtual void DefineMain(const VariableFactory& factory) = 0;
 
   VariableFactory factory_;
   std::stringstream stream;
+
+private:
+  std::map<std::string, size_t> layout_map_;
 };
 
 template <class... Inputs, class... Uniforms, class... Outputs>
@@ -143,6 +147,7 @@ public:
   GLSLVertexGeneratorBase& operator=(const GLSLVertexGeneratorBase&) = delete;
   GLSLVertexGeneratorBase& operator=(GLSLVertexGeneratorBase&&) = delete;
 
+  std::string program() { return Base::program(true); }
 protected:
   Language::Variable<Language::Vec4>  gl_Position;
 };
@@ -159,6 +164,8 @@ public:
   GLSLFragmentGeneratorBase(GLSLFragmentGeneratorBase&&) = delete;
   GLSLFragmentGeneratorBase& operator=(const GLSLFragmentGeneratorBase&) = delete;
   GLSLFragmentGeneratorBase& operator=(GLSLFragmentGeneratorBase&&) = delete;
+
+  std::string program() { return Base::program(false); }
 
   using Inputs_t = Pack<Inputs...>;
 };

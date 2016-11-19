@@ -40,8 +40,6 @@ public:
 
 protected:
 
-  // TODO: move this to the children, since only the raw reader needs to
-  //       actually parse the string
   const auto& layout_map() const {
     return vert_shader_->layout_map();
   }

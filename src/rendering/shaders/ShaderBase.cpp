@@ -15,7 +15,6 @@
 
 #include <cassert>
 #include <memory>
-#include <sstream>
 
 namespace ShapeShifter {
 namespace Rendering {
@@ -23,8 +22,6 @@ namespace Shaders {
 
 ShaderBase::ShaderBase(const std::string& data, GLenum shader_type) {
 	assert(data.size() > 0);
-
-  ParseLayouts(data);
 
 	auto can_compile = GLint{GL_FALSE};
   glGetIntegerv(GL_SHADER_COMPILER, &can_compile);
@@ -62,45 +59,13 @@ ShaderBase::~ShaderBase() {
   }
 }
 
-// TODO this only needs to be part of the RawShader.  The normal type
-// Shouldn't need to parse the resulting text
-void ShaderBase::ParseLayouts(const std::string& data) {
-
-  auto stream = std::istringstream(data);
-  auto line = std::string{};
-  while (std::getline(stream, line)) {
-    if (line.find("layout") != std::string::npos && line.find(" in ") != std::string::npos) {
-      // Issue: Create classes for writing opengl code within C++
-      auto start = line.find('(');
-      auto end = line.find(')');
-      assert(start != std::string::npos);
-      assert(end != std::string::npos);
-      std::istringstream temp(line.substr(start+1, end-start-1));
-      std::string trash;
-      char op;
-      size_t location;
-      temp >> trash >> op >> location;
-
-      start = line.find("vec3");
-      end = line.find(";");
-      assert(start != std::string::npos);
-      assert(end != std::string::npos);
-      auto name = line.substr(start+5, end-start-5);
-
-      layout_map_[name] = location;
-    }
-  }
-}
-
 ShaderBase::ShaderBase(ShaderBase&& other) {
-  layout_map_ = std::move(other.layout_map_);
   shader = other.shader;
 
   other.shader = 0;
 }
 
 ShaderBase& ShaderBase::operator =(ShaderBase&& other) {
-  layout_map_ = std::move(other.layout_map_);
   shader = other.shader;
 
   other.shader = 0;

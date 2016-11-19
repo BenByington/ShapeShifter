@@ -52,14 +52,22 @@ struct generator_traits {
 template <class Generator>
 class Shader : public ShaderBase {
 protected:
-  Shader(const std::string& data, GLenum shader_type)
-    : ShaderBase(data, shader_type) {}
+  Shader(Generator&& generator, GLenum shader_type)
+    : ShaderBase(generator.program(), shader_type)
+    , layout_map_(generator.layout_map()) {}
   Shader(const Shader&) = delete;
   Shader(Shader&&) = default;
 	Shader& operator=(const Shader&) = delete;
 	Shader& operator=(Shader&&) = default;
 public:
   virtual ~Shader() {}
+
+  const std::map<std::string, size_t>& layout_map() const override {
+    return layout_map_;
+  }
+
+private:
+  std::map<std::string, size_t> layout_map_;
 };
 
 template <class Generator>
@@ -70,7 +78,7 @@ class VertexShader : public Shader<Generator> {
 public:
 	VertexShader()
     : Shader<Generator>(
-        Generator(VariableFactory()).program(true)
+        Generator(VariableFactory())
       , GL_VERTEX_SHADER)
     {}
 
@@ -89,7 +97,7 @@ class FragmentShader : public Shader<Generator> {
 public:
 	FragmentShader()
     : Shader<Generator>(
-        Generator(VariableFactory()).program(false)
+        Generator(VariableFactory())
       , GL_FRAGMENT_SHADER)
     {}
 	FragmentShader(const FragmentShader&) = delete;

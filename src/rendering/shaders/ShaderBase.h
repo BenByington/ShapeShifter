@@ -40,15 +40,9 @@ public:
 
 public:
 	operator GLuint() const {return shader;}
-  const std::map<std::string, size_t>& layout_map() const {
-    return layout_map_;
-  }
+  virtual const std::map<std::string, size_t>& layout_map() const = 0;
 private:
   GLuint shader = 0;
-
-  void ParseLayouts(const std::string& data);
-
-  std::map<std::string, size_t> layout_map_;
 };
 
 }}} // ShapeShifter::Rendering::Shaders

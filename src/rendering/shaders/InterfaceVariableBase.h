@@ -80,14 +80,15 @@ public:
 
   virtual ~InterfaceVariableBase() {};
 
-  void LayoutDeclaration(VariableFactory& factory, size_t idx) {
-    // TODO save the idx.  Only the raw text version needs to parse the string
+  std::pair<const std::string, size_t>
+  LayoutDeclaration(VariableFactory& factory, size_t idx) {
     factory.stream()
         << "layout (location = "
         << idx << ") in "
         << Variable_T::TypeName()
         << " " << Child::name()
         << ";\n";
+    return {Child::name(), idx};
   }
 
   void UniformDeclaration(VariableFactory& factory) {
