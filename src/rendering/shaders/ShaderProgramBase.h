@@ -22,6 +22,10 @@ namespace ShapeShifter {
 namespace Rendering {
 namespace Shaders {
 
+/*
+ * Abstract base class for all shader programs.  (Children classes will be
+ * typed in various ways depending on what Interface they support)
+ */
 class ShaderProgramBase {
 public:
   ShaderProgramBase(const ShaderProgramBase&) = delete;

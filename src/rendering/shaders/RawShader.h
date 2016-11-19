@@ -33,6 +33,12 @@ enum class RawShaderType {
   FRAGMENT
 };
 
+/*
+ * Basic class that supports reading in GLSL shader programs from text files.
+ * This is fully supported, but the Shader class should be preferred, as it
+ * is procedurally generated and has compile-time constraints matching those
+ * provided for the RenderNodes
+ */
 template <RawShaderType type>
 class RawShader : public ShaderBase {
   // Hidden constructor so we don't have to read the file data a second time

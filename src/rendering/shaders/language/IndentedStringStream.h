@@ -23,6 +23,10 @@ namespace Rendering {
 namespace Shaders {
 namespace Language {
 
+/*
+ * Convenience class for managing indententaion levels in generated
+ * GLSL shader code.  Not meant for standalone use.
+ */
 class IndentedStringStream {
 public:
   IndentedStringStream() = default;

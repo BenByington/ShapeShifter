@@ -41,6 +41,12 @@ public:
   ExpressionBase(ExpressionBase&&) = default;
 };
 
+/*
+ * This class is meant to encapsulate GLSL expressions.  They cannot be stored
+ * and cannot be generated explicitly.  They require either a VariableFactory
+ * to create them, or result from other operators (e.g. Expression<T> * Expression<T>
+ * will generate an Expression<T*U>.
+ */
 template <typename T>
 class Expression : private ExpressionBase{
   friend class ShapeShifter::Rendering::Shaders::VariableFactory;
@@ -57,6 +63,10 @@ public:
   using Type = T;
 
   std::string state_;
+  // Upon destruction the contents of state_ will be output to the program, so
+  // intermediate types need their state_ cleared before they go out of scope.
+  // Warning: this function is currently public, but only other Variable<T> and
+  // Expression<T> classes should call it.
   virtual void clear_state() { state_ = ""; }
 
 protected:

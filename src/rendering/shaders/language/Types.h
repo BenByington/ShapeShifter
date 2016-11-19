@@ -19,6 +19,13 @@ namespace Rendering {
 namespace Shaders {
 namespace Language {
 
+/*
+ * Every valid variable type in GLSL needs a specialization for this class,
+ * defining both what string to use for the variable type, and if the
+ * variable is allowed to be used as an InterfaceVariable (between c++ and opengl)
+ * Common types will have a specialization supplied here, but any custom types
+ * will need to do this themselves
+ */
 template <class T>
 class VariableTraits;
 

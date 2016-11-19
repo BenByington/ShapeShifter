@@ -50,6 +50,12 @@ struct declares_smooth {
 
 }
 
+/*
+ * Base class used in the framework defining the interface for shader stages.
+ * Children of this class will be used to define what Variables the different
+ * shader stages use for input and output, allowing compile time constraints
+ * for keeping everything consistent.
+ */
 template <class Child, typename T>
 struct InterfaceVariableBase {
 protected:

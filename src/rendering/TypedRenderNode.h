@@ -26,7 +26,7 @@ namespace detail {
 // Sees if class A exists in the variadic pack B.
 template <class A, class B> struct subset_helper;
 template <class A, class... B>
-struct subset_helper<A, std::tuple<B...>> {
+struct subset_helper<A, Pack<B...>> {
   static constexpr bool value() {
     const std::array<bool, sizeof...(B)> check = { std::is_same<A,B>::value... };
     auto ret = false;
@@ -40,9 +40,9 @@ struct subset_helper<A, std::tuple<B...>> {
 // Sees if all of the classes in the pack A exist in the pack B
 template <class A, class B> struct is_subset;
 template <class... A, class... B>
-struct is_subset<std::tuple<A...>, std::tuple<B...>> {
+struct is_subset<Pack<A...>, Pack<B...>> {
   static constexpr bool value() {
-    using other = std::tuple<B...>;
+    using other = Pack<B...>;
     const std::array<bool, sizeof...(A)> check = {subset_helper<A, other>::value()... };
     auto ret = true;
     for (size_t i = 0; i < sizeof...(A); ++i) {
@@ -90,7 +90,7 @@ struct TypedRenderNode_<Pack<Types...>, Managers...> : RenderNode, Managers::Int
 	 *
    * @param child subtree to add to this node.
    */
-  using Interface_t = std::tuple<Types...>;
+  using Interface_t = Pack<Types...>;
   template <typename Other>
   std::shared_ptr<RenderNode> AddChild(
       std::unique_ptr<Other> child) {

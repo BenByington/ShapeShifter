@@ -49,6 +49,10 @@ struct generator_traits {
 
 }
 
+/*
+ * Generic shader class.  Use the Specific Vertex and Fragment
+ * versions below.
+ */
 template <class Generator>
 class Shader : public ShaderBase {
 protected:
@@ -70,6 +74,12 @@ private:
   std::map<std::string, size_t> layout_map_;
 };
 
+/*
+ * Vertex shader class, that mostly just acts as a plugin layer between
+ * the actual Shader class interfacting with opengl, and the
+ * VertexGenerator that actually specifies the shader program to be
+ * compiled
+ */
 template <class Generator>
 class VertexShader : public Shader<Generator> {
     static_assert(
@@ -89,6 +99,12 @@ public:
 	virtual ~VertexShader() {}
 };
 
+/*
+ * Fragment shader class, that mostly just acts as a plugin layer between
+ * the actual Shader class interfacting with opengl, and the
+ * FragmentGenerator that actually specifies the shader program to be
+ * compiled
+ */
 template <class Generator>
 class FragmentShader : public Shader<Generator> {
     static_assert(

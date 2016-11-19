@@ -74,6 +74,13 @@ struct extract<Expression<T>>{
 
 }
 
+/*
+ * This is designed to be the only way to instantiate Variable<T> and Expression<T>
+ * objects, though Expression<T> can be generated as a temporary resulting from
+ * operations like operator*().  The same VariableFactory class must be used for
+ * an entire Shader, as it's internal stringstream is what will store the
+ * output state.
+ */
 class VariableFactory {
 public:
   template <typename T>
@@ -81,6 +88,13 @@ public:
     return Language::Variable<T>(s, name);
   }
 
+  /*
+   * This should be the only way to explicitly create an ExpressionVariable,
+   * and it will only live as a temporary.  This function is only valid to
+   * call if T has a Create(Args... args) function.  It will not actually be
+   * invoked so it can be a dummy, but its existence will be checked for.  This
+   * is to prevent invalid constructor calls in the resulting GLSL code.
+   */
   template <typename T, typename... Args>
   Language::Expression<T> temporary(Args&&... args) {
     static_assert(

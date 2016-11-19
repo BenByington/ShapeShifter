@@ -24,9 +24,11 @@ namespace Rendering {
 namespace Shaders {
 
 /*
- * Class that wraps an opengl shader resource.  It expects the shader to
- * program to live in a separate text file, which it will load and parse
- * and compile.  Must use one of the children classes to actually instantiate.
+ * Base class that unifies both the RawShaders that parse text files, and the
+ * Shaders that procedurally generate the GLSL code from c++ code.  Prefer
+ * using the latter when possible.
+ *
+ * This class will manage the actual opengl resources
  */
 class ShaderBase {
 protected:

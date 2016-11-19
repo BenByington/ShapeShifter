@@ -70,6 +70,15 @@ class GLSLVertexGeneratorBase;
 template <class Input, class Uniform, class Output>
 class GLSLFragmentGeneratorBase;
 
+/*
+ * Base class for procedurally generating GLSL shader code.  Inputs...
+ * Uniforms... and Outputs... define interface variables for the shader
+ * stage.  They must be of InterfaceVariable type, and will automatically
+ * provide Variable<T> variables for the implementation class to use.
+ *
+ * This class should not be extended directly, but rather the Vertex and
+ * Fragment children below.
+ */
 template <class... Inputs, class... Uniforms, class... Outputs>
 struct GLSLGeneratorBase<Pack<Inputs...>, Pack<Uniforms...>, Pack<Outputs...>>
   : Inputs... , Uniforms..., Outputs... {

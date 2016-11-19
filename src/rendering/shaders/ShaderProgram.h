@@ -103,7 +103,7 @@ public:
     return detail::instantiate_managers<Interface...>::foo(map);
   }
 
-  using Interface_t = std::tuple<Interface...>;
+  using Interface_t = Pack<Interface...>;
 };
 
 namespace detail {
@@ -118,6 +118,11 @@ struct get_program_type<Pack<Inputs...>> {
 
 }
 
+/*
+ * Helper function that does a lot of the legwork in creating a shader
+ * program, requiring fewer long fully-qualified names at the call site.
+ * This should be the preferred method of instantiation.
+ */
 template <class VertexGenerator, class FragmentGenerator>
 decltype(auto) CreateShaderProgram() {
   auto vert = std::make_unique<VertexShader<VertexGenerator>>();
