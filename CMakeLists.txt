@@ -23,7 +23,7 @@ add_executable(ShapeShifter ${SRC})
 include_directories(src)
 # stupid hack because opengl will have a different relative path structure
 # depending on the OS
-include_directories(${OPENGL_INCLUDE_DIR}/opengl)
+include_directories(${OPENGL_INCLUDE_DIR}/HEADERS)
 include_directories(${OPENGL_INCLUDE_DIR}/GLES3)
 
 target_link_libraries(ShapeShifter Qt5::Gui)
