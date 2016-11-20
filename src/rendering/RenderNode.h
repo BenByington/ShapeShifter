@@ -19,7 +19,7 @@
 #include "math/Vector4.h"
 #include "rendering/Camera.h"
 
-#include <opengl/gl3.h>
+#include <gl3.h>
 
 namespace ShapeShifter {
 namespace Rendering {

@@ -15,6 +15,7 @@
 #define DATA_VECTORSLICE_H
 
 #include <cassert>
+#include <cstddef>
 #include <vector>
 
 namespace ShapeShifter {

@@ -17,7 +17,7 @@
 #include <map>
 #include <string>
 
-#include <opengl/gl3.h>
+#include <gl3.h>
 
 namespace ShapeShifter {
 namespace Rendering {

@@ -11,7 +11,7 @@
  * Created on October 13, 2016, 3:52 PM
  */
 
-#include "Data/ConcreteBufferManager.h"
+#include "data/ConcreteBufferManager.h"
 #include "rendering/TypedRenderNode.h"
 
 namespace ShapeShifter {
