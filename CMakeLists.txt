@@ -8,9 +8,6 @@ find_package(Qt5OpenGL REQUIRED)
 
 find_package(OpenGL REQUIRED)
 
-MESSAGE("Opengl include": ${OPENGL_INCLUDE_DIR})
-MESSAGE("Found Opengl:" ${OPENGL_FOUND})
-
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)

@@ -14,10 +14,9 @@
 #ifndef RENDERING_SHADERS_SHADER_BASE_H
 #define RENDERING_SHADERS_SHADER_BASE_H
 
+#include "rendering/OpenglWrapper.h"
 #include <map>
 #include <string>
-
-#include <gl3.h>
 
 namespace ShapeShifter {
 namespace Rendering {

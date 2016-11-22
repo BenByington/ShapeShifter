@@ -18,8 +18,7 @@
 #include "math/Quaternion.h"
 #include "math/Vector4.h"
 #include "rendering/Camera.h"
-
-#include <gl3.h>
+#include "rendering/OpenglWrapper.h"
 
 namespace ShapeShifter {
 namespace Rendering {
