@@ -20,19 +20,25 @@
 #include <map>
 #include <vector>
 
+// Declare this, so that we don't overwrite the #defines and etc from the real
+// gl3.h.  Probably unecessary, but I just want to be safe.
 #define DONT_SIPHON_TYPES
 #include "rendering/OpenglWrapper.h"
 
 // Defines used to control what extra debugging steps occur
+// The last three are subsets of each other.  LOG_PARAMETERS will enable
+// LOG_FUNCTIONS, and DETAIL_LOG_PARAMETERS will enable both the others.
 //#define ERROR_CHECKING
-// These are subsets of each other.  LOG_PARAMETERS will enable LOG_FUNCTIONS,
-// and DETAIL_LOG_PARAMETERS will enable both the others.
 //#define LOG_FUNCTIONS
 //#define LOG_PARAMETERS
 //#define DETAIL_LOG_PARAMETERS
 
+// Ugly hack, but in the count_map, we will toss in a GL_ENUM instead of
+// a count, so that sections that took a void pointer to a single value
+// can decode the type for printing.
 static constexpr size_t TYPE_IDX = std::numeric_limits<size_t>::max();
 
+// Type to string conversions for pretty printing
 template <class T>
 std::string type();
 template <> std::string type<long>() { return "long";}
@@ -50,6 +56,16 @@ template <> std::string type<uint32_t const*>() { return "uint32_t*";}
 template <> std::string type<uint32_t *>() { return "uint32_t*";}
 template <> std::string type<void const*>() { return "void*";}
 
+/*
+ * Classes for printing out values.  There are a number of special cases to
+ * handled.  Normal types can just be printed, but we also need to know when
+ * we are a pointer so that we can print out the full array, or a pointer to
+ * char so we can print out a string, or even a double pointer to char so
+ * that we can print out an array of strings.  The 'count' parameter is only
+ * used for printing out arrays, but is included in all functions for symmetry.
+ * Note: An exception to that is the 'count' parameter for the void* function
+ * really is a GL_ENUM with type information
+ */
 template <class T>
 typename std::enable_if<!std::is_pointer<T>::value, std::string>::type
 value(size_t count, T v) { return std::to_string(v); }
@@ -80,7 +96,6 @@ std::string value<char>(size_t count, const char* v) {
   assert(count == 1);
   return "\"" + std::string(v) + "\"";
 }
-
 
 std::string value(size_t count, const char* const * v) {
 #ifdef DETAIL_LOG_PARAMETERS
@@ -122,6 +137,7 @@ types_values_helper(
     std::map<size_t, size_t> count_map,
     std::index_sequence<Indexes...> idxs,
     Args&&... args) {
+  // Extract the count information if it exists.  Be default it will always be 1.
   auto count = [&](size_t index) -> size_t{
     if (count_map.count(index)) {
       return count_map[index];
@@ -129,12 +145,11 @@ types_values_helper(
       return 1;
     }
   };
-  return {
-        {
-            type<typename std::decay<typename std::remove_pointer<Args>::type>::type>()
-          , value(count(Indexes), args)
-        }...
-    };
+
+  return {{
+      type<typename std::decay<typename std::remove_pointer<Args>::type>::type>(),
+      value(count(Indexes), args)
+  }...};
 }
 
 template <class...Args>
@@ -146,7 +161,6 @@ types_values(std::map<size_t, size_t> count_map, Args&&... args) {
 
 std::vector<std::string> param_list(std::string raw) {
   std::vector<std::string> ret;
-
   std::replace(raw.begin(), raw.end(), ',', ' ');
   std::stringstream stream(raw);
   std::string token;
@@ -215,115 +229,115 @@ void check(bool first) {
   return ret;
 
 namespace ShapeShifter {
-GLAPI void APIENTRY glGetIntegerv (GLenum pname, GLint *params) {
+void glGetIntegerv (GLenum pname, GLint *params) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glGetIntegerv, pname, params);
 }
-GLAPI GLuint APIENTRY glCreateProgram (void) {
+GLuint glCreateProgram (void) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY_RETURN(glCreateProgram);
 }
-GLAPI GLuint APIENTRY glCreateShader (GLenum type) {
+GLuint glCreateShader (GLenum type) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY_RETURN(glCreateShader, type);
 }
-GLAPI void APIENTRY glShaderSource (GLuint shader, GLsizei count, const GLchar* const *string, const GLint *length) {
+void glShaderSource (GLuint shader, GLsizei count, const GLchar* const *string, const GLint *length) {
   std::map<size_t, size_t> count_map {{3, count}};
   FUNC_BODY(glShaderSource, shader, count, string, length);
 }
-GLAPI void APIENTRY glCompileShader (GLuint shader) {
+void glCompileShader (GLuint shader) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glCompileShader, shader);
 }
-GLAPI void APIENTRY glGetShaderiv (GLuint shader, GLenum pname, GLint *params) {
+void glGetShaderiv (GLuint shader, GLenum pname, GLint *params) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glGetShaderiv, shader, pname, params);
 }
-GLAPI void APIENTRY glGetShaderInfoLog (GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog) {
+void glGetShaderInfoLog (GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glGetShaderInfoLog, shader, bufSize, length, infoLog);
 }
-GLAPI void APIENTRY glDeleteShader (GLuint shader) {
+void glDeleteShader (GLuint shader) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glDeleteShader, shader);
 }
-GLAPI void APIENTRY glUseProgram (GLuint program) {
+void glUseProgram (GLuint program) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glUseProgram, program);
 }
-GLAPI void APIENTRY glGenVertexArrays (GLsizei n, GLuint *arrays) {
+void glGenVertexArrays (GLsizei n, GLuint *arrays) {
   std::map<size_t, size_t> count_map {{1,n}};
   FUNC_BODY(glGenVertexArrays, n, arrays);
 }
-GLAPI void APIENTRY glBindVertexArray (GLuint array) {
+void glBindVertexArray (GLuint array) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glBindVertexArray, array);
 }
-GLAPI void APIENTRY glGenBuffers (GLsizei n, GLuint *buffers) {
+void glGenBuffers (GLsizei n, GLuint *buffers) {
   std::map<size_t, size_t> count_map {{1,n}};
   FUNC_BODY(glGenBuffers, n, buffers);
 }
-GLAPI void APIENTRY glBindBuffer (GLenum target, GLuint buffer) {
+void glBindBuffer (GLenum target, GLuint buffer) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glBindBuffer, target, buffer);
 }
-GLAPI void APIENTRY glBufferData (GLenum target, const std::vector<float>& data, GLenum usage) {
+void glBufferData (GLenum target, const std::vector<float>& data, GLenum usage) {
   std::map<size_t, size_t> count_map {{2, data.size()}};
   FUNC_BODY(glBufferData, target, data.size()*sizeof(float), data.data(), usage);
 }
-GLAPI void APIENTRY glBufferData (GLenum target, const std::vector<uint32_t>& data, GLenum usage) {
+void glBufferData (GLenum target, const std::vector<uint32_t>& data, GLenum usage) {
   std::map<size_t, size_t> count_map {{2, data.size()}};
   FUNC_BODY(glBufferData, target, data.size()*sizeof(uint32_t), data.data(), usage);
 }
-GLAPI void APIENTRY glAttachShader (GLuint program, GLuint shader) {
+void glAttachShader (GLuint program, GLuint shader) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glAttachShader, program, shader);
 }
-GLAPI void APIENTRY glVertexAttribPointer (GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer) {
+void glVertexAttribPointer (GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer) {
   std::map<size_t, size_t> count_map {{5,type}};
   FUNC_BODY(glVertexAttribPointer, index, size, type, normalized, stride, pointer);
 }
-GLAPI void APIENTRY glEnableVertexAttribArray (GLuint index) {
+void glEnableVertexAttribArray (GLuint index) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glEnableVertexAttribArray, index);
 }
-GLAPI void APIENTRY glDeleteVertexArrays (GLsizei n, const GLuint *arrays) {
+void glDeleteVertexArrays (GLsizei n, const GLuint *arrays) {
   std::map<size_t, size_t> count_map {{1,n}};
   FUNC_BODY(glDeleteVertexArrays, n, arrays);
 }
-GLAPI void APIENTRY glLinkProgram (GLuint program) {
+void glLinkProgram (GLuint program) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glLinkProgram, program);
 }
-GLAPI void APIENTRY glGetProgramiv (GLuint program, GLenum pname, GLint *params) {
+void glGetProgramiv (GLuint program, GLenum pname, GLint *params) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glGetProgramiv, program, pname, params);
 }
-GLAPI void APIENTRY glGetProgramInfoLog (GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog) {
+void glGetProgramInfoLog (GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glGetProgramInfoLog, program, bufSize, length, infoLog);
 }
-GLAPI void APIENTRY glDeleteProgram (GLuint program) {
+void glDeleteProgram (GLuint program) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glDeleteProgram, program);
 }
-GLAPI void APIENTRY glDeleteBuffers (GLsizei n, const GLuint *buffers) {
+void glDeleteBuffers (GLsizei n, const GLuint *buffers) {
   std::map<size_t, size_t> count_map {{1,n}};
   FUNC_BODY(glDeleteBuffers, n, buffers);
 }
-GLAPI GLint APIENTRY glGetUniformLocation (GLuint program, const GLchar *name) {
+GLint glGetUniformLocation (GLuint program, const GLchar *name) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY_RETURN(glGetUniformLocation, program, name);
 }
-GLAPI void APIENTRY glUniformMatrix4fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) {
+void glUniformMatrix4fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) {
   std::map<size_t, size_t> count_map {{3,16*count}};
   FUNC_BODY(glUniformMatrix4fv, location, count, transpose, value);
 }
-GLAPI void APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei count) {
+void glDrawArrays (GLenum mode, GLint first, GLsizei count) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glDrawArrays, mode, first, count);
 }
-GLAPI void APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid *indices) {
+void glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid *indices) {
   std::map<size_t, size_t> count_map {{3, type}};
   FUNC_BODY(glDrawElements, mode, count, type, indices);
 }

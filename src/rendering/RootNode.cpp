@@ -36,7 +36,6 @@ void RootNode::UpdateData() {
     glGenBuffers (1, &vbo);
     glBindBuffer (GL_ARRAY_BUFFER, vbo);
     glBufferData (GL_ARRAY_BUFFER, buffer_dat, GL_STATIC_DRAW);
-    // TODO make sure this line gets shortened as well
     glVertexAttribPointer(kv.first->idx(),  buffer_dat.size()/data.Size().vertex_, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(kv.first->idx());
   }
