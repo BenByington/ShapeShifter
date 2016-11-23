@@ -27,9 +27,9 @@
 #define ERROR_CHECKING
 // These are subsets of each other.  LOG_PARAMETERS will enable LOG_FUNCTIONS,
 // and DETAIL_LOG_PARAMETERS will enable both the others.
-//#define LOG_FUNCTIONS
-//#define LOG_PARAMETERS
-//#define DETAIL_LOG_PARAMETERS
+#define LOG_FUNCTIONS
+#define LOG_PARAMETERS
+#define DETAIL_LOG_PARAMETERS
 
 static constexpr size_t TYPE_IDX = std::numeric_limits<size_t>::max();
 
@@ -156,7 +156,6 @@ std::vector<std::string> param_list(std::string raw) {
 
 #if defined(LOG_PARAMETERS) or defined(DETAIL_LOG_PARAMETERS)
   #define PRINT_PARAMS(...) \
-    std::cerr << std::endl; \
     auto param_names_ = param_list(#__VA_ARGS__); \
     auto tvs_ = types_values(count_map, ##__VA_ARGS__); \
     for (size_t i = 0; i < param_names_.size(); ++i)  \
@@ -167,19 +166,33 @@ std::vector<std::string> param_list(std::string raw) {
   #define PRINT_PARAMS(...)
 #endif
 
-
+#if defined(LOG_PARAMETERS) or defined(DETAIL_LOG_PARAMETERS)
+  #define PRINT_RETURN \
+    std::cerr << "return: " << std::to_string(ret) << std::endl;
+#else
+  #define PRINT_RETURN
+#endif
 
 #if defined(LOG_FUNCTIONS) or defined(LOG_PARAMETERS) or defined(DETAIL_LOG_PARAMETERS)
   #define PRINT_CALL(function, ...) \
+    std::cerr << std::endl; \
     std::cerr << #function << "(" << #__VA_ARGS__ << ");\n";
 #else
   #define PRINT_CALL(function, ...)
 #endif
 
 #define FUNC_BODY(function, ...)  \
-  PRINT_PARAMS(__VA_ARGS__); \
+  ::function(__VA_ARGS__); \
   PRINT_CALL(function, __VA_ARGS__); \
-  return ::function(__VA_ARGS__);
+  PRINT_PARAMS(__VA_ARGS__); \
+  return;
+
+#define FUNC_BODY_RETURN(function, ...)  \
+  auto ret = ::function(__VA_ARGS__); \
+  PRINT_CALL(function, __VA_ARGS__); \
+  PRINT_PARAMS(__VA_ARGS__); \
+  PRINT_RETURN \
+  return ret;
 
 namespace ShapeShifter {
 GLAPI void APIENTRY glGetIntegerv (GLenum pname, GLint *params) {
@@ -188,11 +201,11 @@ GLAPI void APIENTRY glGetIntegerv (GLenum pname, GLint *params) {
 }
 GLAPI GLuint APIENTRY glCreateProgram (void) {
   std::map<size_t, size_t> count_map;
-  FUNC_BODY(glCreateProgram);
+  FUNC_BODY_RETURN(glCreateProgram);
 }
 GLAPI GLuint APIENTRY glCreateShader (GLenum type) {
   std::map<size_t, size_t> count_map;
-  FUNC_BODY(glCreateShader, type);
+  FUNC_BODY_RETURN(glCreateShader, type);
 }
 GLAPI void APIENTRY glShaderSource (GLuint shader, GLsizei count, const GLchar* const *string, const GLint *length) {
   std::map<size_t, size_t> count_map {{3, count}};
@@ -280,7 +293,7 @@ GLAPI void APIENTRY glDeleteBuffers (GLsizei n, const GLuint *buffers) {
 }
 GLAPI GLint APIENTRY glGetUniformLocation (GLuint program, const GLchar *name) {
   std::map<size_t, size_t> count_map;
-  FUNC_BODY(glGetUniformLocation, program, name);
+  FUNC_BODY_RETURN(glGetUniformLocation, program, name);
 }
 GLAPI void APIENTRY glUniformMatrix4fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) {
   std::map<size_t, size_t> count_map {{3,16*count}};
