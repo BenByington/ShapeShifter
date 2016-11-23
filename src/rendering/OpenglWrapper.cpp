@@ -152,12 +152,16 @@ types_values_helper(
   }...};
 }
 
-template <class...Args>
-std::vector<std::pair<std::string, std::string>>
-types_values(std::map<size_t, size_t> count_map, Args&&... args) {
-  constexpr auto idxs = std::make_index_sequence<sizeof...(args)>();
-  return types_values_helper(count_map, idxs, args...);
-}
+struct types_values {
+  types_values(const std::map<size_t, size_t>& map) : count_map(map) {}
+  template <class...Args>
+  std::vector<std::pair<std::string, std::string>>
+  operator()(Args&&... args) {
+    constexpr auto idxs = std::make_index_sequence<sizeof...(args)>();
+    return types_values_helper(count_map, idxs, args...);
+  }
+  const std::map<size_t, size_t>& count_map;
+};
 
 std::vector<std::string> param_list(std::string raw) {
   std::vector<std::string> ret;
@@ -187,7 +191,7 @@ void check(bool first) {
 #if defined(LOG_PARAMETERS) or defined(DETAIL_LOG_PARAMETERS)
   #define PRINT_PARAMS(...) \
     auto param_names_ = param_list(#__VA_ARGS__); \
-    auto tvs_ = types_values(count_map, ##__VA_ARGS__); \
+    auto tvs_ = types_values(count_map)(__VA_ARGS__); \
     for (size_t i = 0; i < param_names_.size(); ++i)  \
       std::cerr << tvs_[i].first << " " \
           << param_names_[i]  << " = " \
