@@ -14,6 +14,7 @@
 #include <gl3.h>
 
 #include <algorithm>
+#include <cassert>
 #include <iostream>
 #include <sstream>
 #include <map>
@@ -22,9 +23,12 @@
 #define DONT_SIPHON_TYPES
 #include "rendering/OpenglWrapper.h"
 
+static constexpr size_t TYPE_IDX = std::numeric_limits<size_t>::max();
+
 template <class T>
 std::string type();
 template <> std::string type<long>() { return "long";}
+template <> std::string type<unsigned long>() { return "unsigned long";}
 template <> std::string type<uint32_t>() { return "uint32_t";}
 template <> std::string type<int32_t>() { return "int32_t";}
 template <> std::string type<char const* const*>() { return "char**";}
@@ -44,6 +48,7 @@ value(size_t count, T v) { return std::to_string(v); }
 
 template <class T>
 std::string value(size_t count, const T* v) {
+  if (count == 0) return "{}";
   std::stringstream ss;
   ss << "{ ";
   for (size_t i = 0; i < count-1; ++i) {
@@ -54,9 +59,38 @@ std::string value(size_t count, const T* v) {
 
 }
 
-template <class T>
-std::string value(size_t count, const T* const * v) { return "**(" + std::to_string(**v) + ")"; }
-template<> std::string value<void>(size_t idx, const void* v) { return "Cannot access void ptr data"; }
+template <>
+std::string value<char>(size_t count, const char* v) {
+  assert(count == 1);
+  return "\"" + std::string(v) + "\"";
+}
+
+
+std::string value(size_t count, const char* const * v) {
+  if (count == 0) return "{}";
+  std::stringstream ss;
+  ss << "{ ";
+  for (size_t i = 0; i < count-1; ++i) {
+    ss << v[i] << ", ";
+  }
+  ss << v[count-1] << " }";
+  return ss.str();
+}
+
+template<> std::string value<void>(size_t count, const void* v) {
+  switch(count) {
+    case GL_FLOAT:
+      assert(size_t(v) / sizeof(float) == 0);
+      return "(float)" + std::to_string((size_t(v)) / sizeof(float));
+    case GL_UNSIGNED_INT:
+      assert(size_t(v) / sizeof(uint32_t) == 0);
+      return "(uint32_t)" + std::to_string((size_t(v)) / sizeof(uint32_t));
+    default:
+      std::cerr << "unhandled type in void printing!\n";
+      assert(false);
+      return "";
+  }
+}
 
 template <size_t... Indexes, class... Args>
 std::vector<std::pair<std::string, std::string>>
@@ -166,16 +200,20 @@ GLAPI void APIENTRY glBindBuffer (GLenum target, GLuint buffer) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glBindBuffer, target, buffer);
 }
-GLAPI void APIENTRY glBufferData (GLenum target, GLsizeiptr size, const GLvoid *data, GLenum usage) {
-  std::map<size_t, size_t> count_map {{2, size}};
-  FUNC_BODY(glBufferData, target, size, data, usage);
+GLAPI void APIENTRY glBufferData (GLenum target, const std::vector<float>& data, GLenum usage) {
+  std::map<size_t, size_t> count_map {{2, data.size()}};
+  FUNC_BODY(glBufferData, target, data.size()*sizeof(float), data.data(), usage);
+}
+GLAPI void APIENTRY glBufferData (GLenum target, const std::vector<uint32_t>& data, GLenum usage) {
+  std::map<size_t, size_t> count_map {{2, data.size()}};
+  FUNC_BODY(glBufferData, target, data.size()*sizeof(uint32_t), data.data(), usage);
 }
 GLAPI void APIENTRY glAttachShader (GLuint program, GLuint shader) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glAttachShader, program, shader);
 }
 GLAPI void APIENTRY glVertexAttribPointer (GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer) {
-  std::map<size_t, size_t> count_map;
+  std::map<size_t, size_t> count_map {{5,type}};
   FUNC_BODY(glVertexAttribPointer, index, size, type, normalized, stride, pointer);
 }
 GLAPI void APIENTRY glEnableVertexAttribArray (GLuint index) {
@@ -219,7 +257,7 @@ GLAPI void APIENTRY glDrawArrays (GLenum mode, GLint first, GLsizei count) {
   FUNC_BODY(glDrawArrays, mode, first, count);
 }
 GLAPI void APIENTRY glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid *indices) {
-  std::map<size_t, size_t> count_map;
+  std::map<size_t, size_t> count_map {{3, type}};
   FUNC_BODY(glDrawElements, mode, count, type, indices);
 }
 

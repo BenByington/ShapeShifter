@@ -15,6 +15,7 @@
 #define OPENGL_WRAPPER_H
 
 #include <cstdint>
+#include <vector>
 
 #ifndef DONT_SIPHON_TYPES
 namespace hidden {
@@ -49,7 +50,8 @@ GLAPI void APIENTRY glGenVertexArrays (GLsizei n, GLuint *arrays);
 GLAPI void APIENTRY glBindVertexArray (GLuint array);
 GLAPI void APIENTRY glGenBuffers (GLsizei n, GLuint *buffers);
 GLAPI void APIENTRY glBindBuffer (GLenum target, GLuint buffer);
-GLAPI void APIENTRY glBufferData (GLenum target, GLsizeiptr size, const GLvoid *data, GLenum usage);
+GLAPI void APIENTRY glBufferData (GLenum target, const std::vector<float>& data, GLenum usage);
+GLAPI void APIENTRY glBufferData (GLenum target, const std::vector<uint32_t>& data, GLenum usage);
 GLAPI void APIENTRY glAttachShader (GLuint program, GLuint shader);
 GLAPI void APIENTRY glVertexAttribPointer (GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer);
 GLAPI void APIENTRY glEnableVertexAttribArray (GLuint index);
