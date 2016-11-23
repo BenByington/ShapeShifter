@@ -24,12 +24,12 @@
 #include "rendering/OpenglWrapper.h"
 
 // Defines used to control what extra debugging steps occur
-#define ERROR_CHECKING
+//#define ERROR_CHECKING
 // These are subsets of each other.  LOG_PARAMETERS will enable LOG_FUNCTIONS,
 // and DETAIL_LOG_PARAMETERS will enable both the others.
-#define LOG_FUNCTIONS
-#define LOG_PARAMETERS
-#define DETAIL_LOG_PARAMETERS
+//#define LOG_FUNCTIONS
+//#define LOG_PARAMETERS
+//#define DETAIL_LOG_PARAMETERS
 
 static constexpr size_t TYPE_IDX = std::numeric_limits<size_t>::max();
 
@@ -154,6 +154,22 @@ std::vector<std::string> param_list(std::string raw) {
   return ret;
 }
 
+void check(bool first) {
+    for(GLenum err; (err = glGetError()) != GL_NO_ERROR;)
+    {
+      if(first) {
+        std::cerr << "unexpected error...! Are there unwrapped opengl calls?\n";
+      }
+      std::cerr << "Encountered opengl error: " << err << std::endl;
+    }
+}
+
+#if defined(ERROR_CHECKING)
+  #define CHECK(first) check(first);
+#else
+  #define CHECK(first)
+#endif
+
 #if defined(LOG_PARAMETERS) or defined(DETAIL_LOG_PARAMETERS)
   #define PRINT_PARAMS(...) \
     auto param_names_ = param_list(#__VA_ARGS__); \
@@ -182,13 +198,17 @@ std::vector<std::string> param_list(std::string raw) {
 #endif
 
 #define FUNC_BODY(function, ...)  \
+  CHECK(true) \
   ::function(__VA_ARGS__); \
+  CHECK(false) \
   PRINT_CALL(function, __VA_ARGS__); \
   PRINT_PARAMS(__VA_ARGS__); \
   return;
 
 #define FUNC_BODY_RETURN(function, ...)  \
+  CHECK(true) \
   auto ret = ::function(__VA_ARGS__); \
+  CHECK(false) \
   PRINT_CALL(function, __VA_ARGS__); \
   PRINT_PARAMS(__VA_ARGS__); \
   PRINT_RETURN \
