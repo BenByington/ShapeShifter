@@ -23,6 +23,14 @@
 #define DONT_SIPHON_TYPES
 #include "rendering/OpenglWrapper.h"
 
+// Defines used to control what extra debugging steps occur
+#define ERROR_CHECKING
+// These are subsets of each other.  LOG_PARAMETERS will enable LOG_FUNCTIONS,
+// and DETAIL_LOG_PARAMETERS will enable both the others.
+//#define LOG_FUNCTIONS
+//#define LOG_PARAMETERS
+//#define DETAIL_LOG_PARAMETERS
+
 static constexpr size_t TYPE_IDX = std::numeric_limits<size_t>::max();
 
 template <class T>
@@ -48,13 +56,21 @@ value(size_t count, T v) { return std::to_string(v); }
 
 template <class T>
 std::string value(size_t count, const T* v) {
+#ifdef DETAIL_LOG_PARAMETERS
+  size_t max = count;
+  std::string cont = "";
+#else
+  size_t max = std::min(9ul, count);
+  std::string cont = max < count ? ", ..." : "";
+#endif
+
   if (count == 0) return "{}";
   std::stringstream ss;
   ss << "{ ";
-  for (size_t i = 0; i < count-1; ++i) {
+  for (size_t i = 0; i < max-1; ++i) {
     ss << v[i] << ", ";
   }
-  ss << v[count-1] << " }";
+  ss << v[max-1] << cont << " }";
   return ss.str();
 
 }
@@ -67,13 +83,21 @@ std::string value<char>(size_t count, const char* v) {
 
 
 std::string value(size_t count, const char* const * v) {
+#ifdef DETAIL_LOG_PARAMETERS
+  size_t max = count;
+  std::string cont = "";
+#else
+  size_t max = std::min(9ul, count);
+  std::string cont = max < count ? ", ..." : "";
+#endif
+
   if (count == 0) return "{}";
   std::stringstream ss;
   ss << "{ ";
-  for (size_t i = 0; i < count-1; ++i) {
+  for (size_t i = 0; i < max-1; ++i) {
     ss << v[i] << ", ";
   }
-  ss << v[count-1] << " }";
+  ss << v[max-1] << cont << " }";
   return ss.str();
 }
 
@@ -130,19 +154,29 @@ std::vector<std::string> param_list(std::string raw) {
   return ret;
 }
 
-#define PRINT_PARAMS(...) \
-  auto param_names_ = param_list(#__VA_ARGS__); \
-  auto tvs_ = types_values(count_map, ##__VA_ARGS__); \
-  for (size_t i = 0; i < param_names_.size(); ++i)  \
-    std::cerr << tvs_[i].first << " " \
-        << param_names_[i]  << " = " \
-        << tvs_[i].second << std::endl;
+#if defined(LOG_PARAMETERS) or defined(DETAIL_LOG_PARAMETERS)
+  #define PRINT_PARAMS(...) \
+    std::cerr << std::endl; \
+    auto param_names_ = param_list(#__VA_ARGS__); \
+    auto tvs_ = types_values(count_map, ##__VA_ARGS__); \
+    for (size_t i = 0; i < param_names_.size(); ++i)  \
+      std::cerr << tvs_[i].first << " " \
+          << param_names_[i]  << " = " \
+          << tvs_[i].second << std::endl;
+#else
+  #define PRINT_PARAMS(...)
+#endif
 
-#define PRINT_CALL(function, ...) \
-  std::cerr << #function << "(" << #__VA_ARGS__ << ");\n";
+
+
+#if defined(LOG_FUNCTIONS) or defined(LOG_PARAMETERS) or defined(DETAIL_LOG_PARAMETERS)
+  #define PRINT_CALL(function, ...) \
+    std::cerr << #function << "(" << #__VA_ARGS__ << ");\n";
+#else
+  #define PRINT_CALL(function, ...)
+#endif
 
 #define FUNC_BODY(function, ...)  \
-  std::cerr << std::endl; \
   PRINT_PARAMS(__VA_ARGS__); \
   PRINT_CALL(function, __VA_ARGS__); \
   return ::function(__VA_ARGS__);
