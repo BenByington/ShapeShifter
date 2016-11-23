@@ -35,7 +35,7 @@ void RootNode::UpdateData() {
     const auto& buffer_dat = kv.second;
     glGenBuffers (1, &vbo);
     glBindBuffer (GL_ARRAY_BUFFER, vbo);
-    glBufferData (GL_ARRAY_BUFFER, buffer_dat.size() * sizeof (float), buffer_dat.data(), GL_STATIC_DRAW);
+    glBufferData (GL_ARRAY_BUFFER, buffer_dat, GL_STATIC_DRAW);
     glVertexAttribPointer(kv.first->idx(),  buffer_dat.size()/data.Size().vertex_, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(kv.first->idx());
   }
@@ -45,7 +45,7 @@ void RootNode::UpdateData() {
     const auto& buffer_dat = kv.second;
     glGenBuffers (1, &vbo);
     glBindBuffer (GL_ARRAY_BUFFER, vbo);
-    glBufferData (GL_ARRAY_BUFFER, buffer_dat.size() * sizeof (uint32_t), buffer_dat.data(), GL_STATIC_DRAW);
+    glBufferData (GL_ARRAY_BUFFER, buffer_dat, GL_STATIC_DRAW);
     glVertexAttribPointer(kv.first->idx(),  buffer_dat.size()/data.Size().vertex_, GL_INT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray(kv.first->idx());
   }
@@ -54,7 +54,7 @@ void RootNode::UpdateData() {
   ibo = GLuint{0};
   glGenBuffers (1, &ibo);
   glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, ibo);
-  glBufferData (GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof (uint32_t), indices.data(), GL_STATIC_DRAW);
+  glBufferData (GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 }
 
 void RootNode::CleanupBuffer() {
