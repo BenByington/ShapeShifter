@@ -42,6 +42,15 @@ protected:
   void mouseReleaseEvent(QMouseEvent* event) override;
   void mouseMoveEvent(QMouseEvent* event) override;
 
+  // ISSUE: see if we can find a more elegant way to unify slots via templates.
+  // Still need hand coded linkage functions below.
+  template <class Scenario>
+  void ScenarioSlotHelper() {
+    this->makeCurrent();
+    world_ = Scenario().Setup();
+    update();
+  }
+  
   // Can we make this not public?
 public slots:
   void EmptyScenario();

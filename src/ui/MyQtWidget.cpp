@@ -94,18 +94,15 @@ std::pair<float, float> MyQtWidget::PixelCoordToCameraProj(const QPointF& p) con
 }
 
 void MyQtWidget::EmptyScenario() {
-  world_ = scenarios::Empty().Setup();
-  update();
+  ScenarioSlotHelper<scenarios::Empty>();
 }
 
 void MyQtWidget::Squares2DScenario() {
-  world_ = scenarios::tests::Squares2D().Setup();
-  update();
+  ScenarioSlotHelper<scenarios::tests::Squares2D>();
 }
 
 void MyQtWidget::IndexBufferScenario() {
-  world_ = scenarios::tests::IndexBuffers().Setup();
-  update();
+  ScenarioSlotHelper<scenarios::tests::IndexBuffers>();
 }
 
 }} //ShapeShifter::ui
