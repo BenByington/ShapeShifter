@@ -71,6 +71,7 @@ GLint glGetUniformLocation (GLuint program, const GLchar *name);
 void glUniformMatrix4fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 void glDrawArrays (GLenum mode, GLint first, GLsizei count);
 void glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
+GLboolean glIsVertexArray (GLuint array);
 
 }
 #endif /* OPENGL_WRAPPER_H */

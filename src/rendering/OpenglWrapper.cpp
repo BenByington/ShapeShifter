@@ -39,21 +39,23 @@
 static constexpr size_t TYPE_IDX = std::numeric_limits<size_t>::max();
 
 // Type to string conversions for pretty printing
+// Warning: For array types, there is some magic going on here, where we omit the
+// [] now but add it to the value printing.
 template <class T>
 std::string type();
 template <> std::string type<long>() { return "long";}
 template <> std::string type<unsigned long>() { return "unsigned long";}
 template <> std::string type<uint32_t>() { return "uint32_t";}
 template <> std::string type<int32_t>() { return "int32_t";}
-template <> std::string type<char const* const*>() { return "char**";}
-template <> std::string type<char const*>() { return "char*";}
-template <> std::string type<char*>() { return "char*";}
+template <> std::string type<char const* const*>() { return "const char*";}
+template <> std::string type<char const*>() { return "const char*";}
+template <> std::string type<char*>() { return "const char*";}
 template <> std::string type<uint8_t>() { return "uint8_t";}
-template <> std::string type<float const*>() { return "float*";}
-template <> std::string type<int const*>() { return "int*";}
-template <> std::string type<int*>() { return "int*";}
-template <> std::string type<uint32_t const*>() { return "uint32_t*";}
-template <> std::string type<uint32_t *>() { return "uint32_t*";}
+template <> std::string type<float const*>() { return "float";}
+template <> std::string type<int const*>() { return "int";}
+template <> std::string type<int*>() { return "int";}
+template <> std::string type<uint32_t const*>() { return "uint32_t";}
+template <> std::string type<uint32_t *>() { return "uint32_t";}
 template <> std::string type<void const*>() { return "void*";}
 
 /*
@@ -64,11 +66,14 @@ template <> std::string type<void const*>() { return "void*";}
  * that we can print out an array of strings.  The 'count' parameter is only
  * used for printing out arrays, but is included in all functions for symmetry.
  * Note: An exception to that is the 'count' parameter for the void* function
- * really is a GL_ENUM with type information
+ * really is a GL_ENUM with type information.
+ * 
+ * Note: We also print the '=' sign here, since for some cases we are going to
+ * need to place a [] after the variable name and before the '='
  */
 template <class T>
 typename std::enable_if<!std::is_pointer<T>::value, std::string>::type
-value(size_t count, T v) { return std::to_string(v); }
+value(size_t count, T v) { return " = " + std::to_string(v); }
 
 template <class T>
 std::string value(size_t count, const T* v) {
@@ -80,9 +85,9 @@ std::string value(size_t count, const T* v) {
   std::string cont = max < count ? ", ..." : "";
 #endif
 
-  if (count == 0) return "{}";
+  if (count == 0) return "[] = {}";
   std::stringstream ss;
-  ss << "{ ";
+  ss << "[] = { ";
   for (size_t i = 0; i < max-1; ++i) {
     ss << v[i] << ", ";
   }
@@ -94,7 +99,7 @@ std::string value(size_t count, const T* v) {
 template <>
 std::string value<char>(size_t count, const char* v) {
   assert(count == 1);
-  return "\"" + std::string(v) + "\"";
+  return " = \"" + std::string(v) + "\"";
 }
 
 std::string value(size_t count, const char* const * v) {
@@ -106,13 +111,13 @@ std::string value(size_t count, const char* const * v) {
   std::string cont = max < count ? ", ..." : "";
 #endif
 
-  if (count == 0) return "{}";
+  if (count == 0) return "[] = {}";
   std::stringstream ss;
-  ss << "{ ";
+  ss << "[] = { ";
   for (size_t i = 0; i < max-1; ++i) {
-    ss << v[i] << ", ";
+    ss << "R\"(" << v[i] << ")\"" << ", ";
   }
-  ss << v[max-1] << cont << " }";
+  ss << "R\"(" << v[max-1] << ")\"" << cont << " }";
   return ss.str();
 }
 
@@ -120,10 +125,10 @@ template<> std::string value<void>(size_t count, const void* v) {
   switch(count) {
     case GL_FLOAT:
       assert(size_t(v) / sizeof(float) == 0);
-      return "(float)" + std::to_string((size_t(v)) / sizeof(float));
+      return " = " + std::to_string((size_t(v)) / sizeof(float)) + " // (float)";
     case GL_UNSIGNED_INT:
       assert(size_t(v) / sizeof(uint32_t) == 0);
-      return "(uint32_t)" + std::to_string((size_t(v)) / sizeof(uint32_t));
+      return " = " + std::to_string((size_t(v)) / sizeof(uint32_t)) + " //(uint32)";
     default:
       std::cerr << "unhandled type in void printing!\n";
       assert(false);
@@ -193,43 +198,57 @@ void check(bool first) {
     auto param_names_ = param_list(#__VA_ARGS__); \
     auto tvs_ = types_values(count_map)(__VA_ARGS__); \
     for (size_t i = 0; i < param_names_.size(); ++i)  \
-      std::cerr << tvs_[i].first << " " \
-          << param_names_[i]  << " = " \
-          << tvs_[i].second << std::endl;
+      std::cerr << "  " << tvs_[i].first << " " \
+          << param_names_[i]  \
+          << tvs_[i].second << ";\n";
 #else
   #define PRINT_PARAMS(...)
 #endif
 
 #if defined(LOG_PARAMETERS) or defined(DETAIL_LOG_PARAMETERS)
   #define PRINT_RETURN \
-    std::cerr << "return: " << std::to_string(ret) << std::endl;
+    std::cerr << "  return: " << std::to_string(ret) << std::endl;
 #else
   #define PRINT_RETURN
 #endif
 
 #if defined(LOG_FUNCTIONS) or defined(LOG_PARAMETERS) or defined(DETAIL_LOG_PARAMETERS)
   #define PRINT_CALL(function, ...) \
-    std::cerr << std::endl; \
-    std::cerr << #function << "(" << #__VA_ARGS__ << ");\n";
+    std::cerr << "  " << #function << "(" << #__VA_ARGS__ << ");\n";
 #else
   #define PRINT_CALL(function, ...)
 #endif
 
+#if defined(LOG_FUNCTIONS) or defined(LOG_PARAMETERS) or defined(DETAIL_LOG_PARAMETERS)
+  #define OPEN_SCOPE std::cerr << "\n{\n";
+  #define CLOSE_SCOPE std::cerr << "}\n";
+#else
+  #define OPEN_SCOPE
+  #define CLOSE_SCOPE
+#endif
+
+// ISSUE: clean all this up.  All the MACROS called from here can be functions
+//        instead.  We only needed the macro here for the '::function' line. 
+//        Everything else can be runtime string manipulations.
 #define FUNC_BODY(function, ...)  \
   CHECK(true) \
   ::function(__VA_ARGS__); \
   CHECK(false) \
-  PRINT_CALL(function, __VA_ARGS__); \
+  OPEN_SCOPE \
   PRINT_PARAMS(__VA_ARGS__); \
+  PRINT_CALL(function, __VA_ARGS__); \
+  CLOSE_SCOPE \
   return;
 
 #define FUNC_BODY_RETURN(function, ...)  \
   CHECK(true) \
   auto ret = ::function(__VA_ARGS__); \
   CHECK(false) \
-  PRINT_CALL(function, __VA_ARGS__); \
+  OPEN_SCOPE \
   PRINT_PARAMS(__VA_ARGS__); \
+  PRINT_CALL(function, __VA_ARGS__); \
   PRINT_RETURN \
+  CLOSE_SCOPE \
   return ret;
 
 namespace ShapeShifter {
@@ -287,11 +306,15 @@ void glBindBuffer (GLenum target, GLuint buffer) {
 }
 void glBufferData (GLenum target, const std::vector<float>& data, GLenum usage) {
   std::map<size_t, size_t> count_map {{2, data.size()}};
-  FUNC_BODY(glBufferData, target, data.size()*sizeof(float), data.data(), usage);
+  auto size = data.size()*sizeof(float);
+  auto dat = data.data();
+  FUNC_BODY(glBufferData, target, size, dat, usage);
 }
 void glBufferData (GLenum target, const std::vector<uint32_t>& data, GLenum usage) {
   std::map<size_t, size_t> count_map {{2, data.size()}};
-  FUNC_BODY(glBufferData, target, data.size()*sizeof(uint32_t), data.data(), usage);
+  auto size = data.size()*sizeof(uint32_t);
+  auto dat = data.data();
+  FUNC_BODY(glBufferData, target, size, dat, usage);
 }
 void glAttachShader (GLuint program, GLuint shader) {
   std::map<size_t, size_t> count_map;
@@ -344,6 +367,10 @@ void glDrawArrays (GLenum mode, GLint first, GLsizei count) {
 void glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid *indices) {
   std::map<size_t, size_t> count_map {{3, type}};
   FUNC_BODY(glDrawElements, mode, count, type, indices);
+}
+GLboolean glIsVertexArray (GLuint array) {
+  std::map<size_t, size_t> count_map;
+  FUNC_BODY_RETURN(glIsVertexArray, array);
 }
 
 }
