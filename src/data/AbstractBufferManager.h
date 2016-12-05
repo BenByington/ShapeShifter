@@ -54,18 +54,14 @@ public:
   virtual void FillData(VectorSlice<uint32_t>& data, Rendering::RenderNode* node) = 0;
 
   // E.g. vertices require three floats while textures only require two.
-  virtual size_t ElementsPerEntry() = 0;
-  virtual bool isFloating() = 0;
-
-  // Returns the layout index as defined by the shader program
-  size_t idx() { return idx_; }
+  virtual size_t ElementsPerEntry() const = 0;
+  virtual bool isFloating() const = 0;
+  virtual std::string name() const = 0;
 
 protected:
   // BaseManager should be the only deriving class.
   // @param idx: the layout index as defined by the shader program
-  AbstractManager(size_t idx) : idx_(idx) {}
-private:
-  size_t idx_;
+  AbstractManager() {}
 };
 
 }} // ShapeShifter::Data

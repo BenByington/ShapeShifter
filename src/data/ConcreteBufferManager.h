@@ -76,7 +76,7 @@ struct variable_member_exists {
 template <class Child>
 class BaseManager : public AbstractManager {
 public:
-  BaseManager(size_t idx) : AbstractManager(idx) {}
+  BaseManager() : AbstractManager() {}
   BaseManager(const BaseManager&) = delete;
   BaseManager(BaseManager&&) = delete;
   BaseManager& operator=(const BaseManager&) = delete;
@@ -113,6 +113,10 @@ public:
     static void FillData(...) { assert(false); }
   };
 
+  virtual std::string name() const override {
+    return Child::Variable::name();
+  }
+  
   virtual void FillData(VectorSlice<float>& data, Rendering::RenderNode* node) override {
     Dispatch<Child>::FillData(data, node);
   }
@@ -126,11 +130,10 @@ public:
   using Type = float;
   using Type2 = Rendering::Shaders::Language::Vec3;
 
-  ColorManager(size_t idx) : BaseManager<ColorManager>(idx) {}
   virtual ~ColorManager(){}
 
-  virtual size_t ElementsPerEntry() override { return 3; }
-  virtual bool isFloating() { return true; }
+  virtual size_t ElementsPerEntry() const override { return 3; }
+  virtual bool isFloating() const override { return true; }
 
   struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable, Type2> {
     using Base = Rendering::Shaders::InterfaceVariableBase<Variable, Type2>;
@@ -153,11 +156,10 @@ class VertexManager final : public BaseManager<VertexManager> {
 public:
   using Type = float;
   using Type2 = Rendering::Shaders::Language::Vec3;
-  VertexManager(size_t idx) : BaseManager<VertexManager>(idx) {}
   virtual ~VertexManager(){}
 
-  virtual size_t ElementsPerEntry() override { return 3; }
-  virtual bool isFloating() { return true; }
+  virtual size_t ElementsPerEntry() const override { return 3; }
+  virtual bool isFloating() const override { return true; }
 
   struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable, Type2> {
     using Base = Rendering::Shaders::InterfaceVariableBase<Variable, Type2>;

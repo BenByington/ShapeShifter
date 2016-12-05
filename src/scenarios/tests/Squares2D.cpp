@@ -15,6 +15,7 @@
 
 #include "rendering/shaders/ShaderProgram.h"
 #include "rendering/shaders/programs/BasicShader.h"
+#include "rendering/PureNode.h"
 
 #include <cassert>
 #include <cmath>
@@ -62,15 +63,20 @@ std::unique_ptr<Rendering::World> Squares2D::Setup() {
   manipulator = first->AddChild(std::move(second));
   manipulator->SetRotation({-pi/2, 0 , 1, 0});
 
-	auto root = std::make_unique<Rendering::RootNode>(std::move(first),  program);
-  root->SetTranslation(Vector4(-.5, -.5, -2.5, 1));
+  auto pure = Rendering::CompatiblePureNode(*program);
+  manipulator = pure->AddChild(std::move(first));
+  manipulator->SetTranslation(Vector4(-.5, -.5, -2.5, 1));
+
+	auto root = Rendering::CreateRootPtr(std::move(pure));
 
   auto frust = Rendering::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
   auto camera = std::make_unique<Rendering::Camera>(frust, 2.5);
   camera->ChangePosition(Vector4(0, 0, 0, 1.0f));
 
+  auto tree = std::make_unique<Rendering::RenderingTree>(root, program);
+
   auto world = std::make_unique<Rendering::World>(std::move(camera));
-  world->SetRenderTree(std::move(root));
+  world->SetRenderTree(std::move(tree));
   return world;
 }
 

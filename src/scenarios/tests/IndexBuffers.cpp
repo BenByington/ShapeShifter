@@ -44,18 +44,20 @@ std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
   auto sphere = std::make_unique<Shapes::Sphere>(0.2);
 
   auto pure = Rendering::CompatiblePureNode(*program);
+  pure->SetTranslation(Vector4(-.5, -.5, -2.5, 1));
   pure->AddChild(std::move(sphere));
   pure->AddChild(std::move(cube));
 
-	auto root = std::make_unique<Rendering::RootNode>(std::move(pure),  program);
-  root->SetTranslation(Vector4(-.5, -.5, -2.5, 1));
+	auto root = Rendering::CreateRootPtr(std::move(pure));
 
   auto frust = Rendering::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
   auto camera = std::make_unique<Rendering::Camera>(frust, 2.5);
   camera->ChangePosition(Vector4(0, 0, 0, 1.0f));
 
+  auto tree = std::make_unique<Rendering::RenderingTree>(root, program);
+
   auto world = std::make_unique<Rendering::World>(std::move(camera));
-  world->SetRenderTree(std::move(root));
+  world->SetRenderTree(std::move(tree));
   return world;
 }
 

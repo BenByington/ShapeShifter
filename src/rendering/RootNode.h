@@ -15,6 +15,7 @@
 #define RENDERING_ROOT_NODE_H
 
 #include "rendering/TypedRenderNode.h"
+#include "rendering/PureNode.h"
 #include "rendering/shaders/ShaderProgramBase.h"
 
 #include <map>
@@ -22,65 +23,84 @@
 namespace ShapeShifter {
 namespace Rendering {
 
+// TODO remove this
+namespace detail {
+
+  template <typename T>
+  struct manage;
+
+  template <typename... Ts>
+  struct manage<Pack<Ts...>> {
+    static std::vector<std::shared_ptr<Data::AbstractManager>> instantiate() {
+      return {std::make_shared<Ts>()...};
+    }
+  };
+
+}
+
 /*
  * This node forms the root of a tree, and a tree is not valid until it is
  * finalized by the addition of a root node.  It type erases the internal tree
  * so that external code can hold this object without knowing what buffer types
  * the tree requires.  Upon creation of this object it will allocate and fill
- * all the buffers required by the shader program, and upload them to the gpu.
+ * all the opengl data buffers, and will manage the life cycle of the vbo's
+ * and ibo.
  */
-class RootNode : public TypedRenderNode<> {
-public:
-  template <typename TreeNode,
-            typename ShaderProgram,
-            typename dummy =
-	    typename std::enable_if<
-          std::is_base_of<RenderNode, TreeNode>::value &&
-          std::is_base_of<Shaders::ShaderProgramBase, ShaderProgram>::value
-      >::type
-  >
-  RootNode(
-      std::unique_ptr<TreeNode> tree,
-      std::shared_ptr<ShaderProgram> program)
-    : program_(program) {
-
-    using T1 = typename TreeNode::Interface_t;
-    using T2 = typename ShaderProgram::Interface_t;
-    constexpr bool sub1 = detail::is_subset<T1, T2>::value();
-    constexpr bool sub2 = detail::is_subset<T2, T1>::value();
-    static_assert(sub1 && sub2,
-                  "Incompatible shader handed in with rendering tree\n");
+class RootNode : private PureNode<> {
+protected:
+  template <typename TreeNode, typename dummy =
+	          typename std::enable_if<
+                std::is_base_of<RenderNode, TreeNode>::value
+            >::type>
+  RootNode(std::unique_ptr<TreeNode> tree)
+    : managers_(detail::manage<typename TreeNode::Interface_t>::instantiate()) {
 
     children.emplace_back(tree.release());
-    managers_ = program->BufferMapping();
     UpdateData();
   }
 
-  virtual ~RootNode() { CleanupBuffer(); }
+public:
+
+  virtual ~RootNode();
 
 	/**
 	 * Walks down the tree, applies rotation matrices, and calls opengl to render
    */
-	void RenderTree(const Camera& camera) const;
+	void RenderTree(
+      const Camera& camera,
+      const Shaders::ShaderProgramBase& program) const;
+
+  // TODO clean this up?  I don't know if these accessors are required.
+  GLuint ibo() { return ibo_; }
+
+  const std::map<std::shared_ptr<Data::AbstractManager>, GLuint>&
+  buffers() { return buffers_; }
 
 private:
-	virtual Data::BufferIndex ExclusiveNodeDataCount() const { return Data::BufferIndex(); }
-	virtual void FillIndexData(Data::VectorSlice<uint32_t>&) const override {}
-  virtual void DrawSelf() const override {}
-  void CleanupBuffer();
-
 
 	/**
-	 * Generates the actual VAO for this tree.  This function is called once
+	 * Generates the actual VBO's for this tree.  This function is called once
    * upon construction of the object.
    */
 	void UpdateData();
 
-  GLuint vao = 0;
-  GLuint ibo = 0;
-  std::shared_ptr<Shaders::ShaderProgramBase> program_;
+  GLuint ibo_ = 0;
+  std::map<std::shared_ptr<Data::AbstractManager>, GLuint> buffers_;
   std::vector<std::shared_ptr<Data::AbstractManager>> managers_;
 };
+
+template <class TreeNode>
+class TypedRootNode final : public RootNode {
+  static_assert(std::is_base_of<Rendering::RenderNode, TreeNode>::value,
+      "TypedRootNode must be templated on a type of TypedRenderNode");
+public:
+  TypedRootNode(std::unique_ptr<TreeNode> tree) : RootNode(std::move(tree)) {}
+};
+
+template <class TreeNode>
+auto CreateRootPtr(std::unique_ptr<TreeNode> tree) {
+  return std::make_shared<TypedRootNode<TreeNode>>(std::move(tree));
+}
 
 }} // ShapeShifter::Rendering
 

@@ -69,6 +69,8 @@ protected:
       const Math::Vector4& cumTrans,
       const Shaders::ShaderProgramBase& shader) const;
 
+  // TODO make unique pointers, after we start returning an id instead
+  // of a shared_ptr
 	std::vector<std::shared_ptr<RenderNode>> children;
 
 private:

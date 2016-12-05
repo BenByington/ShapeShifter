@@ -23,16 +23,16 @@ namespace Rendering {
  * Basic implementation for nodes that only hold other nodes
  */
 template <class... Interface>
-class PureNode final : public PureTypedRenderNode<Interface...> {
+class PureNode : public PureTypedRenderNode<Interface...> {
 public:
 	PureNode() = default;
 	virtual ~PureNode() {}
 private:
-	virtual Data::BufferIndex ExclusiveNodeDataCount() const override {
+	virtual Data::BufferIndex ExclusiveNodeDataCount() const override final {
     return Data::BufferIndex();
   }
-  virtual void FillIndexData(Data::VectorSlice<uint32_t>&) const override {}
-  virtual void DrawSelf() const override {}
+  virtual void FillIndexData(Data::VectorSlice<uint32_t>&) const override final {}
+  virtual void DrawSelf() const override final {}
 };
 
 namespace detail {

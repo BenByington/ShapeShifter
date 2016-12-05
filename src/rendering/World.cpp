@@ -20,8 +20,8 @@ World::World(std::unique_ptr<Camera> cam)
   : camera_(std::move(cam))
 {}
 
-void World::SetRenderTree(std::unique_ptr<RootNode> root) {
-  root_ = std::move(root);
+void World::SetRenderTree(std::unique_ptr<RenderingTree> tree) {
+  tree_ = std::move(tree);
 }
 
 Camera& World::camera() {
@@ -29,8 +29,8 @@ Camera& World::camera() {
 }
 
 void World::Render() const {
-  if (root_) {
-    root_->RenderTree(*camera_);
+  if (tree_) {
+    tree_->Render(*camera_);
   }
 }
 

@@ -28,46 +28,6 @@ namespace ShapeShifter {
 namespace Rendering {
 namespace Shaders {
 
-namespace detail {
-
-template <class... Args> struct instantiate_managers_helper;
-template <> struct instantiate_managers_helper<> {
-  static void foo(
-      std::vector<std::shared_ptr<Data::AbstractManager>>& managers,
-      std::map<std::string, size_t>& map) {}
-};
-
-template <class Head, class... Args>
-struct instantiate_managers_helper<Head, Args...> {
-  static void foo(
-      std::vector<std::shared_ptr<Data::AbstractManager>>& managers,
-      std::map<std::string, size_t>& map) {
-    if (map.count(Head::Variable::name()) == 0) {
-      throw std::runtime_error("Shader does not support required buffer");
-    }
-    managers.emplace_back(
-        std::make_shared<Head>(map.at(Head::Variable::name())));
-    map.erase(Head::Variable::name());
-    if (sizeof...(Args) > 0) {
-      instantiate_managers_helper<Args...>::foo(managers, map);
-    }
-  }
-};
-
-template <class... Args>
-struct instantiate_managers {
-  static auto foo(std::map<std::string, size_t>& mapper) {
-    std::vector<std::shared_ptr<Data::AbstractManager>> ret;
-    instantiate_managers_helper<Args...>::foo(ret, mapper);
-    if (!mapper.empty()) {
-      throw std::runtime_error("Shader requires buffers not present\n");
-    }
-    return ret;
-  }
-};
-
-}
-
 template <class... Interface>
 class ShaderProgram : public ShaderProgramBase {
 public:
@@ -86,22 +46,16 @@ public:
         " entire shader program");
     // This one should allow also re-ordering.  It's more important than the
     // above, but still not necessary since the only shader currently written
-    // only has a single variable bridging these two stagess.
+    // only has a single variable bridging these two stages.
     static_assert(
         std::is_same<typename Vertex::Outputs_t, typename Fragment::Inputs_t>::value,
         "Vertex and Fragment shader do not share common IO interface");
-    // ISSUE: Refactor to include Uniform variables as part of interface.
+    // TODO: Refactor to include Uniform variables as part of interface.
   }
   ShaderProgram(
       std::unique_ptr<RawShader<RawShaderType::VERTEX>> vert,
       std::unique_ptr<RawShader<RawShaderType::FRAGMENT>> frag)
     : ShaderProgramBase(std::move(vert), std::move(frag)) {}
-
-  virtual std::vector<std::shared_ptr<Data::AbstractManager>>
-  BufferMapping() const override {
-    auto map = layout_map();
-    return detail::instantiate_managers<Interface...>::foo(map);
-  }
 
   using Interface_t = Pack<Interface...>;
 };

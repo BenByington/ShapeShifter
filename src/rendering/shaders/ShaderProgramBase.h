@@ -39,11 +39,7 @@ public:
 	void UseProgram() const { glUseProgram(program_); }
   void uploadMatrix(const Math::Matrix4& mat) const;
 
-  virtual std::vector<std::shared_ptr<Data::AbstractManager>>
-  BufferMapping() const = 0;
-
-protected:
-
+  // TODO think about if this should remain public
   const auto& layout_map() const {
     return vert_shader_->layout_map();
   }
