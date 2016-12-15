@@ -37,7 +37,6 @@ std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
   using namespace Rendering::Shaders::Programs;
   auto program = CreateShaderProgram<BasicVertexShader, BasicFragmentShader>();
   auto pure = Rendering::CompatiblePureNode(*program);
-  pure->SetTranslation(Vector4(-.5, -.5, -2.5, 1));
 
   auto cube = pure->AddLeaf<Shapes::Cube>(.5f, .7f, .85f);
   cube->SetRotation(Quaternion(.5, 1, 1, 1));
@@ -48,6 +47,7 @@ std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
   (void) sphere;
 
 	auto root = Rendering::CreateRootPtr(std::move(pure));
+  root->manipulator().SetTranslation(Vector4(-.5, -.5, -2.5, 1));
 
   auto frust = Rendering::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
   auto camera = std::make_unique<Rendering::Camera>(frust, 2.5);

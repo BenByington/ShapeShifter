@@ -20,31 +20,24 @@
 namespace ShapeShifter {
 namespace Rendering {
 
-void BaseNode::SetRotation(const Math::Quaternion& rot) {
-  rotation_ = rot;
-}
-
-void BaseNode::SetTranslation(const Math::Vector4& trans) {
-  translation_ = trans;
-}
-
 Data::BufferIndex BasePureNode::SubtreeCounts() const {
 	auto ret = Data::BufferIndex{};
 	for (const auto& child : subtrees_) {
-		ret += child->SubtreeCounts();
+    // TODO rename child all over
+		ret += child.second->SubtreeCounts();
 	}
   for (const auto& child : leaves_) {
-    ret += child->ExclusiveNodeDataCount();
+    ret += child.second->ExclusiveNodeDataCount();
   }
 	return ret;
 }
 
 void BasePureNode::PopulateBufferData(Data::MixedDataMap& data) {
 	for (const auto& child : subtrees_) {
-		child->PopulateBufferData(data);
+		child.second->PopulateBufferData(data);
 	}
 	for (const auto& child : leaves_) {
-		child->FillLocalBuffer(data);
+		child.second->FillLocalBuffer(data);
 	}
 }
 
@@ -78,34 +71,26 @@ void BaseLeafNode::FillLocalBuffer(Data::MixedDataMap& data) {
 
 void BasePureNode::DrawChildren(
     const Camera& camera,
-    const Math::Quaternion& cumRot,
-    const Math::Vector4& cumTrans,
+    const Manipulator& uniforms,
     const Shaders::ShaderProgramBase& shader) const {
 
-  auto localQuat = cumRot*rotation_;
-  auto rot = localQuat.RotationMatrix();
-  auto localTrans = rot * translation_ + cumTrans;
 	for (const auto& child : subtrees_) {
-		child->DrawChildren(camera, localQuat, localTrans, shader);
+    auto child_uniforms = child.first->Combine(uniforms);
+    //auto child_uniforms = uniforms.Combine(*child.first);
+		child.second->DrawChildren(camera, child_uniforms, shader);
 	}
 	for (const auto& child : leaves_) {
-		child->DrawLeaf(camera, localQuat, localTrans, shader);
+    auto child_uniforms = child.first->Combine(uniforms);
+    //auto child_uniforms = uniforms.Combine(*child.first);
+    child_uniforms.Upload(camera, shader);
+    child.second->DrawSelf();
 	}
 }
 
-// TODO I don't like this duplication.  Unify with PureNode version somehow.
-void BaseLeafNode::DrawLeaf(
-    const Camera& camera,
-    const Math::Quaternion& cumRot,
-    const Math::Vector4& cumTrans,
-    const Shaders::ShaderProgramBase& shader) const {
-  auto localQuat = cumRot*rotation_;
-  auto rot = localQuat.RotationMatrix();
-  auto localTrans = rot * translation_ + cumTrans;
-  rot.WriteColumn(3, localTrans);
-  shader.uploadMatrix(camera.ProjectionMatrix()*rot);
-
-	this->DrawSelf();
+void Manipulator::Upload(const Camera& camera, const Shaders::ShaderProgramBase& program) const {
+  auto mat = rotation_.RotationMatrix();
+  mat.WriteColumn(3, translation_);
+  program.uploadMatrix(camera.ProjectionMatrix() * mat);
 }
 
 }} // ShapeShifter::Rendering

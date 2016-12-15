@@ -64,7 +64,8 @@ RootNode::~RootNode() {
 void RootNode::RenderTree(
     const Camera& camera,
     const Shaders::ShaderProgramBase& program) const {
-  DrawChildren(camera, Math::Quaternion(), Math::Vector4(0, 0, 0, 1), program);
+  Manipulator uniforms;
+  DrawChildren(camera, uniforms, program);
 }
 
 }} // namespace Shapeshifter::Rendering

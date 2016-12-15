@@ -36,27 +36,35 @@ class ShaderProgramBase;
  * Note: Implementation classes should inherit from TypedRenderNode rather
  * than this class.
  */
-// TODO delete class after rot/trans are no longer explicit
-class BaseNode {
-public:
-  virtual ~BaseNode() {}
+// TODO salvage above comment
 
-  void SetRotation(const Math::Quaternion& rot);
-  void SetTranslation(const Math::Vector4& trans);
+struct Manipulator {
+  Manipulator() : translation_(0,0,0,1) {}
 
-protected:
-  BaseNode() : translation_(0.0f, 0.0f, 0.0f, 1.0f) {}
-  BaseNode(const BaseNode& orig) = delete;
-	BaseNode& operator=(BaseNode&) = delete;
+  void SetRotation(const Math::Quaternion& rot) {
+    rotation_ = rot;
+  }
+  void SetTranslation(const Math::Vector4& trans) {
+    translation_ = trans;
+  }
 
-protected:
+  Manipulator Combine(const Manipulator& cumulative) const {
+    Manipulator ret;
+    ret.SetRotation(cumulative.rotation_*rotation_);
+    // TODO define multiple of vector with quaternion directly.
+    ret.SetTranslation(cumulative.translation_ + ret.rotation_.RotationMatrix() * translation_);
+    return ret;
+
+  }
+
+  void Upload(const Camera& camera, const Shaders::ShaderProgramBase& program) const;
 
   Math::Quaternion rotation_;
   Math::Vector4 translation_;
 };
 
 //  TODO Move to own files, once the refactoring has calmed down.
-class BaseLeafNode: public BaseNode {
+class BaseLeafNode {
 protected:
   BaseLeafNode() = default;
 public:
@@ -83,11 +91,8 @@ public:
   // refactor settles down, try to find a way that *only* the internal tree
   // nodes can call them.
   void FillLocalBuffer(Data::MixedDataMap& data);
-	void DrawLeaf(
-      const Camera& camera,
-      const Math::Quaternion& cumRot,
-      const Math::Vector4& cumTrans,
-      const Shaders::ShaderProgramBase& shader) const;
+  // Personal rendering function
+	virtual void DrawSelf() const = 0;
 
 private:
   // Populates data for the index vector.  Children may implement this as
@@ -100,12 +105,9 @@ private:
   Data::BufferIndex start_;
   Data::BufferIndex end_;
 
-  // Personal rendering function
-	virtual void DrawSelf() const = 0;
-
 };
 
-class BasePureNode : public BaseNode {
+class BasePureNode {
 protected:
   BasePureNode() = default;
   BasePureNode(const BasePureNode& orig) = delete;
@@ -123,14 +125,15 @@ protected:
 	// Renders all children in the tree.
 	void DrawChildren(
       const Camera& camera,
-      const Math::Quaternion& cumRot,
-      const Math::Vector4& cumTrans,
+      const Manipulator& cumUniforms,
       const Shaders::ShaderProgramBase& shader) const;
 
   // TODO make unique pointers, after we start returning an id instead
   // of a shared_ptr
-	std::vector<std::shared_ptr<BasePureNode>> subtrees_;
-  std::vector<std::shared_ptr<BaseLeafNode>> leaves_;
+  template <class T>
+  using element = std::pair<std::shared_ptr<Manipulator>, std::shared_ptr<T>>;
+	std::vector<element<BasePureNode>> subtrees_;
+  std::vector<element<BaseLeafNode>> leaves_;
 
 };
 

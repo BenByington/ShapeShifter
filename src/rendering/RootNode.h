@@ -61,11 +61,15 @@ protected:
   RootNode(std::unique_ptr<TreeNode> tree)
     : managers_(detail::manage<typename TreeNode::Interface_t>::instantiate()) {
 
-    subtrees_.emplace_back(tree.release());
+    subtrees_.emplace_back(std::make_shared<Manipulator>(), tree.release());
     UpdateData();
   }
 
 public:
+
+  // TODO ugly.  Find a way to just have this returned when creating the
+  // root node?
+  Manipulator& manipulator() { return *subtrees_.front().first; }
 
   virtual ~RootNode();
 

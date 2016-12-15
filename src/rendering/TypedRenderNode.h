@@ -97,25 +97,28 @@ struct PureNode<Pack<Types...>> : BasePureNode {
    */
   using Interface_t = Pack<Types...>;
   template <typename Other>
-  std::shared_ptr<BaseNode> AddChild(
+  std::shared_ptr<Manipulator> AddChild(
       std::unique_ptr<Other> child) {
     // TODO allow permuted types?
     static_assert(
         std::is_same<Interface_t, typename Other::Interface_t>::value,
         "Internal nodes must all have the same interface");
-    this->subtrees_.emplace_back(child.release());
-    return this->subtrees_.back();
+    auto manipulator = std::make_shared<Manipulator>();
+    this->subtrees_.emplace_back(manipulator, child.release());
+    return manipulator;
 
   }
 
   template <class Child, typename... Args>
-  std::shared_ptr<BaseNode> AddLeaf(Args&&... args) {
+  std::shared_ptr<Manipulator> AddLeaf(Args&&... args) {
     static_assert(
         detail::is_subset<Interface_t, typename Child::Interface_t>::value(),
         "Attempting to add leaf node that does not fulfill the input interface"
         " of the parent node");
-    this->leaves_.emplace_back(new Child(std::forward<Args>(args)...));
-    return this->leaves_.back();
+    auto child = std::make_shared<Child>(std::forward<Args>(args)...);
+    auto manipulator = std::make_shared<Manipulator>();
+    this->leaves_.emplace_back(manipulator, child);
+    return manipulator;
   }
 };
 
