@@ -27,11 +27,12 @@ namespace Language {
 
 namespace detail {
 
+template <template <class, class> class Parent>
 struct check_inputs {
   template <class Input>
   static constexpr bool is_child() {
     return std::is_base_of<
-        InterfaceVariableBase<Input, typename Input::Type>,
+        Parent<Input, typename Input::Type>,
         Input
     >::value;
   }
@@ -83,13 +84,14 @@ template <class... Inputs, class... Uniforms, class... Outputs>
 struct GLSLGeneratorBase<Pack<Inputs...>, Pack<Uniforms...>, Pack<Outputs...>>
   : Inputs... , Uniforms..., Outputs... {
 private:
-  static_assert(detail::check_inputs::valid<Inputs...>(),
+  static_assert(
+      detail::check_inputs<InterfaceVariableBase>::valid<Inputs..., Outputs...>(),
+      "Shader template parameters must be InterfaceVariable types");
+  static_assert(
+      detail::check_inputs<UniformVariableBase>::valid<Uniforms...>(),
       "Shader template parameters must be InterfaceVariable types");
 
 public:
-  using InputTypes = Pack<Inputs...>;
-  using UniformTypes = Pack<Uniforms...>;
-  using OutputTypes = Pack<Outputs...>;
 
   GLSLGeneratorBase(const GLSLGeneratorBase&) = delete;
   GLSLGeneratorBase(GLSLGeneratorBase&&) = delete;
@@ -138,13 +140,17 @@ template <class... Inputs, class... Uniforms, class... Outputs>
 class GLSLVertexGeneratorBase<Pack<Inputs...>, Pack<Uniforms...>, Pack<Outputs...>>
   : public GLSLGeneratorBase<Pack<typename Inputs::Variable...>, Pack<Uniforms...>, Pack<Outputs...>> {
 
-using  Base = GLSLGeneratorBase<Pack<typename Inputs::Variable...>, Pack<Uniforms...>, Pack<Outputs...>>;
+// TODO clean this up.  It's confusing that Inputs... is a set of managers, while
+// the rest (and the templates on our parent) are all interface variables.
+// Make them consistent if possible.
 static_assert(detail::are_managers<Inputs...>::check(),
     "GLSLVertexGeneratorBase only accepts BufferManagers within the Inputs pack.");
+using  Base = GLSLGeneratorBase<Pack<typename Inputs::Variable...>, Pack<Uniforms...>, Pack<Outputs...>>;
 
 public:
 
-  using Inputs_t = Pack<Inputs...>;
+  using Managers_t = Pack<Inputs...>;
+  using Uniforms_t = Pack<Uniforms...>;
   using Outputs_t = Pack<Outputs...>;
 
   GLSLVertexGeneratorBase(VariableFactory&& factory)

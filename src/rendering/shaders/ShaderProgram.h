@@ -28,8 +28,11 @@ namespace ShapeShifter {
 namespace Rendering {
 namespace Shaders {
 
-template <class... Interface>
-class ShaderProgram : public ShaderProgramBase {
+template <class Interface, class Uniforms>
+class ShaderProgram;
+
+template <class... Interface, class... Uniforms>
+class ShaderProgram<Pack<Interface...>, Pack<Uniforms...>> : public ShaderProgramBase {
 public:
   ShaderProgram(const ShaderProgram&) = delete;
 	ShaderProgram& operator()(ShaderProgram&) = delete;
@@ -41,7 +44,7 @@ public:
     // Could do extra work allowing for re-ordering of inputs, but that
     // should never be necessary if using the proper convenience functions
     static_assert(
-        std::is_same<typename Vertex::Inputs_t, Pack<Interface...>>::value,
+        std::is_same<typename Vertex::Managers_t, Pack<Interface...>>::value,
         "Input parameters for Vertex shader must match those of the"
         " entire shader program");
     // This one should allow also re-ordering.  It's more important than the
@@ -60,6 +63,7 @@ public:
   using Interface_t = Pack<Interface...>;
 };
 
+// TODO remove if unused
 namespace detail {
 
 template <typename Input>
@@ -81,7 +85,9 @@ template <class VertexGenerator, class FragmentGenerator>
 decltype(auto) CreateShaderProgram() {
   auto vert = std::make_unique<VertexShader<VertexGenerator>>();
   auto frag = std::make_unique<FragmentShader<FragmentGenerator>>();
-  using ShaderProgram = typename detail::get_program_type<typename VertexGenerator::Inputs_t>::Type;
+  using ShaderProgram = ShaderProgram<
+      typename VertexGenerator::Managers_t,
+      typename VertexGenerator::Uniforms_t>;
 	return std::make_shared<ShaderProgram>(std::move(vert), std::move(frag));
 }
 

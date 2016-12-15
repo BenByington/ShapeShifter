@@ -44,7 +44,7 @@ namespace detail {
 /**
  * Simple test class that will draw a shaded square in the center of the screen
  */
-class SquareTest2D : public Rendering::TypedRenderNode<
+class SquareTest2D : public Rendering::LeafNode<
     Data::VertexManager,
     Data::ColorManager> {
 public:

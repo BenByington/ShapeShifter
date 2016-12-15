@@ -102,7 +102,7 @@ public:
   // only the correct (and expected) type will have an implementation
   template <class Child_>
   struct Dispatch {
-    static void FillData(VectorSlice<typename Child_::Type>& data, Rendering::RenderNode* node) {
+    static void FillData(VectorSlice<typename Child_::Type>& data, Rendering::BaseLeafNode* node) {
       auto typed_node = dynamic_cast<typename Child_::Interface*>(node);
       assert(typed_node);
       typed_node->FillData(data);
@@ -116,11 +116,11 @@ public:
   virtual std::string name() const override {
     return Child::Variable::name();
   }
-  
-  virtual void FillData(VectorSlice<float>& data, Rendering::RenderNode* node) override {
+
+  virtual void FillData(VectorSlice<float>& data, Rendering::BaseLeafNode* node) override {
     Dispatch<Child>::FillData(data, node);
   }
-  virtual void FillData(VectorSlice<uint32_t>& data, Rendering::RenderNode* node) override {
+  virtual void FillData(VectorSlice<uint32_t>& data, Rendering::BaseLeafNode* node) override {
     Dispatch<Child>::FillData(data, node);
   }
 };

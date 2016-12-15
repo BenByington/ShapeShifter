@@ -51,10 +51,10 @@ struct OutputColor : InterfaceVariableBase<OutputColor, Language::Vec4> {
   Variable_T& outputColor = Base::var;
 };
 
-struct Transform : InterfaceVariableBase<Transform, Language::Mat4> {
+struct Transform : UniformVariableBase<Transform, Language::Mat4> {
   Transform() = delete;
-  using Base = InterfaceVariableBase<Transform, Language::Mat4>;
-  using Base::InterfaceVariableBase;
+  using Base = UniformVariableBase<Transform, Language::Mat4>;
+  using Base::UniformVariableBase;
   static constexpr const char* name() {
     return "transform";
   }

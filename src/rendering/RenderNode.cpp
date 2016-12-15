@@ -20,29 +20,36 @@
 namespace ShapeShifter {
 namespace Rendering {
 
-void RenderNode::SetRotation(const Math::Quaternion& rot) {
+void BaseNode::SetRotation(const Math::Quaternion& rot) {
   rotation_ = rot;
 }
 
-void RenderNode::SetTranslation(const Math::Vector4& trans) {
+void BaseNode::SetTranslation(const Math::Vector4& trans) {
   translation_ = trans;
 }
 
-Data::BufferIndex RenderNode::SubtreeCounts() const {
-	auto ret = ExclusiveNodeDataCount();
-	for (const auto& child : children) {
+Data::BufferIndex BasePureNode::SubtreeCounts() const {
+	auto ret = Data::BufferIndex{};
+	for (const auto& child : subtrees_) {
 		ret += child->SubtreeCounts();
 	}
+  for (const auto& child : leaves_) {
+    ret += child->ExclusiveNodeDataCount();
+  }
 	return ret;
 }
 
-void RenderNode::PopulateBufferData(Data::MixedDataMap& data) {
-	for (const auto& child : children) {
+void BasePureNode::PopulateBufferData(Data::MixedDataMap& data) {
+	for (const auto& child : subtrees_) {
 		child->PopulateBufferData(data);
 	}
+	for (const auto& child : leaves_) {
+		child->FillLocalBuffer(data);
+	}
+}
 
+void BaseLeafNode::FillLocalBuffer(Data::MixedDataMap& data) {
   auto size = ExclusiveNodeDataCount();
-
   // WARNING: This is very brittle, but this statement is required to prevent
   // nullptr exception, since neither the root node nor pure nodes will inherit
   // from any of the interface classes, and the FillData function below will
@@ -69,7 +76,7 @@ void RenderNode::PopulateBufferData(Data::MixedDataMap& data) {
   }
 }
 
-void RenderNode::DrawChildren(
+void BasePureNode::DrawChildren(
     const Camera& camera,
     const Math::Quaternion& cumRot,
     const Math::Vector4& cumTrans,
@@ -78,32 +85,27 @@ void RenderNode::DrawChildren(
   auto localQuat = cumRot*rotation_;
   auto rot = localQuat.RotationMatrix();
   auto localTrans = rot * translation_ + cumTrans;
-	for (const auto& child : children) {
+	for (const auto& child : subtrees_) {
 		child->DrawChildren(camera, localQuat, localTrans, shader);
 	}
+	for (const auto& child : leaves_) {
+		child->DrawLeaf(camera, localQuat, localTrans, shader);
+	}
+}
+
+// TODO I don't like this duplication.  Unify with PureNode version somehow.
+void BaseLeafNode::DrawLeaf(
+    const Camera& camera,
+    const Math::Quaternion& cumRot,
+    const Math::Vector4& cumTrans,
+    const Shaders::ShaderProgramBase& shader) const {
+  auto localQuat = cumRot*rotation_;
+  auto rot = localQuat.RotationMatrix();
+  auto localTrans = rot * translation_ + cumTrans;
   rot.WriteColumn(3, localTrans);
   shader.uploadMatrix(camera.ProjectionMatrix()*rot);
 
 	this->DrawSelf();
-}
-
-void RenderNode::DebugRotation(const Math::Matrix4& mat) const {
-  assert(false);
-  //auto dataset = Data::MixedDataMap({SupportedBuffers::VERTICES}, ExclusiveNodeDataCount());
-  //auto slices = dataset.NextSlice(ExclusiveNodeDataCount());
-  //auto& slice = slices.get<SupportedBuffers::VERTICES>();
-  //FillVertexData(slice);
-  //std::cerr << "Matrix: " << std::endl;
-  //mat.print();
-  //auto& data = dataset.get<SupportedBuffers::VERTICES>();
-  //for (size_t i = 0; i < data.size(); i += 3) {
-  //  auto vec = Math::Vector4(data[i], data[i+1], data[i+2], 1);
-  //  std::cerr << "Before: " << std::endl;
-  //  vec.print();
-  //  auto result = mat * vec;
-  //  std::cerr << "After: " << std::endl;
-  //  result.print();
-  //}
 }
 
 }} // ShapeShifter::Rendering

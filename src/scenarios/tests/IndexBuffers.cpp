@@ -36,17 +36,16 @@ std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
   using namespace Rendering::Shaders;
   using namespace Rendering::Shaders::Programs;
   auto program = CreateShaderProgram<BasicVertexShader, BasicFragmentShader>();
+  auto pure = Rendering::CompatiblePureNode(*program);
+  pure->SetTranslation(Vector4(-.5, -.5, -2.5, 1));
 
-  auto cube = std::make_unique<Shapes::Cube>(.5f, .7f, .85f);
+  auto cube = pure->AddLeaf<Shapes::Cube>(.5f, .7f, .85f);
   cube->SetRotation(Quaternion(.5, 1, 1, 1));
   cube->SetTranslation(Vector4(.7, .2, -.4, 1));
 
-  auto sphere = std::make_unique<Shapes::Sphere>(0.2);
-
-  auto pure = Rendering::CompatiblePureNode(*program);
-  pure->SetTranslation(Vector4(-.5, -.5, -2.5, 1));
-  pure->AddChild(std::move(sphere));
-  pure->AddChild(std::move(cube));
+  auto sphere = pure->AddLeaf<Shapes::Sphere>(0.2);
+  // TODO use sphere
+  (void) sphere;
 
 	auto root = Rendering::CreateRootPtr(std::move(pure));
 

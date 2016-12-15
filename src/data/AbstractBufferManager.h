@@ -50,8 +50,8 @@ public:
    * function, and it will handle the dispatch to make sure the correct function
    * in the RenderNode gets called.
    */
-  virtual void FillData(VectorSlice<float>& data, Rendering::RenderNode* node) = 0;
-  virtual void FillData(VectorSlice<uint32_t>& data, Rendering::RenderNode* node) = 0;
+  virtual void FillData(VectorSlice<float>& data, Rendering::BaseLeafNode* node) = 0;
+  virtual void FillData(VectorSlice<uint32_t>& data, Rendering::BaseLeafNode* node) = 0;
 
   // E.g. vertices require three floats while textures only require two.
   virtual size_t ElementsPerEntry() const = 0;

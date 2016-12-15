@@ -46,16 +46,22 @@ namespace detail {
  * all the opengl data buffers, and will manage the life cycle of the vbo's
  * and ibo.
  */
-class RootNode : private PureNode<> {
+// ISSUE: Allow multiple VBO's in a tree, so that a tree can have wildly
+//        different shaders used in some parts (making a single set of VBO's
+//        unsuitable), yet everything contained in a unified tree so that
+//        heirarchical uniforms (like position) can be used across the shader
+//        boundaries.  It should be constrained so that children support a
+//        subset (?) of their parents uniform variables
+class RootNode : private PureNode<Pack<>> {
 protected:
   template <typename TreeNode, typename dummy =
 	          typename std::enable_if<
-                std::is_base_of<RenderNode, TreeNode>::value
+                std::is_base_of<BasePureNode, TreeNode>::value
             >::type>
   RootNode(std::unique_ptr<TreeNode> tree)
     : managers_(detail::manage<typename TreeNode::Interface_t>::instantiate()) {
 
-    children.emplace_back(tree.release());
+    subtrees_.emplace_back(tree.release());
     UpdateData();
   }
 
@@ -91,7 +97,7 @@ private:
 
 template <class TreeNode>
 class TypedRootNode final : public RootNode {
-  static_assert(std::is_base_of<Rendering::RenderNode, TreeNode>::value,
+  static_assert(std::is_base_of<Rendering::BasePureNode, TreeNode>::value,
       "TypedRootNode must be templated on a type of TypedRenderNode");
 public:
   TypedRootNode(std::unique_ptr<TreeNode> tree) : RootNode(std::move(tree)) {}

@@ -52,6 +52,17 @@ struct is_subset<Pack<A...>, Pack<B...>> {
   }
 };
 
+}
+
+template <class... Managers>
+struct LeafNode : BaseLeafNode, Managers::Interface... {
+  LeafNode() {}
+  virtual ~LeafNode() {}
+
+  // TODO rename?
+  using Interface_t = Pack<Managers...>;
+};
+
 /*
  * This is the main base class for all custom concrete RenderNode
  * implementations, though it should not be instantiated directly but rather
@@ -69,18 +80,12 @@ struct is_subset<Pack<A...>, Pack<B...>> {
  * namespace, and external code should use the TypedRenderNode alias defined
  * below.
  */
-template <class...>
-struct TypedRenderNode_;
-template <class... Types, class... Managers>
-struct TypedRenderNode_<Pack<Types...>, Managers...> : RenderNode, Managers::Interface... {
-  TypedRenderNode_() {}
-  virtual ~TypedRenderNode_() {}
-
-  static_assert(
-      std::is_same<Pack<Types...>, Pack<Managers...>>::value
-      || std::is_same<Pack<Managers...>, Pack<>>::value
-    , "Unexpected Types: Managers should be the same as Types, save in the "
-      "case of a PureNode where Managers is empty");
+template <class Interface>
+struct PureNode;
+template <class... Types>
+struct PureNode<Pack<Types...>> : BasePureNode {
+  PureNode() {}
+  virtual ~PureNode() {}
 
 	/**
 	 * Adds a child to this node.
@@ -92,35 +97,27 @@ struct TypedRenderNode_<Pack<Types...>, Managers...> : RenderNode, Managers::Int
    */
   using Interface_t = Pack<Types...>;
   template <typename Other>
-  std::shared_ptr<RenderNode> AddChild(
+  std::shared_ptr<BaseNode> AddChild(
       std::unique_ptr<Other> child) {
+    // TODO allow permuted types?
     static_assert(
-        detail::is_subset<Interface_t, typename Other::Interface_t>::value(),
-        "Attempting to add child node that does not fulfill the full interface"
-        " of the parent node");
-    this->children.emplace_back(child.release());
-    return this->children.back();
+        std::is_same<Interface_t, typename Other::Interface_t>::value,
+        "Internal nodes must all have the same interface");
+    this->subtrees_.emplace_back(child.release());
+    return this->subtrees_.back();
 
   }
+
+  template <class Child, typename... Args>
+  std::shared_ptr<BaseNode> AddLeaf(Args&&... args) {
+    static_assert(
+        detail::is_subset<Interface_t, typename Child::Interface_t>::value(),
+        "Attempting to add leaf node that does not fulfill the input interface"
+        " of the parent node");
+    this->leaves_.emplace_back(new Child(std::forward<Args>(args)...));
+    return this->leaves_.back();
+  }
 };
-
-}
-
-/*
- * This is the main alias classes should inherit when creating a custom concrete
- * child of RenderNode
- */
-template <class... Types>
-using TypedRenderNode = detail::TypedRenderNode_<Pack<Types...>, Types...>;
-
-/*
- * Used to create a 'pure' node that has the right types to be part of a
- * specific tree, but does not inherit any virtual functions to actually
- * implement the interface.  Note there already exists a PureNode class extending
- * from this, so it is unlikely any other child class need exist.
- */
-template <class... Types>
-using PureTypedRenderNode = detail::TypedRenderNode_<Pack<Types...>>;
 
 }} // ShapeShifter::Rendering
 

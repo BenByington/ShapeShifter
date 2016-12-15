@@ -28,7 +28,7 @@ public:
             typename ShaderProgram,
             typename dummy =
 	    typename std::enable_if<
-          std::is_base_of<RenderNode, TreeNode>::value &&
+          std::is_base_of<BasePureNode, TreeNode>::value &&
           std::is_base_of<Shaders::ShaderProgramBase, ShaderProgram>::value
       >::type
   >

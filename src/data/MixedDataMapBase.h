@@ -100,6 +100,13 @@ struct BufferIndex {
     ret.index_ = index_ - o.index_;
     return ret;
   }
+
+  BufferIndex operator+(const BufferIndex& o) {
+    BufferIndex ret;
+    ret.vertex_ = vertex_ + o.vertex_;
+    ret.index_ = index_ + o.index_;
+    return ret;
+  }
 };
 
 }} // ShapeShifter::Data

@@ -19,39 +19,17 @@
 namespace ShapeShifter {
 namespace Rendering {
 
-/**
- * Basic implementation for nodes that only hold other nodes
- */
-template <class... Interface>
-class PureNode : public PureTypedRenderNode<Interface...> {
-public:
-	PureNode() = default;
-	virtual ~PureNode() {}
-private:
-	virtual Data::BufferIndex ExclusiveNodeDataCount() const override final {
-    return Data::BufferIndex();
-  }
-  virtual void FillIndexData(Data::VectorSlice<uint32_t>&) const override final {}
-  virtual void DrawSelf() const override final {}
-};
-
-namespace detail {
-template <typename Interface>
-struct pure_type;
-template <typename... Interface>
-struct pure_type<Pack<Interface...>> {
-  using Type = PureNode<Interface...>;
-};
-}
-
 /*
  * Helper function, to avoid typing out explicit long type names. As
  * long as you have a ShaderProgram laying around, you can easily retrieve
  * a pure node that will be compatible with it.
  */
+// TODO rename so that pure nodes are the only nodes.
+// ISSUE: Make it so that we can use multiple shader programs to define the
+//        interface (as a union)
 template <class ShaderProgram>
 decltype(auto) CompatiblePureNode(const ShaderProgram&) {
-  using Type = typename detail::pure_type<typename ShaderProgram::Interface_t>::Type;
+  using Type = PureNode<typename ShaderProgram::Interface_t>;
   return std::make_unique<Type>();
 }
 

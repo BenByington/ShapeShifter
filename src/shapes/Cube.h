@@ -20,7 +20,7 @@
 namespace ShapeShifter {
 namespace Shapes {
 
-class Cube final : public Rendering::TypedRenderNode<
+class Cube final : public Rendering::LeafNode<
     Data::VertexManager,
     Data::ColorManager
 >{

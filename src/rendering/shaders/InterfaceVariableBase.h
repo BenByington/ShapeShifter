@@ -128,6 +128,14 @@ protected:
   std::reference_wrapper<VariableFactory> factory_;
 };
 
+//TODO move to own file
+template <class Child, typename T>
+class UniformVariableBase : public InterfaceVariableBase<Child, T> {
+public:
+  using InterfaceVariableBase<Child, T>::InterfaceVariableBase;
+
+};
+
 }}} // ShapeShifter::Rendering::Shaders
 
 #endif /* RENDERING_SHADERS_INTERFACE_VARIABLE_BASE_H */

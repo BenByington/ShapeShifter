@@ -36,38 +36,44 @@ std::unique_ptr<Rendering::World> Squares2D::Setup() {
   using namespace Rendering::Shaders::Programs;
   auto program = CreateShaderProgram<BasicVertexShader, BasicFragmentShader>();
 
-  auto sixth = std::make_unique<SquareTest2D>();
+  auto sixth = Rendering::CompatiblePureNode(*program);
+  sixth->AddLeaf<SquareTest2D>();
 
   // Could set the rotation/translation of sixth before adding it to fifth, but
   // this way we make sure that when adding a child, we get back a pointer
   // that allows us to manipulate the node (but not add/remove points or entire
   // new nodes)
-  auto fifth = std::make_unique<SquareTest2D>();
+  auto fifth = Rendering::CompatiblePureNode(*program);
+  fifth->AddLeaf<SquareTest2D>();
   auto manipulator = fifth->AddChild(std::move(sixth));
   manipulator->SetRotation({pi/2, 0, 1, 0});
   manipulator->SetTranslation(Vector4(-1, 0 , 1, 1.0));
 
-  auto fourth = std::make_unique<SquareTest2D>();
+  auto fourth = Rendering::CompatiblePureNode(*program);
+  fourth->AddLeaf<SquareTest2D>();
   manipulator = fourth->AddChild(std::move(fifth));
   manipulator->SetTranslation(Vector4(0, 0 , -1.0, 1.0));
 
-  auto third = std::make_unique<SquareTest2D>();
+  auto third = Rendering::CompatiblePureNode(*program);
+  third->AddLeaf<SquareTest2D>();
   manipulator = third->AddChild(std::move(fourth));
   manipulator->SetRotation({pi/2, 1, 0, 0});
 
-  auto second = std::make_unique<SquareTest2D>();
+  auto second = Rendering::CompatiblePureNode(*program);
+  second->AddLeaf<SquareTest2D>();
   manipulator = second->AddChild(std::move(third));
   manipulator->SetTranslation(Vector4(0, 0 , -1.0, 1.0));
 
-	auto first = std::make_unique<SquareTest2D>();
+  auto first = Rendering::CompatiblePureNode(*program);
+  first->AddLeaf<SquareTest2D>();
   manipulator = first->AddChild(std::move(second));
   manipulator->SetRotation({-pi/2, 0 , 1, 0});
 
-  auto pure = Rendering::CompatiblePureNode(*program);
-  manipulator = pure->AddChild(std::move(first));
+  auto base = Rendering::CompatiblePureNode(*program);
+  manipulator = base->AddChild(std::move(first));
   manipulator->SetTranslation(Vector4(-.5, -.5, -2.5, 1));
 
-	auto root = Rendering::CreateRootPtr(std::move(pure));
+	auto root = Rendering::CreateRootPtr(std::move(base));
 
   auto frust = Rendering::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
   auto camera = std::make_unique<Rendering::Camera>(frust, 2.5);
