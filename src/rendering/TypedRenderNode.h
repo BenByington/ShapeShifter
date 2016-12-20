@@ -80,10 +80,11 @@ struct LeafNode : BaseLeafNode, Managers::Interface... {
  * namespace, and external code should use the TypedRenderNode alias defined
  * below.
  */
-template <class Interface>
+// TODO move to proper file.
+template <class Interface, class Uniforms>
 struct PureNode;
-template <class... Types>
-struct PureNode<Pack<Types...>> : BasePureNode {
+template <class... Interface, class... Uniforms>
+struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : BasePureNode {
   PureNode() {}
   virtual ~PureNode() {}
 
@@ -95,7 +96,8 @@ struct PureNode<Pack<Types...>> : BasePureNode {
 	 *
    * @param child subtree to add to this node.
    */
-  using Interface_t = Pack<Types...>;
+  using Interface_t = Pack<Interface...>;
+  using Uniform_t = Pack<Uniforms...>;
   template <typename Other>
   std::shared_ptr<Manipulator> AddChild(
       std::unique_ptr<Other> child) {

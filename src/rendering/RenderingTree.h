@@ -24,21 +24,22 @@ namespace Rendering {
 
 class RenderingTree final{
 public:
-  template <typename TreeNode,
+  template <typename TreePack,
+            typename UniformPack,
             typename ShaderProgram,
             typename dummy =
 	    typename std::enable_if<
-          std::is_base_of<BasePureNode, TreeNode>::value &&
           std::is_base_of<Shaders::ShaderProgramBase, ShaderProgram>::value
       >::type
   >
   RenderingTree(
-      std::shared_ptr<TypedRootNode<TreeNode>> root,
+      // TODO clean this up
+      std::shared_ptr<TypedRootNode<TreePack, UniformPack>> root,
       std::shared_ptr<ShaderProgram> program)
-  : root_(root)
-  , program_(program) {
+  : data_(std::make_unique<TypedStorage<TypedRootNode<TreePack, UniformPack>, ShaderProgram>>(root, program)) {
 
-    using T1 = typename TreeNode::Interface_t;
+    // TODO Interface_t is just TreePack?
+    using T1 = typename PureNode<TreePack, UniformPack>::Interface_t;
     using T2 = typename ShaderProgram::Interface_t;
     constexpr bool sub1 = detail::is_subset<T1, T2>::value();
     constexpr bool sub2 = detail::is_subset<T2, T1>::value();
@@ -48,8 +49,8 @@ public:
     glGenVertexArrays (1, &vao);
     glBindVertexArray (vao);
 
-    auto map = program_->layout_map();
-    for (const auto& kv: root_->buffers()) {
+    auto map = program->layout_map();
+    for (const auto& kv: root->buffers()) {
       auto idx = map[kv.first->name()];
       auto type = kv.first->isFloating() ? GL_FLOAT : GL_INT;
       glBindBuffer(GL_ARRAY_BUFFER, kv.second);
@@ -57,7 +58,7 @@ public:
       glEnableVertexAttribArray(idx);
     }
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, root_->ibo());
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, root->ibo());
   }
 
   ~RenderingTree() {
@@ -66,13 +67,35 @@ public:
 
   void Render(const Camera& camera) const {
     glBindVertexArray(vao);
-    program_->UseProgram();
-    root_->RenderTree(camera, *program_);
+    data_->Render(camera);
   }
 
 private:
-  std::shared_ptr<RootNode> root_;
-  std::shared_ptr<Shaders::ShaderProgramBase> program_;
+  // Private storage class hierarchy to avoid double dispatch problem that
+  // occurs if we type erase both the root and shader program independently.
+  struct BaseStorage {
+    virtual void Render(const Camera& camera) = 0;
+  };
+
+  // Not bothering to make these classes very clamped down since they are
+  // private.  Don't remove without clarifying copy/move/etc semantics
+  template <class TypedRoot, class TypedShader>
+  struct TypedStorage : BaseStorage {
+    TypedStorage(
+        std::shared_ptr<TypedRoot> root,
+        std::shared_ptr<TypedShader> program)
+      : root_(root), program_(program) {}
+
+    virtual void Render(const Camera& camera) override {
+      program_->UseProgram();
+      root_->RenderTree(camera, *program_);
+    }
+
+    std::shared_ptr<TypedRoot> root_;
+    std::shared_ptr<TypedShader> program_;
+  };
+
+  std::unique_ptr<BaseStorage> data_;
   GLuint vao = 0;
 };
 

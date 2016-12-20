@@ -49,27 +49,21 @@ namespace detail {
 // ISSUE: Allow multiple VBO's in a tree, so that a tree can have wildly
 //        different shaders used in some parts (making a single set of VBO's
 //        unsuitable), yet everything contained in a unified tree so that
-//        heirarchical uniforms (like position) can be used across the shader
+//        hierarchical uniforms (like position) can be used across the shader
 //        boundaries.  It should be constrained so that children support a
 //        subset (?) of their parents uniform variables
-class RootNode : private PureNode<Pack<>> {
+class RootNode : private PureNode<Pack<>, Pack<>> {
 protected:
-  template <typename TreeNode, typename dummy =
-	          typename std::enable_if<
-                std::is_base_of<BasePureNode, TreeNode>::value
-            >::type>
-  RootNode(std::unique_ptr<TreeNode> tree)
-    : managers_(detail::manage<typename TreeNode::Interface_t>::instantiate()) {
+  template <typename TreePack, typename UniformPack>
+  RootNode(std::unique_ptr<PureNode<TreePack, UniformPack>> tree)
+  // TODO the Interface_t extracted here is just TreePack?
+    : managers_(detail::manage<typename PureNode<TreePack, UniformPack>::Interface_t>::instantiate()) {
 
     subtrees_.emplace_back(std::make_shared<Manipulator>(), tree.release());
     UpdateData();
   }
 
 public:
-
-  // TODO ugly.  Find a way to just have this returned when creating the
-  // root node?
-  Manipulator& manipulator() { return *subtrees_.front().first; }
 
   virtual ~RootNode();
 
@@ -99,17 +93,15 @@ private:
   std::vector<std::shared_ptr<Data::AbstractManager>> managers_;
 };
 
-template <class TreeNode>
+template <class TreePack, class UniformPack>
 class TypedRootNode final : public RootNode {
-  static_assert(std::is_base_of<Rendering::BasePureNode, TreeNode>::value,
-      "TypedRootNode must be templated on a type of TypedRenderNode");
 public:
-  TypedRootNode(std::unique_ptr<TreeNode> tree) : RootNode(std::move(tree)) {}
+  TypedRootNode(std::unique_ptr<PureNode<TreePack, UniformPack>> tree) : RootNode(std::move(tree)) {}
 };
 
-template <class TreeNode>
-auto CreateRootPtr(std::unique_ptr<TreeNode> tree) {
-  return std::make_shared<TypedRootNode<TreeNode>>(std::move(tree));
+template <class TreePack, class UniformPack>
+auto CreateRootPtr(std::unique_ptr<PureNode<TreePack, UniformPack>> tree) {
+  return std::make_shared<TypedRootNode<TreePack, UniformPack>>(std::move(tree));
 }
 
 }} // ShapeShifter::Rendering

@@ -61,6 +61,7 @@ public:
     : ShaderProgramBase(std::move(vert), std::move(frag)) {}
 
   using Interface_t = Pack<Interface...>;
+  using Uniform_t = Pack<Uniforms...>;
 };
 
 // TODO remove if unused

@@ -60,6 +60,35 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
   }
   static constexpr bool smooth = false;
   Variable_T& transform = Base::var;
+
+  // TODO set up traits to require this
+  // TODO require this inherits from a class that can implement `required`
+  //      dependencies
+  // TODO set up traits to require the Combine function
+  class Manipulator {
+    Manipulator() : translation_(0,0,0,1) {}
+
+    void SetRotation(const Math::Quaternion& rot) {
+      rotation_ = rot;
+    }
+    void SetTranslation(const Math::Vector4& trans) {
+      translation_ = trans;
+    }
+
+    Manipulator Combine(const Manipulator& cumulative) const {
+      Manipulator ret;
+      ret.SetRotation(cumulative.rotation_*rotation_);
+      // TODO define multiple of vector with quaternion directly.
+      ret.SetTranslation(cumulative.translation_ + ret.rotation_.RotationMatrix() * translation_);
+      return ret;
+
+    }
+
+    void Upload(const Camera& camera, const Shaders::ShaderProgramBase& program) const;
+
+    Math::Quaternion rotation_;
+    Math::Vector4 translation_;
+  };
 };
 
 }

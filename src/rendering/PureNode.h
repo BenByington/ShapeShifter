@@ -29,7 +29,7 @@ namespace Rendering {
 //        interface (as a union)
 template <class ShaderProgram>
 decltype(auto) CompatiblePureNode(const ShaderProgram&) {
-  using Type = PureNode<typename ShaderProgram::Interface_t>;
+  using Type = PureNode<typename ShaderProgram::Interface_t, typename ShaderProgram::Uniform_t>;
   return std::make_unique<Type>();
 }
 
