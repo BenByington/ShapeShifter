@@ -14,7 +14,7 @@
 #ifndef SCENARIOS_TESTS_INDEXED_BUFFERS_H
 #define SCENARIOS_TESTS_INDEXED_BUFFERS_H
 
-#include "rendering/RenderNode.h"
+#include "rendering/BasePureNode.h"
 #include "rendering/World.h"
 #include "scenarios/Scenario.h"
 

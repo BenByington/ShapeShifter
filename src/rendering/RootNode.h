@@ -17,6 +17,8 @@
 #include "rendering/TypedRenderNode.h"
 #include "rendering/PureNode.h"
 #include "rendering/shaders/ShaderProgramBase.h"
+// TODO see if we can eliminate this...
+#include "rendering/shaders/ShaderProgram.h"
 
 #include <map>
 
@@ -52,27 +54,22 @@ namespace detail {
 //        hierarchical uniforms (like position) can be used across the shader
 //        boundaries.  It should be constrained so that children support a
 //        subset (?) of their parents uniform variables
-class RootNode : private PureNode<Pack<>, Pack<>> {
+// TODO clean up this hack of an inheritance
+class RootNode : public PureNode<Pack<>, Pack<>> {
 protected:
   template <typename TreePack, typename UniformPack>
   RootNode(std::unique_ptr<PureNode<TreePack, UniformPack>> tree)
   // TODO the Interface_t extracted here is just TreePack?
     : managers_(detail::manage<typename PureNode<TreePack, UniformPack>::Interface_t>::instantiate()) {
 
-    subtrees_.emplace_back(std::make_shared<Manipulator>(), tree.release());
+    using Manipulator_t = typename PureNode<TreePack, UniformPack>::Manipulator_t;
+    subtrees_.emplace_back(std::make_shared<Manipulator_t>(), tree.release());
     UpdateData();
   }
 
 public:
 
   virtual ~RootNode();
-
-	/**
-	 * Walks down the tree, applies rotation matrices, and calls opengl to render
-   */
-	void RenderTree(
-      const Camera& camera,
-      const Shaders::ShaderProgramBase& program) const;
 
   // TODO clean this up?  I don't know if these accessors are required.
   GLuint ibo() { return ibo_; }
@@ -97,6 +94,18 @@ template <class TreePack, class UniformPack>
 class TypedRootNode final : public RootNode {
 public:
   TypedRootNode(std::unique_ptr<PureNode<TreePack, UniformPack>> tree) : RootNode(std::move(tree)) {}
+
+	/**
+	 * Walks down the tree, applies rotation matrices, and calls opengl to render
+   */
+  // TODO make sure this template is valid compared to our TreePack and UniformPack
+  template <class IPack, class... Uniforms>
+	void RenderTree(
+      const Camera& camera,
+      const Shaders::ShaderProgram<IPack, Pack<Uniforms...>>& program) const {
+    Shaders::UniformManager<Uniforms...> uniforms;
+    DrawChildren(camera, uniforms, program);
+  }
 };
 
 template <class TreePack, class UniformPack>

@@ -15,7 +15,7 @@
 #define DATA_ABSTRACT_BUFFERTYPES_H
 
 #include "data/MixedDataMapBase.h"
-#include "rendering/RenderNode.h"
+#include "rendering/LeafNode.h"
 
 #include <cstdlib>
 #include <type_traits>

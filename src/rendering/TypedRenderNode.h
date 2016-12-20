@@ -15,8 +15,9 @@
 #define RENDERING_TYPED_RENDERNODE_H
 
 #include "data/MixedDataMapBase.h"
-#include "rendering/RenderNode.h"
+#include "rendering/BasePureNode.h"
 #include "rendering/shaders/Pack.h"
+#include "rendering/shaders/UniformManager.h"
 
 namespace ShapeShifter {
 namespace Rendering {
@@ -54,15 +55,6 @@ struct is_subset<Pack<A...>, Pack<B...>> {
 
 }
 
-template <class... Managers>
-struct LeafNode : BaseLeafNode, Managers::Interface... {
-  LeafNode() {}
-  virtual ~LeafNode() {}
-
-  // TODO rename?
-  using Interface_t = Pack<Managers...>;
-};
-
 /*
  * This is the main base class for all custom concrete RenderNode
  * implementations, though it should not be instantiated directly but rather
@@ -98,27 +90,30 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : BasePureNode {
    */
   using Interface_t = Pack<Interface...>;
   using Uniform_t = Pack<Uniforms...>;
+  using Manipulator_t = Shaders::UniformManager<Uniforms...>;
+  // TODO Manipulator type needs to be determined from child
   template <typename Other>
-  std::shared_ptr<Manipulator> AddChild(
+  std::shared_ptr<Manipulator_t> AddChild(
       std::unique_ptr<Other> child) {
     // TODO allow permuted types?
     static_assert(
         std::is_same<Interface_t, typename Other::Interface_t>::value,
         "Internal nodes must all have the same interface");
-    auto manipulator = std::make_shared<Manipulator>();
+    auto manipulator = std::make_shared<Manipulator_t>();
     this->subtrees_.emplace_back(manipulator, child.release());
     return manipulator;
 
   }
 
+  // TODO Manipulator type needs be determined from Child
   template <class Child, typename... Args>
-  std::shared_ptr<Manipulator> AddLeaf(Args&&... args) {
+  std::shared_ptr<Manipulator_t> AddLeaf(Args&&... args) {
     static_assert(
         detail::is_subset<Interface_t, typename Child::Interface_t>::value(),
         "Attempting to add leaf node that does not fulfill the input interface"
         " of the parent node");
     auto child = std::make_shared<Child>(std::forward<Args>(args)...);
-    auto manipulator = std::make_shared<Manipulator>();
+    auto manipulator = std::make_shared<Manipulator_t>();
     this->leaves_.emplace_back(manipulator, child);
     return manipulator;
   }

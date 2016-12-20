@@ -16,7 +16,6 @@
 
 #include "data/AbstractBufferManager.h"
 #include "data/MixedDataMapBase.h"
-#include "rendering/RenderNode.h"
 #include "rendering/shaders/InterfaceVariableBase.h"
 
 #include <cstdlib>

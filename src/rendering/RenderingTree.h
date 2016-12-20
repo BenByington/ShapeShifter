@@ -14,7 +14,7 @@
 #ifndef RENDERING_RENDERING_TREE_H
 #define RENDERING_RENDERING_TREE_H
 
-#include "rendering/RenderNode.h"
+#include "rendering/BasePureNode.h"
 #include "rendering/RootNode.h"
 
 #include <type_traits>
@@ -88,6 +88,7 @@ private:
 
     virtual void Render(const Camera& camera) override {
       program_->UseProgram();
+      // TODO extract Manipulator type from Camera
       root_->RenderTree(camera, *program_);
     }
 

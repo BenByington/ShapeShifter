@@ -61,11 +61,4 @@ RootNode::~RootNode() {
   buffers_.clear();
 }
 
-void RootNode::RenderTree(
-    const Camera& camera,
-    const Shaders::ShaderProgramBase& program) const {
-  Manipulator uniforms;
-  DrawChildren(camera, uniforms, program);
-}
-
 }} // namespace Shapeshifter::Rendering

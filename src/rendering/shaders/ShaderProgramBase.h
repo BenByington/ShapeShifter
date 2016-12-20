@@ -37,7 +37,7 @@ public:
   virtual ~ShaderProgramBase();
 
 	void UseProgram() const { glUseProgram(program_); }
-  void uploadMatrix(const Math::Matrix4& mat) const;
+  void UploadValue(const Math::Matrix4& mat, const char* name) const;
 
   // TODO think about if this should remain public
   const auto& layout_map() const {

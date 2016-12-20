@@ -17,6 +17,10 @@
 #include "data/ConcreteBufferManager.h"
 #include "rendering/shaders/Shader.h"
 #include "rendering/shaders/language/GLSLGeneratorBase.h"
+#include "math/Quaternion.h"
+#include "rendering/Camera.h"
+//TODO remove
+#include "rendering/shaders/ShaderProgramBase.h"
 
 namespace ShapeShifter {
 namespace Rendering {
@@ -65,8 +69,12 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
   // TODO require this inherits from a class that can implement `required`
   //      dependencies
   // TODO set up traits to require the Combine function
-  class Manipulator {
-    Manipulator() : translation_(0,0,0,1) {}
+  // TODO set up traits to require the Clone function
+  // TODO set up traits requiring default construction
+  // TODO set up traits requiring the Data function
+  class UniformManager {
+  public:
+    UniformManager() : translation_(0,0,0,1) {}
 
     void SetRotation(const Math::Quaternion& rot) {
       rotation_ = rot;
@@ -75,17 +83,21 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
       translation_ = trans;
     }
 
-    Manipulator Combine(const Manipulator& cumulative) const {
-      Manipulator ret;
-      ret.SetRotation(cumulative.rotation_*rotation_);
-      // TODO define multiple of vector with quaternion directly.
-      ret.SetTranslation(cumulative.translation_ + ret.rotation_.RotationMatrix() * translation_);
-      return ret;
-
+    Math::Matrix4 Data(const Camera& camera) const {
+      auto mat = rotation_.RotationMatrix();
+      mat.WriteColumn(3, translation_);
+      return camera.ProjectionMatrix() * mat;
     }
 
-    void Upload(const Camera& camera, const Shaders::ShaderProgramBase& program) const;
+  protected:
 
+    void Combine(const UniformManager& other) {
+      SetRotation(rotation_*other.rotation_);
+      // TODO define multiple of vector with quaternion directly.
+      SetTranslation(translation_ + rotation_.RotationMatrix() * other.translation_);
+    }
+
+  private:
     Math::Quaternion rotation_;
     Math::Vector4 translation_;
   };

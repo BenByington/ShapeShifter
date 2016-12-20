@@ -18,6 +18,7 @@
 #include "rendering/shaders/RawShader.h"
 #include "rendering/shaders/ShaderProgramBase.h"
 #include "rendering/shaders/Shader.h"
+#include "rendering/shaders/UniformManager.h"
 
 #include <limits>
 #include <map>
@@ -59,6 +60,16 @@ public:
       std::unique_ptr<RawShader<RawShaderType::VERTEX>> vert,
       std::unique_ptr<RawShader<RawShaderType::FRAGMENT>> frag)
     : ShaderProgramBase(std::move(vert), std::move(frag)) {}
+
+  // TODO change camera to just being the root node of the tree or something
+  void Upload(const Camera& camera, const UniformManager<Uniforms...>& uniforms) const {
+    auto worker = {(
+        UploadValue(
+            static_cast<const typename Uniforms::UniformManager&>(uniforms).Data(camera),
+            Uniforms::name())
+          ,1)
+        ...};
+  }
 
   using Interface_t = Pack<Interface...>;
   using Uniform_t = Pack<Uniforms...>;

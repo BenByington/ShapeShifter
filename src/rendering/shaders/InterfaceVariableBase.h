@@ -133,7 +133,6 @@ template <class Child, typename T>
 class UniformVariableBase : public InterfaceVariableBase<Child, T> {
 public:
   using InterfaceVariableBase<Child, T>::InterfaceVariableBase;
-
 };
 
 }}} // ShapeShifter::Rendering::Shaders
