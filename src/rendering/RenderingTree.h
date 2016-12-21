@@ -37,11 +37,12 @@ public:
       std::shared_ptr<ShaderProgram> program)
   : data_(std::make_unique<TypedStorage<TypedRootNode<TreePack, UniformPack>, ShaderProgram>>(root, program)) {
 
-    using T = typename ShaderProgram::Interface_t;
-    constexpr bool sub1 = detail::is_subset<TreePack, T>::value();
-    constexpr bool sub2 = detail::is_subset<T, TreePack>::value();
-    static_assert(sub1 && sub2,
-                  "Incompatible shader handed in with rendering tree\n");
+    static_assert(
+        is_subset<typename ShaderProgram::Interface_t, TreePack>::value(),
+        "Shader requires buffers not supplied by this rendering tree\n");
+    static_assert(
+        is_subset<typename ShaderProgram::Uniform_t, UniformPack>::value(),
+        "Shader required uniform variables not supplied by this rendering tree\n");
 
     glGenVertexArrays (1, &vao);
     glBindVertexArray (vao);
