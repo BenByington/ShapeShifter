@@ -37,12 +37,13 @@ public:
   virtual ~ShaderProgramBase();
 
 	void UseProgram() const { glUseProgram(program_); }
-  void UploadValue(const Math::Matrix4& mat, const char* name) const;
 
-  // TODO think about if this should remain public
   const auto& layout_map() const {
     return vert_shader_->layout_map();
   }
+
+protected:
+  void UploadValue(const Math::Matrix4& mat, const char* name) const;
 
 private:
 	std::unique_ptr<ShaderBase> vert_shader_;

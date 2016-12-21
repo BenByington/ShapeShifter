@@ -19,8 +19,6 @@
 #include "rendering/shaders/language/GLSLGeneratorBase.h"
 #include "math/Quaternion.h"
 #include "rendering/Camera.h"
-//TODO remove
-#include "rendering/shaders/ShaderProgramBase.h"
 
 namespace ShapeShifter {
 namespace Rendering {

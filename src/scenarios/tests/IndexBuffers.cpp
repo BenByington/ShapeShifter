@@ -42,9 +42,7 @@ std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
   cube->SetRotation(Quaternion(.5, 1, 1, 1));
   cube->SetTranslation(Vector4(.7, .2, -.4, 1));
 
-  auto sphere = node1->AddLeaf<Shapes::Sphere>(0.2);
-  // TODO use sphere
-  (void) sphere;
+  node1->AddLeaf<Shapes::Sphere>(0.2);
 
   auto node2 = Rendering::CompatiblePureNode(*program);
   auto manipulator = node2->AddChild(std::move(node1));

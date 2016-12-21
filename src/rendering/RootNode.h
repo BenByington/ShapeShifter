@@ -14,18 +14,15 @@
 #ifndef RENDERING_ROOT_NODE_H
 #define RENDERING_ROOT_NODE_H
 
-#include "rendering/TypedRenderNode.h"
+#include "rendering/PureNode.h"
 #include "rendering/PureNode.h"
 #include "rendering/shaders/ShaderProgramBase.h"
-// TODO see if we can eliminate this...
-#include "rendering/shaders/ShaderProgram.h"
 
 #include <map>
 
 namespace ShapeShifter {
 namespace Rendering {
 
-// TODO remove this
 namespace detail {
 
   template <typename T>
@@ -54,13 +51,14 @@ namespace detail {
 //        hierarchical uniforms (like position) can be used across the shader
 //        boundaries.  It should be constrained so that children support a
 //        subset (?) of their parents uniform variables
-// TODO clean up this hack of an inheritance
+//        Note: When doing this, try and clean up this odd inheritance.  If
+//        RootNode needs access to some of PureNodes methods, but not the
+//        template parameters, maybe the class needs to be split
 class RootNode : public PureNode<Pack<>, Pack<>> {
 protected:
   template <typename TreePack, typename UniformPack>
   RootNode(std::unique_ptr<PureNode<TreePack, UniformPack>> tree)
-  // TODO the Interface_t extracted here is just TreePack?
-    : managers_(detail::manage<typename PureNode<TreePack, UniformPack>::Interface_t>::instantiate()) {
+    : managers_(detail::manage<TreePack>::instantiate()) {
 
     using Manipulator_t = typename PureNode<TreePack, UniformPack>::Manipulator_t;
     subtrees_.emplace_back(std::make_shared<Manipulator_t>(), tree.release());
@@ -71,11 +69,10 @@ public:
 
   virtual ~RootNode();
 
-  // TODO clean this up?  I don't know if these accessors are required.
-  GLuint ibo() { return ibo_; }
+  GLuint ibo() const { return ibo_; }
 
   const std::map<std::shared_ptr<Data::AbstractManager>, GLuint>&
-  buffers() { return buffers_; }
+  buffers() const { return buffers_; }
 
 private:
 

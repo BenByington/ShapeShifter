@@ -54,14 +54,14 @@ public:
     static_assert(
         std::is_same<typename Vertex::Outputs_t, typename Fragment::Inputs_t>::value,
         "Vertex and Fragment shader do not share common IO interface");
-    // TODO: Refactor to include Uniform variables as part of interface.
   }
   ShaderProgram(
       std::unique_ptr<RawShader<RawShaderType::VERTEX>> vert,
       std::unique_ptr<RawShader<RawShaderType::FRAGMENT>> frag)
     : ShaderProgramBase(std::move(vert), std::move(frag)) {}
 
-  // TODO change camera to just being the root node of the tree or something
+  // TODO change the camera to being another uniform.  It can pave the way
+  //      for adding lights
   void Upload(const Camera& camera, const UniformManager<Uniforms...>& uniforms) const {
     auto worker = {(
         UploadValue(
@@ -74,19 +74,6 @@ public:
   using Interface_t = Pack<Interface...>;
   using Uniform_t = Pack<Uniforms...>;
 };
-
-// TODO remove if unused
-namespace detail {
-
-template <typename Input>
-struct get_program_type;
-
-template <typename... Inputs>
-struct get_program_type<Pack<Inputs...>> {
-  using Type = Rendering::Shaders::ShaderProgram<Inputs...>;
-};
-
-}
 
 /*
  * Helper function that does a lot of the legwork in creating a shader

@@ -27,24 +27,15 @@
 namespace ShapeShifter {
 namespace Rendering {
 
-/**
- * Basic vertex for a tree of objects to render.  The entire tree will share
- * a vertex array object, though each node can have it's own rotation relative
- * to it's parent
- *
- * Note: Implementation classes should inherit from TypedRenderNode rather
- * than this class.
- */
-// TODO salvage above comment
-
 class BasePureNode {
+public:
+  virtual ~BasePureNode() {}
 protected:
   BasePureNode() = default;
   BasePureNode(const BasePureNode& orig) = delete;
   BasePureNode(BasePureNode&& orig) = delete;
 	BasePureNode& operator=(const BasePureNode&) = delete;
 	BasePureNode& operator=(BasePureNode&&) = delete;
-  virtual ~BasePureNode() {}
 
 	// Compute how big the VAO should be
 	Data::BufferIndex SubtreeCounts() const;
@@ -60,25 +51,22 @@ protected:
       const Shaders::ShaderProgram<IPack, Pack<Uniforms...>>& shader) const {
     using UniformManager = Shaders::UniformManager<Uniforms...>;
 
-    // TODO see about only doing dynamic casts in debug mode or something.
+    // ISSUE see about only doing dynamic casts in debug mode or something.
 	  for (const auto& child : subtrees_) {
       auto child_uniforms = cumulativeUniforms;
       child_uniforms.Combine(dynamic_cast<UniformManager&>(*child.first));
 	  	child.second->DrawChildren(camera, child_uniforms, shader);
 	  }
-	  for (const auto& child : leaves_) {
+	  for (const auto& leaf : leaves_) {
       auto child_uniforms = cumulativeUniforms;
-      child_uniforms.Combine(dynamic_cast<UniformManager&>(*child.first));
+      child_uniforms.Combine(dynamic_cast<UniformManager&>(*leaf.first));
       shader.Upload(camera, child_uniforms);
-      child.second->DrawSelf();
+      leaf.second->DrawSelf();
 	  }
   }
 
-
-  // TODO make unique pointers, after we start returning an id instead
-  // of a shared_ptr
   template <class T>
-  using element = std::pair<std::shared_ptr<Shaders::BaseUniformManager>, std::shared_ptr<T>>;
+  using element = std::pair<std::shared_ptr<Shaders::BaseUniformManager>, std::unique_ptr<T>>;
 	std::vector<element<BasePureNode>> subtrees_;
   std::vector<element<BaseLeafNode>> leaves_;
 

@@ -42,11 +42,8 @@ public:
     return (GLvoid*)(start().index_*sizeof(uint32_t));
   }
 
-  // TODO These two functions should not be public, the first because it could
-  // cause this object to be partially associated with two VBO's, and the second
-  // because it is only valid to call when the correct VBO is loaded.  Once this
-  // refactor settles down, try to find a way that *only* the internal tree
-  // nodes can call them.
+  // ISSUE: implement something like client-attorney here so that *only*
+  //        PureNodes can call these two functions
   void FillLocalBuffer(Data::MixedDataMap& data);
   // Personal rendering function
 	virtual void DrawSelf() const = 0;
@@ -70,7 +67,6 @@ struct LeafNode : BaseLeafNode, Managers::Interface... {
   LeafNode() {}
   virtual ~LeafNode() {}
 
-  // TODO rename?
   using Interface_t = Pack<Managers...>;
 };
 }} // ShapeShifter::Rendering

@@ -15,6 +15,7 @@
 #define RENDERING_SHADERS_LANGUAGE_GLSLGENERATORBASE_H
 
 #include "rendering/shaders/InterfaceVariableBase.h"
+#include "rendering/shaders/UniformVariableBase.h"
 #include "rendering/shaders/Pack.h"
 #include "data/ConcreteBufferManager.h"
 
@@ -140,9 +141,6 @@ template <class... Inputs, class... Uniforms, class... Outputs>
 class GLSLVertexGeneratorBase<Pack<Inputs...>, Pack<Uniforms...>, Pack<Outputs...>>
   : public GLSLGeneratorBase<Pack<typename Inputs::Variable...>, Pack<Uniforms...>, Pack<Outputs...>> {
 
-// TODO clean this up.  It's confusing that Inputs... is a set of managers, while
-// the rest (and the templates on our parent) are all interface variables.
-// Make them consistent if possible.
 static_assert(detail::are_managers<Inputs...>::check(),
     "GLSLVertexGeneratorBase only accepts BufferManagers within the Inputs pack.");
 using  Base = GLSLGeneratorBase<Pack<typename Inputs::Variable...>, Pack<Uniforms...>, Pack<Outputs...>>;

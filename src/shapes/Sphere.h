@@ -15,7 +15,7 @@
 #define SHAPES_SPHERE_H
 
 #include "data/ConcreteBufferManager.h"
-#include "rendering/TypedRenderNode.h"
+#include "rendering/PureNode.h"
 
 #include <cmath>
 

@@ -97,14 +97,6 @@ public:
     return {Child::name(), idx};
   }
 
-  void UniformDeclaration(VariableFactory& factory) {
-    factory.stream()
-        << "uniform "
-        << Variable_T::TypeName()
-        << " " << Child::name()
-        << ";\n";
-  }
-
   void OutputDeclaration(VariableFactory& factory) {
     if (Child::smooth) factory.stream() << "smooth ";
     factory.stream()
@@ -126,13 +118,6 @@ public:
 protected:
   Variable_T var;
   std::reference_wrapper<VariableFactory> factory_;
-};
-
-//TODO move to own file
-template <class Child, typename T>
-class UniformVariableBase : public InterfaceVariableBase<Child, T> {
-public:
-  using InterfaceVariableBase<Child, T>::InterfaceVariableBase;
 };
 
 }}} // ShapeShifter::Rendering::Shaders

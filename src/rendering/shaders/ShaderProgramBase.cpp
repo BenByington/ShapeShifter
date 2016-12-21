@@ -56,7 +56,6 @@ ShaderProgramBase::~ShaderProgramBase() {
 }
 
 // Will need overloads for the different allowed types
-// TODO check if protected
 void ShaderProgramBase::UploadValue(const Math::Matrix4& mat, const char* name) const {
   auto transform_location = glGetUniformLocation(program_, name);
   glUniformMatrix4fv(transform_location, 1, GL_FALSE, mat.data());

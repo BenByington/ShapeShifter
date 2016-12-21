@@ -23,8 +23,6 @@ namespace Rendering {
 namespace Shaders {
 
 template <class... Uniforms>
-// TODO change template parameter so we don't have to specify UniformManager.
-// TODO think about template constraints
 struct UniformManager : BaseUniformManager, Uniforms::UniformManager... {
   UniformManager() {}
 

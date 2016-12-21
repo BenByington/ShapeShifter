@@ -33,16 +33,13 @@ public:
       >::type
   >
   RenderingTree(
-      // TODO clean this up
       std::shared_ptr<TypedRootNode<TreePack, UniformPack>> root,
       std::shared_ptr<ShaderProgram> program)
   : data_(std::make_unique<TypedStorage<TypedRootNode<TreePack, UniformPack>, ShaderProgram>>(root, program)) {
 
-    // TODO Interface_t is just TreePack?
-    using T1 = typename PureNode<TreePack, UniformPack>::Interface_t;
-    using T2 = typename ShaderProgram::Interface_t;
-    constexpr bool sub1 = detail::is_subset<T1, T2>::value();
-    constexpr bool sub2 = detail::is_subset<T2, T1>::value();
+    using T = typename ShaderProgram::Interface_t;
+    constexpr bool sub1 = detail::is_subset<TreePack, T>::value();
+    constexpr bool sub2 = detail::is_subset<T, TreePack>::value();
     static_assert(sub1 && sub2,
                   "Incompatible shader handed in with rendering tree\n");
 
@@ -88,7 +85,6 @@ private:
 
     virtual void Render(const Camera& camera) override {
       program_->UseProgram();
-      // TODO extract Manipulator type from Camera
       root_->RenderTree(camera, *program_);
     }
 
