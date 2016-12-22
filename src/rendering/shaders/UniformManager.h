@@ -27,8 +27,17 @@ struct UniformManager : BaseUniformManager, Uniforms::UniformManager... {
   UniformManager() {}
 
   void Combine(const UniformManager& other) {
-    auto worker = {(Uniforms::UniformManager::Combine(dynamic_cast<const typename Uniforms::UniformManager&>(other)),1)...};
+    auto worker = {(Manager<Uniforms>::Combine(dynamic_cast<const Manager<Uniforms>&>(other)),1)...};
   }
+
+  const UniformManager& operator=(const UniformManager& other) {
+    auto worker = {(
+        dynamic_cast<Manager<Uniforms>&>(*this).Clone(dynamic_cast<Manager<Uniforms>&>(other))
+        ,1)...};
+  }
+private:
+  template <class Manager>
+  using Manager = typename Manager::UniformManager;
 };
 
 }}} /* ShapeShifter::Rendering::Shaders */

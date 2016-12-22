@@ -63,15 +63,9 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
   static constexpr bool smooth = false;
   Variable_T& transform = Base::var;
 
-  // TODO set up traits to require this
-  // TODO require this inherits from a class that can implement `required`
-  //      dependencies
-  // TODO set up traits to require the Combine function
-  // TODO set up traits to require the Clone function
-  // TODO set up traits requiring default construction
-  // TODO set up traits requiring the Data function
   class UniformManager {
   public:
+    using StorageType = Math::Matrix4;
     UniformManager() : translation_(0,0,0,1) {}
 
     void SetRotation(const Math::Quaternion& rot) {
@@ -87,12 +81,14 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
       return camera.ProjectionMatrix() * mat;
     }
 
-  protected:
-
     void Combine(const UniformManager& other) {
       SetRotation(rotation_*other.rotation_);
-      // TODO define multiple of vector with quaternion directly.
       SetTranslation(translation_ + rotation_.RotationMatrix() * other.translation_);
+    }
+
+    void Clone(const UniformManager& other) {
+      rotation_ = other.rotation_;
+      translation_ = other.translation_;
     }
 
   private:
