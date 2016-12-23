@@ -27,6 +27,23 @@
 namespace ShapeShifter {
 namespace Rendering {
 
+// Maybe put this elsewhere...
+template <class T>
+class CallableReferenceWrapper {
+public:
+  explicit CallableReferenceWrapper(T& t) : w_(t) {}
+  CallableReferenceWrapper(const CallableReferenceWrapper&) = delete;
+  CallableReferenceWrapper(CallableReferenceWrapper&&) = default;
+  CallableReferenceWrapper& operator=(const CallableReferenceWrapper&) = delete;
+  CallableReferenceWrapper& operator=(CallableReferenceWrapper&&) = default;
+
+  T* operator->() { return &(w_.get()); }
+  operator T&() { return w_; }
+  operator const T&() const { return w_; }
+private:
+  std::reference_wrapper<T> w_;
+};
+
 class BasePureNode {
 public:
   virtual ~BasePureNode() {}
@@ -54,21 +71,38 @@ protected:
     // ISSUE see about only doing dynamic casts in debug mode or something.
 	  for (const auto& child : subtrees_) {
       auto child_uniforms = cumulativeUniforms;
-      child_uniforms.Combine(dynamic_cast<UniformManager&>(*child.first));
-	  	child.second->DrawChildren(camera, child_uniforms, shader);
+      child_uniforms.Combine(child.Manager());
+	  	child.Node().DrawChildren(camera, child_uniforms, shader);
 	  }
-	  for (const auto& leaf : leaves_) {
-      auto child_uniforms = cumulativeUniforms;
-      child_uniforms.Combine(dynamic_cast<UniformManager&>(*leaf.first));
-      shader.Upload(camera, child_uniforms);
-      leaf.second->DrawSelf();
+	  if (leaf_) {
+      shader.Upload(camera, cumulativeUniforms);
+      leaf_->DrawSelf();
 	  }
   }
 
-  template <class T>
-  using element = std::pair<std::shared_ptr<Shaders::BaseUniformManager>, std::unique_ptr<T>>;
-	std::vector<element<BasePureNode>> subtrees_;
-  std::vector<element<BaseLeafNode>> leaves_;
+  class TypeErasedNode {
+  public:
+    using Ref = CallableReferenceWrapper<Shaders::BaseUniformManager>;
+    template <typename Node>
+    TypeErasedNode(std::unique_ptr<Node> node)
+      : data_(Ref(*node), nullptr) {
+      static_assert(std::is_base_of<BasePureNode,Node>::value,
+          "Must be a child of BasePureNode");
+      static_assert(std::is_base_of<Shaders::BaseUniformManager, Node>::value,
+          "Mulst be a child of BaseUniformManager");
+      data_.second = std::move(node);
+    }
+
+    const Ref& Manager() const { return data_.first; }
+    const BasePureNode& Node() const { return *data_.second; }
+    BasePureNode& Node() { return *data_.second; }
+  private:
+    std::pair<
+        CallableReferenceWrapper<Shaders::BaseUniformManager>,
+        std::unique_ptr<BasePureNode>> data_;
+  };
+	std::vector<TypeErasedNode> subtrees_;
+  std::unique_ptr<BaseLeafNode> leaf_;
 
 };
 

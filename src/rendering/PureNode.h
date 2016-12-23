@@ -44,7 +44,7 @@ namespace Rendering {
 template <class Interface, class Uniforms>
 struct PureNode;
 template <class... Interface, class... Uniforms>
-struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : BasePureNode {
+struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : BasePureNode, Shaders::UniformManager<Uniforms...> {
   PureNode() {}
   virtual ~PureNode() {}
 
@@ -60,7 +60,7 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : BasePureNode {
   using Uniform_t = Pack<Uniforms...>;
   using Manipulator_t = Shaders::UniformManager<Uniforms...>;
   template <typename Other>
-  std::shared_ptr<Manipulator_t> AddChild(
+  CallableReferenceWrapper<Manipulator_t> AddChild(
       std::unique_ptr<Other> child) {
     static_assert(
         is_permutation<Interface_t, typename Other::Interface_t>::value,
@@ -68,24 +68,28 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : BasePureNode {
     static_assert(
         is_permutation<Uniform_t, typename Other::Uniform_t>::value,
         "Internal nodes must all have the same uniforms");
-    auto manipulator = std::make_shared<Manipulator_t>();
-    this->subtrees_.emplace_back(manipulator, child.release());
-    return manipulator;
+    CallableReferenceWrapper<Manipulator_t> ret(*child);
+    this->subtrees_.emplace_back(std::move(child));
+    return ret;
 
   }
 
   template <class Leaf, typename... Args>
-  std::shared_ptr<Manipulator_t> AddLeaf(Args&&... args) {
+  CallableReferenceWrapper<Manipulator_t> AddLeaf(Args&&... args) {
     static_assert(
         is_subset<Interface_t, typename Leaf::Interface_t>::value(),
         "Attempting to add leaf node that does not fulfill the input interface"
         " of the parent node");
+
+    auto child = std::make_unique<PureNode>();
     auto leaf = std::make_unique<Leaf>(std::forward<Args>(args)...);
-    auto manipulator = std::make_shared<Manipulator_t>();
-    this->leaves_.emplace_back(manipulator, std::move(leaf));
-    return manipulator;
+    child->leaf_ = std::move(leaf);
+    CallableReferenceWrapper<Manipulator_t> ret(*child);
+    this->subtrees_.emplace_back(std::move(child));
+    return ret;
   }
 };
+
 /*
  * Helper function, to avoid typing out explicit long type names. As
  * long as you have a ShaderProgram laying around, you can easily retrieve

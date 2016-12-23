@@ -53,6 +53,9 @@ struct OutputColor : InterfaceVariableBase<OutputColor, Language::Vec4> {
   Variable_T& outputColor = Base::var;
 };
 
+// ISSUE: There needs to be some sort of constraint ensuring the second
+//        template parameter here is consistent with the StorageType
+//        defined in the inner class.
 struct Transform : UniformVariableBase<Transform, Language::Mat4> {
   Transform() = delete;
   using Base = UniformVariableBase<Transform, Language::Mat4>;

@@ -23,20 +23,20 @@ namespace Rendering {
 Data::BufferIndex BasePureNode::SubtreeCounts() const {
 	auto ret = Data::BufferIndex{};
 	for (const auto& child : subtrees_) {
-		ret += child.second->SubtreeCounts();
+		ret += child.Node().SubtreeCounts();
 	}
-  for (const auto& leaf : leaves_) {
-    ret += leaf.second->ExclusiveNodeDataCount();
+  if (leaf_) {
+    ret += leaf_->ExclusiveNodeDataCount();
   }
 	return ret;
 }
 
 void BasePureNode::PopulateBufferData(Data::MixedDataMap& data) {
-	for (const auto& child : subtrees_) {
-		child.second->PopulateBufferData(data);
+	for (auto& child : subtrees_) {
+		child.Node().PopulateBufferData(data);
 	}
-	for (const auto& leaf : leaves_) {
-		leaf.second->FillLocalBuffer(data);
+	if (leaf_) {
+		leaf_->FillLocalBuffer(data);
 	}
 }
 

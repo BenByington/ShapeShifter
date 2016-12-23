@@ -60,8 +60,7 @@ protected:
   RootNode(std::unique_ptr<PureNode<TreePack, UniformPack>> tree)
     : managers_(detail::manage<TreePack>::instantiate()) {
 
-    using Manipulator_t = typename PureNode<TreePack, UniformPack>::Manipulator_t;
-    subtrees_.emplace_back(std::make_shared<Manipulator_t>(), tree.release());
+    subtrees_.emplace_back(std::move(tree));
     UpdateData();
   }
 

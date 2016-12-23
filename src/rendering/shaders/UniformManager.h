@@ -26,11 +26,11 @@ template <class... Uniforms>
 struct UniformManager : BaseUniformManager, Uniforms::UniformManager... {
   UniformManager() {}
 
-  void Combine(const UniformManager& other) {
+  void Combine(const BaseUniformManager& other) {
     auto worker = {(Manager<Uniforms>::Combine(dynamic_cast<const Manager<Uniforms>&>(other)),1)...};
   }
 
-  const UniformManager& operator=(const UniformManager& other) {
+  const UniformManager& operator=(const BaseUniformManager& other) {
     auto worker = {(
         dynamic_cast<Manager<Uniforms>&>(*this).Clone(dynamic_cast<Manager<Uniforms>&>(other))
         ,1)...};
