@@ -61,6 +61,7 @@ protected:
     : managers_(detail::manage<TreePack>::instantiate()) {
 
     subtrees_.emplace_back(std::move(tree));
+    FinalizeTree();
     UpdateData();
   }
 
@@ -73,6 +74,9 @@ public:
   const std::map<std::shared_ptr<Data::AbstractManager>, GLuint>&
   buffers() const { return buffers_; }
 
+  bool Contains(const BasePureNode& node) const {
+    return IsChild(node);
+  }
 private:
 
 	/**

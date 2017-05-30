@@ -47,6 +47,7 @@ private:
 class BasePureNode {
 public:
   virtual ~BasePureNode() {}
+
 protected:
   BasePureNode() = default;
   BasePureNode(const BasePureNode& orig) = delete;
@@ -86,6 +87,7 @@ protected:
     template <typename Node>
     TypeErasedNode(std::unique_ptr<Node> node)
       : data_(Ref(*node), nullptr) {
+
       static_assert(std::is_base_of<BasePureNode,Node>::value,
           "Must be a child of BasePureNode");
       static_assert(std::is_base_of<Shaders::BaseUniformManager, Node>::value,
@@ -101,6 +103,24 @@ protected:
         CallableReferenceWrapper<Shaders::BaseUniformManager>,
         std::unique_ptr<BasePureNode>> data_;
   };
+
+  void FinalizeTree() {
+    for (auto& child : subtrees_) {
+      child.Node().parent_ = this;
+      child.Node().FinalizeTree();
+    }
+  }
+
+  bool IsAncestor(const BasePureNode& node) const {
+    if (parent_ == nullptr) return &node == this;
+    else return parent_->IsAncestor(node);
+  }
+
+  bool IsChild(const BasePureNode& node) const {
+    return node.IsAncestor(*this);
+  }
+
+  BasePureNode* parent_ = nullptr;
 	std::vector<TypeErasedNode> subtrees_;
   std::unique_ptr<BaseLeafNode> leaf_;
 

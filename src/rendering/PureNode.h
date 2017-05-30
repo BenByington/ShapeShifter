@@ -62,12 +62,14 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : BasePureNode, Shaders::U
   template <typename Other>
   CallableReferenceWrapper<Manipulator_t> AddChild(
       std::unique_ptr<Other> child) {
+
     static_assert(
         is_permutation<Interface_t, typename Other::Interface_t>::value,
         "Internal nodes must all have the same interface");
     static_assert(
         is_permutation<Uniform_t, typename Other::Uniform_t>::value,
         "Internal nodes must all have the same uniforms");
+
     CallableReferenceWrapper<Manipulator_t> ret(*child);
     this->subtrees_.emplace_back(std::move(child));
     return ret;
