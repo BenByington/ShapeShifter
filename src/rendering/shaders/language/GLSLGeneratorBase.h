@@ -90,7 +90,7 @@ private:
       "Shader template parameters must be InterfaceVariable types");
   static_assert(
       detail::check_inputs<UniformVariableBase>::valid<Uniforms...>(),
-      "Shader template parameters must be InterfaceVariable types");
+      "Shader template parameters must be UniformVariable types");
 
 public:
 

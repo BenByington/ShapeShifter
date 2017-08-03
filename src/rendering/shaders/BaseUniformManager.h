@@ -24,6 +24,11 @@ struct BaseUniformManager {
   virtual ~BaseUniformManager() {}
 };
 
+// Move elsewhere?
+struct BaseUniformInitializer {
+  virtual ~BaseUniformInitializer() {}
+};
+
 
 }}} /* ShapeShifter::Rendering::Shaders */
 

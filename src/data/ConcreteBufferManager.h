@@ -88,7 +88,7 @@ public:
   virtual ~BaseManager() {
     constexpr Child* temp = nullptr;
     static_assert(detail::type_exists::valid(temp),
-        "Children of BaseManager must have either float or uin32_t defined as 'Type'");
+        "Children of BaseManager must have either float or uint32_t defined as 'Type'");
     static_assert(detail::interface_function_exists::valid(temp),
         "Children of BaseManager must define a type Interface for Render nodes to inherit, "
         "which must have a function with the signature void FillData(VectorSlice<T>&) ");

@@ -91,22 +91,27 @@ private:
 };
 
 template <class TreePack, class UniformPack>
-class TypedRootNode final : public RootNode {
+class TypedRootNode;
+template <class... Tree, class... Uniforms>
+class TypedRootNode<Pack<Tree...>, Pack<Uniforms...>> final : public RootNode, Shaders::UniformInitializer<Uniforms...> {
 public:
+  using TreePack = Pack<Tree...>;
+  using UniformPack = Pack<Uniforms...>;
+
   TypedRootNode(std::unique_ptr<PureNode<TreePack, UniformPack>> tree) : RootNode(std::move(tree)) {}
 
 	/**
 	 * Walks down the tree, applies rotation matrices, and calls opengl to render
    */
-  template <class IPack, class... Uniforms>
+  template <class IPack, class... Uniforms_>
 	void RenderTree(
       const Camera& camera,
-      const Shaders::ShaderProgram<IPack, Pack<Uniforms...>>& program) const {
+      const Shaders::ShaderProgram<IPack, Pack<Uniforms_...>>& program) const {
     static_assert(is_subset<IPack, TreePack>::value(),
         "Invalid shader requiring unsupported buffers");
-    static_assert(is_subset<Pack<Uniforms...>, UniformPack>::value(),
+    static_assert(is_subset<Pack<Uniforms_...>, UniformPack>::value(),
         "Invalid shader requiring unsupported uniforms");
-    Shaders::UniformManager<Uniforms...> uniforms;
+    const auto& uniforms = Shaders::UniformInitializer<Uniforms_...>::InitializeUniforms(*this);
     DrawChildren(camera, uniforms, program);
   }
 };

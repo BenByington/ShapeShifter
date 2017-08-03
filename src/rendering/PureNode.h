@@ -59,6 +59,7 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : BasePureNode, Shaders::U
   using Interface_t = Pack<Interface...>;
   using Uniform_t = Pack<Uniforms...>;
   using Manipulator_t = Shaders::UniformManager<Uniforms...>;
+
   template <typename Other>
   CallableReferenceWrapper<Manipulator_t> AddChild(
       std::unique_ptr<Other> child) {

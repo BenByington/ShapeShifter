@@ -76,7 +76,7 @@ private:
 
 /*
  * Vertex shader class, that mostly just acts as a plugin layer between
- * the actual Shader class interfacting with opengl, and the
+ * the actual Shader class interfacing with opengl, and the
  * VertexGenerator that actually specifies the shader program to be
  * compiled
  */

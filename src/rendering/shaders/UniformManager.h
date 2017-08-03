@@ -28,16 +28,43 @@ struct UniformManager : BaseUniformManager, Uniforms::UniformManager... {
 
   void Combine(const BaseUniformManager& other) {
     auto worker = {(Manager<Uniforms>::Combine(dynamic_cast<const Manager<Uniforms>&>(other)),1)...};
+    (void) worker;
   }
 
   const UniformManager& operator=(const BaseUniformManager& other) {
     auto worker = {(
         dynamic_cast<Manager<Uniforms>&>(*this).Clone(dynamic_cast<Manager<Uniforms>&>(other))
         ,1)...};
+    (void) worker;
   }
 private:
   template <class Manager>
   using Manager = typename Manager::UniformManager;
+};
+
+// Move elsewhere?
+template <class... Uniforms>
+class UniformInitializer : BaseUniformInitializer, Uniforms::UniformInitializer... {
+private:
+  template <class T>
+  using Initializer = typename T::UniformInitializer;
+  template <class T>
+  using Manager = typename T::UniformManager;
+
+public:
+  template <class... Uniforms_>
+  static UniformManager<Uniforms_...>
+  InitializeUniforms(const UniformInitializer<Uniforms_...>& initializer) {
+    // make sure we've got proper subsets
+    // rename these damned _ differences
+    UniformManager<Uniforms...> ret;
+    auto worker = {(
+        dynamic_cast<Manager<Uniforms>&>(ret) = dynamic_cast<const Initializer<Uniforms>&>(initializer).InitUniform()
+        ,1)...};
+    (void) worker;
+    return ret;
+  }
+
 };
 
 }}} /* ShapeShifter::Rendering::Shaders */

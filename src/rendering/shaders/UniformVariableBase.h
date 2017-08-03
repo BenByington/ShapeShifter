@@ -30,6 +30,14 @@ struct manager_member_exists {
   static constexpr auto valid(...) { return false; }
 };
 
+struct initializer_member_exists {
+  template <class T>
+  static constexpr auto valid(T*) -> decltype(typename std::unique_ptr<typename T::UniformInitializer>{}, true) {
+    return true;
+  }
+  static constexpr auto valid(...) { return false; }
+};
+
 struct storage_member_exists {
   template <class T>
   static constexpr auto valid(T*) -> decltype(typename std::unique_ptr<typename T::StorageType>{}, true) {
@@ -69,6 +77,16 @@ struct clone_function_exists {
   static constexpr bool valid(...) { return false; }
 };
 
+template <class Result>
+struct init_function_exists {
+  template <class T>
+  static constexpr auto valid(T*) -> decltype(&T::InitUniform, true) {
+    using Type = decltype(&T::InitUniform);
+    return std::is_same<Type, Result (T::*) () const>::value;
+  }
+  static constexpr bool valid(...) { return false; }
+};
+
 }
 
 template <class Child, typename T>
@@ -78,8 +96,14 @@ public:
   virtual ~UniformVariableBase() {
     constexpr Child* child = nullptr;
     static_assert(detail::manager_member_exists::valid(child),
-        "Children of UniformVariableMust must define an inner class called"
+        "Children of UniformVariableBase must must define an inner class called"
         " UniformManager");
+    static_assert(detail::initializer_member_exists::valid(child),
+        "Children of UniformVariableBase must must define an inner class called"
+        " UniformInitializer");
+    static_assert(detail::data_function_exists::valid(child),
+        "UniformManager must have a function: T Data()");
+
     constexpr typename Child::UniformManager* uniform = nullptr;
     static_assert(detail::storage_member_exists::valid(uniform),
         "UniformManager class must have a StorageType typedef "
@@ -89,11 +113,14 @@ public:
         "void Combine(const UniformManager&)");
     static_assert(std::is_default_constructible<typename Child::UniformManager>::value,
         "UniformManager class must be default constructable.");
-    static_assert(detail::data_function_exists::valid(child),
-        "UniformManager must have a function: T Data()");
     static_assert(detail::clone_function_exists::valid(uniform),
         "UniformManager must provide a Clone(UniformMananger&) function "
         "that enables deep copy");
+
+    constexpr typename Child::UniformInitializer* initializer = nullptr;
+    // TODO change to actually say signature
+    static_assert(detail::init_function_exists<typename Child::UniformManager>::valid(initializer),
+        "UniformInitializer class must provide a const named constructor called InitUniform");
   }
   using InterfaceVariableBase<Child, T>::InterfaceVariableBase;
 

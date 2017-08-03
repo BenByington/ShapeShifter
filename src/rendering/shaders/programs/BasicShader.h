@@ -98,7 +98,18 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
     Math::Quaternion rotation_;
     Math::Vector4 translation_;
   };
+
+  class UniformInitializer
+  {
+  public:
+    UniformManager InitUniform() const {
+      return UniformManager();
+    };
+
+  private:
+  };
 };
+
 
 }
 
