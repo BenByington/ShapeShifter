@@ -28,10 +28,39 @@ namespace ShapeShifter {
 namespace Rendering {
 
 // Maybe put this elsewhere...
-template <class T>
+/*
+ * Used to create a non-owning reference_wrapper that can be called like a smart
+ * pointer.  It has a main type T with normal semantics, but in the event of
+ * type erasure with multiple inheritance, it can optionally provide access
+ * to other parent types as well.
+ */
+template <class T, class...Other>
 class CallableReferenceWrapper {
+  // TODO rename and/or clean
+  template <typename U>
+  static constexpr bool validate() {
+    const std::array<bool, sizeof...(Other)> is_child = {{std::is_base_of<Other, U>::value...}};
+    int sum = 0;
+    for (int i = 0; i < sizeof...(Other); ++i) {
+      if (is_child[i]) sum++;
+    }
+    return sum == sizeof...(Other);
+  }
+  template <typename U>
+  static constexpr bool validate2() {
+    const std::array<bool, sizeof...(Other)> is_child = {{std::is_base_of<Other, U>::value...}};
+    int sum = 0;
+    for (int i = 0; i < sizeof...(Other); ++i) {
+      if (is_child[i]) sum++;
+    }
+    return sum == 1;
+  }
 public:
-  explicit CallableReferenceWrapper(T& t) : w_(t) {}
+  template <typename U>
+  explicit CallableReferenceWrapper(U& u) : w_(u) {
+    static_assert(std::is_base_of<T,U>::value, "Is not a child of main type");
+    static_assert(validate<U>(), "Is not a child of one or more auxiliary types");
+  }
   CallableReferenceWrapper(const CallableReferenceWrapper&) = delete;
   CallableReferenceWrapper(CallableReferenceWrapper&&) = default;
   CallableReferenceWrapper& operator=(const CallableReferenceWrapper&) = delete;
@@ -40,6 +69,13 @@ public:
   T* operator->() { return &(w_.get()); }
   operator T&() { return w_; }
   operator const T&() const { return w_; }
+
+  // TODO rename!
+  template<typename U>
+  CallableReferenceWrapper<U> OtherType() {
+    static_assert(validate2<U>(), "is not valid auxiliary type");
+    return CallableReferenceWrapper<U>(dynamic_cast<U&>(w_.get()));
+  }
 private:
   std::reference_wrapper<T> w_;
 };
