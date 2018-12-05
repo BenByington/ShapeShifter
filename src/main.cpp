@@ -18,9 +18,9 @@
 
 int main(int argc, char *argv[]) {
   auto format = QSurfaceFormat{};
-	format.setVersion(4,1);
-	format.setProfile(QSurfaceFormat::CoreProfile);
-	QSurfaceFormat::setDefaultFormat(format);
+  format.setVersion(4,1);
+  format.setProfile(QSurfaceFormat::CoreProfile);
+  QSurfaceFormat::setDefaultFormat(format);
 
   auto&& app = QApplication(argc, argv);
 

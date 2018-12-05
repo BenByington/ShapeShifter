@@ -26,33 +26,33 @@ ShaderProgramBase::ShaderProgramBase(
   : vert_shader_(std::move(vert))
   , frag_shader_(std::move(frag)) {
 
-	program_ = glCreateProgram();
-	assert(program_ != 0);
+  program_ = glCreateProgram();
+  assert(program_ != 0);
 
-	glAttachShader(program_, *vert_shader_);
-	glAttachShader(program_, *frag_shader_);
+  glAttachShader(program_, *vert_shader_);
+  glAttachShader(program_, *frag_shader_);
 
-	glLinkProgram(program_);
+  glLinkProgram(program_);
 
-	auto linked = GL_FALSE;
-	glGetProgramiv(program_, GL_LINK_STATUS, &linked);
-	if (linked == GL_FALSE) {
-		auto logLength = GLint {0};
-		glGetProgramiv(program_, GL_INFO_LOG_LENGTH, &logLength);
+  auto linked = GL_FALSE;
+  glGetProgramiv(program_, GL_LINK_STATUS, &linked);
+  if (linked == GL_FALSE) {
+    auto logLength = GLint {0};
+    glGetProgramiv(program_, GL_INFO_LOG_LENGTH, &logLength);
 
-		auto log = std::unique_ptr<char[]>(new char[logLength+1]);
-		glGetProgramInfoLog(program_, logLength, nullptr, log.get());
+    auto log = std::unique_ptr<char[]>(new char[logLength+1]);
+    glGetProgramInfoLog(program_, logLength, nullptr, log.get());
 
-		auto slog = std::string(log.get());
+    auto slog = std::string(log.get());
 
-		glDeleteProgram(program_);
+    glDeleteProgram(program_);
 
-		throw std::runtime_error(slog);
-	}
+    throw std::runtime_error(slog);
+  }
 }
 
 ShaderProgramBase::~ShaderProgramBase() {
-	glDeleteProgram(program_);
+  glDeleteProgram(program_);
 }
 
 // Will need overloads for the different allowed types

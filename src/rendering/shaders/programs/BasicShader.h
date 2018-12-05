@@ -20,6 +20,9 @@
 #include "math/Quaternion.h"
 #include "rendering/Camera.h"
 
+// TODO don't really like this here
+#include "rendering/BasePureNode.h"
+
 namespace ShapeShifter {
 namespace Rendering {
 namespace Shaders {
@@ -85,8 +88,13 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
     }
 
     void Combine(const UniformManager& other) {
-      SetRotation(rotation_*other.rotation_);
       SetTranslation(translation_ + rotation_.RotationMatrix() * other.translation_);
+      SetRotation(rotation_*other.rotation_);
+    }
+
+    void CombineInverse(const UniformManager& other) {
+      SetRotation(rotation_*other.rotation_.Inverse());
+      SetTranslation(translation_ - rotation_.RotationMatrix() * other.translation_);
     }
 
     void Clone(const UniformManager& other) {
@@ -101,12 +109,37 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
 
   class UniformInitializer
   {
-  public:
+    public:
     UniformManager InitUniform() const {
-      return UniformManager();
-    };
+      UniformManager ret{};
+      for (auto m : path)
+      {
+        ret.CombineInverse(*m);
+      }
+      return ret;
+    }
 
-  private:
+    template <typename...T>
+    void SetOriginNode(const CallableReferenceWrapper<T...>& node)
+    {
+      const BasePureNode& ref = node.template Convert<BasePureNode>();
+      const BasePureNode* ptr = &ref;
+      while (ptr != nullptr) {
+        auto * manager = dynamic_cast<const UniformManager*>(ptr);
+        // TODO better error handling
+        // TODO fix this ugliness with RootNode inheriting from stripped down
+        // PureNode
+        if (manager == nullptr) {
+          assert(ptr->Parent() == nullptr);
+          return;
+        }
+        path.push_back(manager);
+        ptr = ptr->Parent();
+      }
+    }
+        
+    private:
+      std::vector<const UniformManager*> path;
   };
 };
 

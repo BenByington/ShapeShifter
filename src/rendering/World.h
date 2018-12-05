@@ -36,7 +36,7 @@ public:
   void Render() const;
 
 private:
-	std::unique_ptr<RenderingTree> tree_;
+  std::unique_ptr<RenderingTree> tree_;
   std::unique_ptr<Camera> camera_;
 };
 

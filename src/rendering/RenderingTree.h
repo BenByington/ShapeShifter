@@ -28,7 +28,7 @@ public:
             typename UniformPack,
             typename ShaderProgram,
             typename dummy =
-	    typename std::enable_if<
+      typename std::enable_if<
           std::is_base_of<Shaders::ShaderProgramBase, ShaderProgram>::value
       >::type
   >
@@ -60,7 +60,7 @@ public:
   }
 
   ~RenderingTree() {
-	  glDeleteVertexArrays(1, &vao);
+    glDeleteVertexArrays(1, &vao);
   }
 
   void Render(const Camera& camera) const {

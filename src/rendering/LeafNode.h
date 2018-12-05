@@ -27,17 +27,17 @@ protected:
 public:
   BaseLeafNode(const BaseLeafNode& orig) = delete;
   BaseLeafNode(BaseLeafNode&& orig) = delete;
-	BaseLeafNode& operator=(const BaseLeafNode&) = delete;
-	BaseLeafNode& operator=(BaseLeafNode&&) = delete;
+  BaseLeafNode& operator=(const BaseLeafNode&) = delete;
+  BaseLeafNode& operator=(BaseLeafNode&&) = delete;
   virtual ~BaseLeafNode() {}
 
   // Size required in the buffers, not counting children nodes
   virtual Data::BufferIndex ExclusiveNodeDataCount() const = 0;
 
-	// Functions for child classes to figure out what indices in the VAO they
-	// should be modifying.
-	Data::BufferIndex start() const {return start_; }
-	Data::BufferIndex end() const {return end_; }
+  // Functions for child classes to figure out what indices in the VAO they
+  // should be modifying.
+  Data::BufferIndex start() const {return start_; }
+  Data::BufferIndex end() const {return end_; }
   GLvoid* StartIndexAsVP() const {
     return (GLvoid*)(start().index_*sizeof(uint32_t));
   }
@@ -46,13 +46,13 @@ public:
   //        PureNodes can call these two functions
   void FillLocalBuffer(Data::MixedDataMap& data);
   // Personal rendering function
-	virtual void DrawSelf() const = 0;
+  virtual void DrawSelf() const = 0;
 
 private:
   // Populates data for the index vector.  Children may implement this as
   // a noop if they are drawing independent triangles that do not share
   // vertices
-	virtual void FillIndexData(Data::VectorSlice<uint32_t>& data) const = 0;
+  virtual void FillIndexData(Data::VectorSlice<uint32_t>& data) const = 0;
 
   // Positions of personal data in the buffers.  Not valid until tree is
   // finalized by creating a RootNode.
@@ -65,7 +65,7 @@ private:
 template <class... Managers>
 struct LeafNode : BaseLeafNode, Managers::Interface... {
   LeafNode() {}
-  virtual ~LeafNode() {}
+  ~LeafNode() override {}
 
   using Interface_t = Pack<Managers...>;
 };

@@ -26,8 +26,8 @@ void BaseLeafNode::FillLocalBuffer(Data::MixedDataMap& data) {
   if (size.vertex_ == 0 && size.index_ == 0) return;
 
   auto local_data = data.NextSlice(size);
-	start_= local_data.start();
-	end_= local_data.end();
+  start_= local_data.start();
+  end_= local_data.end();
 
   for(auto& key: local_data.FloatData()) {
     key.first->FillData(key.second, this);

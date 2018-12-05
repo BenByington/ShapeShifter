@@ -27,7 +27,6 @@ class Sphere final : public Rendering::LeafNode<
     Data::ColorManager
 >{
   using BufferIndex = Data::BufferIndex;
-  constexpr static const auto phi = (1.0f + std::sqrt(5.0f))/2.0f;
 
 public:
   Sphere(float radius);
@@ -39,9 +38,9 @@ public:
 private:
 
   virtual BufferIndex ExclusiveNodeDataCount() const override;
-	virtual void FillVertexData(Data::VectorSlice<float>& data) const override;
-	virtual void FillColorData(Data::VectorSlice<float>& data) const override;
-	virtual void FillIndexData(Data::VectorSlice<uint32_t>& data) const override;
+  virtual void FillVertexData(Data::VectorSlice<float>& data) const override;
+  virtual void FillColorData(Data::VectorSlice<float>& data) const override;
+  virtual void FillIndexData(Data::VectorSlice<uint32_t>& data) const override;
   virtual void DrawSelf() const override;
 
   // FIXME: This isn't quite the radius...

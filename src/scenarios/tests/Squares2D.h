@@ -48,15 +48,15 @@ class SquareTest2D : public Rendering::LeafNode<
     Data::VertexManager,
     Data::ColorManager> {
 public:
-	SquareTest2D() = default;
-	virtual ~SquareTest2D() {}
+  SquareTest2D() = default;
+  virtual ~SquareTest2D() {}
 private:
   using BufferIndex = Data::BufferIndex;
-	virtual BufferIndex ExclusiveNodeDataCount() const override;
-	virtual void FillVertexData(Data::VectorSlice<float>& data) const override;
-	virtual void FillColorData(Data::VectorSlice<float>& data) const override;
+  virtual BufferIndex ExclusiveNodeDataCount() const override;
+  virtual void FillVertexData(Data::VectorSlice<float>& data) const override;
+  virtual void FillColorData(Data::VectorSlice<float>& data) const override;
   virtual void FillIndexData(Data::VectorSlice<uint32_t>&) const override {}
-	virtual void DrawSelf() const override;
+  virtual void DrawSelf() const override;
 };
 
 }

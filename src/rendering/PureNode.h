@@ -14,7 +14,6 @@
 #ifndef RENDERING_PURE_NODE_H
 #define RENDERING_PURE_NODE_H
 
-#include "rendering/PureNode.h"
 #include "data/MixedDataMapBase.h"
 #include "rendering/BasePureNode.h"
 #include "rendering/shaders/Pack.h"
@@ -48,12 +47,12 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : BasePureNode, Shaders::U
   PureNode() {}
   virtual ~PureNode() {}
 
-	/**
-	 * Adds a child to this node.
-	 * Note: These are intentionally shared, and external code may keep a
-	 *       reference to do things like tweak the rotation matrix.  Tweaking the
-	 *       actual vertex count or absolute position will not be supported.
-	 *
+  /**
+   * Adds a child to this node.
+   * Note: These are intentionally shared, and external code may keep a
+   *       reference to do things like tweak the rotation matrix.  Tweaking the
+   *       actual vertex count or absolute position will not be supported.
+   *
    * @param child subtree to add to this node.
    */
   using Interface_t = Pack<Interface...>;

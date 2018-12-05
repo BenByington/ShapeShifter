@@ -25,15 +25,15 @@ Matrix4::Matrix4(const std::array<float, 16>& orig) : data_(orig) {}
 Matrix4::Matrix4(const Matrix4& orig) : data_(orig.data_) {}
 
 const Matrix4& Matrix4::operator =(const Matrix4& other) {
-	data_ = other.data_;
-	return *this;
+  data_ = other.data_;
+  return *this;
 }
 
 Matrix4::~Matrix4() {
 }
 
 float Matrix4::operator()(size_t row, size_t col) const {
-	return data_[row + col*DIM];
+  return data_[row + col*DIM];
 }
 
 void Matrix4::WriteColumn(size_t col, const Vector4& v) {
@@ -43,41 +43,41 @@ void Matrix4::WriteColumn(size_t col, const Vector4& v) {
 Matrix4::Matrix4() : data_({0}) {}
 
 Matrix4 Matrix4::Identity() {
-	return {{1, 0, 0, 0,
-			     0, 1, 0, 0,
-			     0, 0, 1, 0,
-			     0, 0, 0, 1}};
+  return {{1, 0, 0, 0,
+           0, 1, 0, 0,
+           0, 0, 1, 0,
+           0, 0, 0, 1}};
 }
 
 Matrix4 Matrix4::Scale(float x, float y, float z) {
-	return {{x, 0, 0, 0,
-			     0, y, 0, 0,
-			     0, 0, z, 0,
-			     0, 0, 0, 1}};
+  return {{x, 0, 0, 0,
+           0, y, 0, 0,
+           0, 0, z, 0,
+           0, 0, 0, 1}};
 }
 
 Matrix4 Matrix4::Translate(float x, float y, float z) {
-	return {{1, 0, 0, x,
-			     0, 1, 0, y,
-			     0, 0, 1, z,
-			     0, 0, 0, 1}};
+  return {{1, 0, 0, x,
+           0, 1, 0, y,
+           0, 0, 1, z,
+           0, 0, 0, 1}};
 }
 
 Vector4 Matrix4::operator*(const Vector4& right) const {
-	auto ret = _mm_setzero_ps();
+  auto ret = _mm_setzero_ps();
 
-	for (size_t i = 0; i < 4; ++i) {
+  for (size_t i = 0; i < 4; ++i) {
     auto temp2 = right[i];
-	  auto temp = _mm_set1_ps(temp2);
+    auto temp = _mm_set1_ps(temp2);
     auto col = _mm_load_ps(data_.begin() + i*DIM);
-	  temp = _mm_mul_ps(temp, col);
-		ret = _mm_add_ps(ret, temp);
-	}
+    temp = _mm_mul_ps(temp, col);
+    ret = _mm_add_ps(ret, temp);
+  }
   return Vector4(ret);
 }
 
 Matrix4 Matrix4::operator *(const Matrix4& right) const {
-	auto ret = Matrix4{};
+  auto ret = Matrix4{};
   assert(alignof(data_) == 4);
 
   for (size_t i = 0; i < DIM; ++i) {
@@ -86,7 +86,7 @@ Matrix4 Matrix4::operator *(const Matrix4& right) const {
     ret.WriteColumn(i, vec);
   }
 
-	return ret;
+  return ret;
 
 }
 

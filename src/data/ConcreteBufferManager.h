@@ -147,7 +147,7 @@ public:
   class Interface {
   public:
     void FillData(VectorSlice<Type>& data) { FillColorData(data); }
-	  virtual void FillColorData(Data::VectorSlice<Type>& data) const = 0;
+    virtual void FillColorData(Data::VectorSlice<Type>& data) const = 0;
   };
 };
 
@@ -173,7 +173,7 @@ public:
   class Interface {
   public:
     void FillData(VectorSlice<Type>& data) { FillVertexData(data); }
-	  virtual void FillVertexData(Data::VectorSlice<Type>& data) const = 0;
+    virtual void FillVertexData(Data::VectorSlice<Type>& data) const = 0;
   };
 };
 

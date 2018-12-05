@@ -21,23 +21,23 @@ namespace ShapeShifter {
 namespace Rendering {
 
 Data::BufferIndex BasePureNode::SubtreeCounts() const {
-	auto ret = Data::BufferIndex{};
-	for (const auto& child : subtrees_) {
-		ret += child.Node().SubtreeCounts();
-	}
+  auto ret = Data::BufferIndex{};
+  for (const auto& child : subtrees_) {
+    ret += child.Node().SubtreeCounts();
+  }
   if (leaf_) {
     ret += leaf_->ExclusiveNodeDataCount();
   }
-	return ret;
+  return ret;
 }
 
 void BasePureNode::PopulateBufferData(Data::MixedDataMap& data) {
-	for (auto& child : subtrees_) {
-		child.Node().PopulateBufferData(data);
-	}
-	if (leaf_) {
-		leaf_->FillLocalBuffer(data);
-	}
+  for (auto& child : subtrees_) {
+    child.Node().PopulateBufferData(data);
+  }
+  if (leaf_) {
+    leaf_->FillLocalBuffer(data);
+  }
 }
 
 }} // ShapeShifter::Rendering

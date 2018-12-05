@@ -44,7 +44,7 @@ private:
 
 // Move elsewhere?
 template <class... Uniforms>
-class UniformInitializer : BaseUniformInitializer, Uniforms::UniformInitializer... {
+struct UniformInitializer : BaseUniformInitializer, Uniforms::UniformInitializer... {
 private:
   template <class T>
   using Initializer = typename T::UniformInitializer;
@@ -59,7 +59,7 @@ public:
     // rename these damned _ differences
     UniformManager<Uniforms...> ret;
     auto worker = {(
-        dynamic_cast<Manager<Uniforms>&>(ret) = dynamic_cast<const Initializer<Uniforms>&>(initializer).InitUniform()
+        static_cast<Manager<Uniforms>&>(ret) = static_cast<const Initializer<Uniforms>&>(initializer).InitUniform()
         ,1)...};
     (void) worker;
     return ret;

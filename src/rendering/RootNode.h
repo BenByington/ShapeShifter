@@ -79,11 +79,11 @@ public:
   }
 private:
 
-	/**
-	 * Generates the actual VBO's for this tree.  This function is called once
+  /**
+   * Generates the actual VBO's for this tree.  This function is called once
    * upon construction of the object.
    */
-	void UpdateData();
+  void UpdateData();
 
   GLuint ibo_ = 0;
   std::map<std::shared_ptr<Data::AbstractManager>, GLuint> buffers_;
@@ -91,20 +91,20 @@ private:
 };
 
 template <class TreePack, class UniformPack>
-class TypedRootNode;
+struct TypedRootNode;
 template <class... Tree, class... Uniforms>
-class TypedRootNode<Pack<Tree...>, Pack<Uniforms...>> final : public RootNode, Shaders::UniformInitializer<Uniforms...> {
+struct TypedRootNode<Pack<Tree...>, Pack<Uniforms...>> final : public RootNode, Shaders::UniformInitializer<Uniforms...> {
 public:
   using TreePack = Pack<Tree...>;
   using UniformPack = Pack<Uniforms...>;
 
   TypedRootNode(std::unique_ptr<PureNode<TreePack, UniformPack>> tree) : RootNode(std::move(tree)) {}
 
-	/**
-	 * Walks down the tree, applies rotation matrices, and calls opengl to render
+  /**
+   * Walks down the tree, applies rotation matrices, and calls opengl to render
    */
   template <class IPack, class... Uniforms_>
-	void RenderTree(
+  void RenderTree(
       const Camera& camera,
       const Shaders::ShaderProgram<IPack, Pack<Uniforms_...>>& program) const {
     static_assert(is_subset<IPack, TreePack>::value(),

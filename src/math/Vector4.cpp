@@ -34,8 +34,8 @@ Vector4::~Vector4() {
 }
 
 const Vector4& Vector4::operator =(const Vector4& other) {
-	data_ = other.data_;
-	return *this;
+  data_ = other.data_;
+  return *this;
 }
 
 void Vector4::print() const {

@@ -36,7 +36,7 @@ template <class... Interface, class... Uniforms>
 class ShaderProgram<Pack<Interface...>, Pack<Uniforms...>> : public ShaderProgramBase {
 public:
   ShaderProgram(const ShaderProgram&) = delete;
-	ShaderProgram& operator()(ShaderProgram&) = delete;
+  ShaderProgram& operator()(ShaderProgram&) = delete;
   template <class Vertex, class Fragment>
   ShaderProgram(
       std::unique_ptr<VertexShader<Vertex>> vert,
@@ -60,8 +60,6 @@ public:
       std::unique_ptr<RawShader<RawShaderType::FRAGMENT>> frag)
     : ShaderProgramBase(std::move(vert), std::move(frag)) {}
 
-  // TODO change the camera to being another uniform.  It can pave the way
-  //      for adding lights
   void Upload(const Camera& camera, const UniformManager<Uniforms...>& uniforms) const {
     auto worker = {(
         UploadValue(
@@ -69,6 +67,7 @@ public:
             Uniforms::name())
           ,1)
         ...};
+    (void) worker;
   }
 
   using Interface_t = Pack<Interface...>;
@@ -87,7 +86,7 @@ decltype(auto) CreateShaderProgram() {
   using ShaderProgram = ShaderProgram<
       typename VertexGenerator::Managers_t,
       typename VertexGenerator::Uniforms_t>;
-	return std::make_shared<ShaderProgram>(std::move(vert), std::move(frag));
+  return std::make_shared<ShaderProgram>(std::move(vert), std::move(frag));
 }
 
 }}} // ShapeShifter::Rendering::Shaders

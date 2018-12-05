@@ -22,9 +22,9 @@ void RootNode::UpdateData() {
 
   Data::MixedDataMap data(managers_, size);
 
-	PopulateBufferData(data);
-	assert(data.DataRemaining().vertex_ == 0);
-	assert(data.DataRemaining().index_ == 0);
+  PopulateBufferData(data);
+  assert(data.DataRemaining().vertex_ == 0);
+  assert(data.DataRemaining().index_ == 0);
 
   for (const auto& kv: data.FloatData()) {
     auto vbo = GLuint{0};

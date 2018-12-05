@@ -36,9 +36,8 @@ namespace Rendering {
  */
 template <class T, class...Other>
 class CallableReferenceWrapper {
-  // TODO rename and/or clean
   template <typename U>
-  static constexpr bool validate() {
+  static constexpr bool validate_aux_types() {
     const std::array<bool, sizeof...(Other)> is_child = {{std::is_base_of<Other, U>::value...}};
     int sum = 0;
     for (int i = 0; i < sizeof...(Other); ++i) {
@@ -47,7 +46,7 @@ class CallableReferenceWrapper {
     return sum == sizeof...(Other);
   }
   template <typename U>
-  static constexpr bool validate2() {
+  static constexpr bool validate_conversion() {
     const std::array<bool, sizeof...(Other)> is_child = {{std::is_base_of<Other, U>::value...}};
     int sum = 0;
     for (int i = 0; i < sizeof...(Other); ++i) {
@@ -59,7 +58,7 @@ public:
   template <typename U>
   explicit CallableReferenceWrapper(U& u) : w_(u) {
     static_assert(std::is_base_of<T,U>::value, "Is not a child of main type");
-    static_assert(validate<U>(), "Is not a child of one or more auxiliary types");
+    static_assert(validate_aux_types<U>(), "Is not a child of one or more auxiliary types");
   }
   CallableReferenceWrapper(const CallableReferenceWrapper&) = delete;
   CallableReferenceWrapper(CallableReferenceWrapper&&) = default;
@@ -67,14 +66,19 @@ public:
   CallableReferenceWrapper& operator=(CallableReferenceWrapper&&) = default;
 
   T* operator->() { return &(w_.get()); }
+  T& operator*() { return w_.get(); }
   operator T&() { return w_; }
   operator const T&() const { return w_; }
 
-  // TODO rename!
   template<typename U>
-  CallableReferenceWrapper<U> OtherType() {
-    static_assert(validate2<U>(), "is not valid auxiliary type");
+  CallableReferenceWrapper<U> Convert() {
+    static_assert(validate_conversion<U>(), "is not valid auxiliary type");
     return CallableReferenceWrapper<U>(dynamic_cast<U&>(w_.get()));
+  }
+  template<typename U>
+  CallableReferenceWrapper<const U> Convert() const {
+    static_assert(validate_conversion<U>(), "is not valid auxiliary type");
+    return CallableReferenceWrapper<const U>(dynamic_cast<const U&>(w_.get()));
   }
 private:
   std::reference_wrapper<T> w_;
@@ -84,49 +88,51 @@ class BasePureNode {
 public:
   virtual ~BasePureNode() {}
 
+  const BasePureNode* Parent() const { return parent_; }
+
 protected:
   BasePureNode() = default;
   BasePureNode(const BasePureNode& orig) = delete;
   BasePureNode(BasePureNode&& orig) = delete;
-	BasePureNode& operator=(const BasePureNode&) = delete;
-	BasePureNode& operator=(BasePureNode&&) = delete;
+  BasePureNode& operator=(const BasePureNode&) = delete;
+  BasePureNode& operator=(BasePureNode&&) = delete;
 
-	// Compute how big the VAO should be
-	Data::BufferIndex SubtreeCounts() const;
+  // Compute how big the VAO should be
+  Data::BufferIndex SubtreeCounts() const;
 
-	// Fill the VAO with data and push to card
+  // Fill the VAO with data and push to card
   void PopulateBufferData(Data::MixedDataMap& data);
 
-	// Renders all children in the tree.
+  // Renders all children in the tree.
   template <class IPack, class... Uniforms>
-	void DrawChildren(
+  void DrawChildren(
       const Camera& camera,
       const Shaders::UniformManager<Uniforms...>& cumulativeUniforms,
       const Shaders::ShaderProgram<IPack, Pack<Uniforms...>>& shader) const {
-    using UniformManager = Shaders::UniformManager<Uniforms...>;
 
     // ISSUE see about only doing dynamic casts in debug mode or something.
-	  for (const auto& child : subtrees_) {
+    for (const auto& child : subtrees_) {
       auto child_uniforms = cumulativeUniforms;
       child_uniforms.Combine(child.Manager());
-	  	child.Node().DrawChildren(camera, child_uniforms, shader);
-	  }
-	  if (leaf_) {
+      child.Node().DrawChildren(camera, child_uniforms, shader);
+    }
+    if (leaf_) {
       shader.Upload(camera, cumulativeUniforms);
       leaf_->DrawSelf();
-	  }
+    }
   }
 
   class TypeErasedNode {
   public:
     using Ref = CallableReferenceWrapper<Shaders::BaseUniformManager>;
-    template <typename Node>
-    TypeErasedNode(std::unique_ptr<Node> node)
+      
+    template <typename Nod>
+    TypeErasedNode(std::unique_ptr<Nod> node)
       : data_(Ref(*node), nullptr) {
 
-      static_assert(std::is_base_of<BasePureNode,Node>::value,
+      static_assert(std::is_base_of<BasePureNode, Nod>::value,
           "Must be a child of BasePureNode");
-      static_assert(std::is_base_of<Shaders::BaseUniformManager, Node>::value,
+      static_assert(std::is_base_of<Shaders::BaseUniformManager, Nod>::value,
           "Mulst be a child of BaseUniformManager");
       data_.second = std::move(node);
     }
@@ -157,7 +163,7 @@ protected:
   }
 
   BasePureNode* parent_ = nullptr;
-	std::vector<TypeErasedNode> subtrees_;
+  std::vector<TypeErasedNode> subtrees_;
   std::unique_ptr<BaseLeafNode> leaf_;
 
 };

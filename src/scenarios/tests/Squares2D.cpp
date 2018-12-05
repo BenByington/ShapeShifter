@@ -47,7 +47,7 @@ std::unique_ptr<Rendering::World> Squares2D::Setup() {
   fifth->AddLeaf<SquareTest2D>();
   auto manipulator = fifth->AddChild(std::move(sixth));
   manipulator->SetRotation({pi/2, 0, 1, 0});
-  manipulator->SetTranslation(Vector4(-1, 0 , 1, 1.0));
+  manipulator->SetTranslation(Vector4(1, 0, 1, 1.0));
 
   auto fourth = Rendering::CompatiblePureNode(*program);
   fourth->AddLeaf<SquareTest2D>();
@@ -73,7 +73,7 @@ std::unique_ptr<Rendering::World> Squares2D::Setup() {
   manipulator = base->AddChild(std::move(first));
   manipulator->SetTranslation(Vector4(-.5, -.5, -2.5, 1));
 
-	auto root = Rendering::CreateRootPtr(std::move(base));
+  auto root = Rendering::CreateRootPtr(std::move(base));
 
   auto frust = Rendering::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
   auto camera = std::make_unique<Rendering::Camera>(frust, 2.5);
@@ -96,39 +96,39 @@ BufferIndex SquareTest2D::ExclusiveNodeDataCount() const {
 }
 
 void SquareTest2D::FillColorData(Data::VectorSlice<float>& data) const {
-	data[0] = 1.0;
-	data[1] = 0.0;
-	data[2] = 0.0;
+  data[0] = 1.0;
+  data[1] = 0.0;
+  data[2] = 0.0;
 
-	data[3] = 1.0;
-	data[4] = 1.0;
-	data[5] = 0.0;
+  data[3] = 1.0;
+  data[4] = 1.0;
+  data[5] = 0.0;
 
-	data[6] = 0.0;
-	data[7] = 0.0;
-	data[8] = 1.0;
+  data[6] = 0.0;
+  data[7] = 0.0;
+  data[8] = 1.0;
 
-	data[9] = 0.0;
-	data[10] = 1.0;
-	data[11] = 0.0;
+  data[9] = 0.0;
+  data[10] = 1.0;
+  data[11] = 0.0;
 }
 
 void SquareTest2D::FillVertexData(Data::VectorSlice<float>& data) const {
-	data[0] = 0;
-	data[1] = 0;
-	data[2] = 0;
+  data[0] = 0;
+  data[1] = 0;
+  data[2] = 0;
 
-	data[3] = 0;
-	data[4] = 1;
-	data[5] = 0;
+  data[3] = 0;
+  data[4] = 1;
+  data[5] = 0;
 
-	data[6]  =  1;
-	data[7] = 0;
-	data[8] = 0;
+  data[6]  =  1;
+  data[7] = 0;
+  data[8] = 0;
 
-	data[9] =  1;
-	data[10] =  1;
-	data[11] = 0;
+  data[9] =  1;
+  data[10] =  1;
+  data[11] = 0;
 }
 
 void SquareTest2D::DrawSelf() const {
