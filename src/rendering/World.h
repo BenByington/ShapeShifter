@@ -15,7 +15,7 @@
 #define RENDERING_WORLD_H
 
 #include "rendering/Camera.h"
-#include "rendering/RootNode.h"
+#include "rendering/RenderingTree.h"
 
 #include <memory>
 
@@ -30,13 +30,13 @@ public:
   World& operator=(const World& other) = delete;
   ~World() {};
 
-  void SetRenderTree(std::unique_ptr<RootNode> root);
+  void SetRenderTree(std::unique_ptr<RenderingTree> tree);
   Camera& camera();
 
   void Render() const;
 
 private:
-	std::unique_ptr<RootNode> root_;
+  std::unique_ptr<RenderingTree> tree_;
   std::unique_ptr<Camera> camera_;
 };
 

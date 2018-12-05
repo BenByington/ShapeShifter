@@ -35,28 +35,28 @@ public:
 
   Matrix4(const std::array<float, 16>& cols);
   Matrix4(const Matrix4& orig);
-	const Matrix4& operator=(const Matrix4& other);
+  const Matrix4& operator=(const Matrix4& other);
   ~Matrix4();
 
-	// Don't know which of these will stick, just throwing out functions to try
-	// for now
-	float operator()(size_t row, size_t col) const;
-	void WriteColumn(size_t col, const Vector4& v);
+  // Don't know which of these will stick, just throwing out functions to try
+  // for now
+  float operator()(size_t row, size_t col) const;
+  void WriteColumn(size_t col, const Vector4& v);
 
   static Matrix4 Identity();
-	static Matrix4 Scale(float sx, float sy, float sz);
-	static Matrix4 Translate(float tx, float ty, float tz);
+  static Matrix4 Scale(float sx, float sy, float sz);
+  static Matrix4 Translate(float tx, float ty, float tz);
 
-	Vector4 operator*(const Vector4& right) const;
-	Matrix4 operator*(const Matrix4& right) const;
+  Vector4 operator*(const Vector4& right) const;
+  Matrix4 operator*(const Matrix4& right) const;
 
   const float* data() const { return data_.begin(); }
 
   void print() const;
 
 private:
-	Matrix4();
-	std::array<float,16> data_;
+  Matrix4();
+  std::array<float,16> data_;
 };
 
 }} // ShapeShifter::Math

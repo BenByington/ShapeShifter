@@ -44,7 +44,7 @@ public:
 
   /*
    * Returns all the buffers using floating point data.  Repacks things to return
-   * references to the actual data to avoid coppies, so beware dangling references!
+   * references to the actual data to avoid copies, so beware dangling references!
    */
   auto FloatData() {
     std::vector<std::pair<std::shared_ptr<AbstractManager>, Storage<float>&>> ret;
@@ -98,6 +98,13 @@ struct BufferIndex {
     BufferIndex ret;
     ret.vertex_ = vertex_ - o.vertex_;
     ret.index_ = index_ - o.index_;
+    return ret;
+  }
+
+  BufferIndex operator+(const BufferIndex& o) {
+    BufferIndex ret;
+    ret.vertex_ = vertex_ + o.vertex_;
+    ret.index_ = index_ + o.index_;
     return ret;
   }
 };

@@ -61,8 +61,8 @@ protected:
     , layout_map_(generator.layout_map()) {}
   Shader(const Shader&) = delete;
   Shader(Shader&&) = default;
-	Shader& operator=(const Shader&) = delete;
-	Shader& operator=(Shader&&) = default;
+  Shader& operator=(const Shader&) = delete;
+  Shader& operator=(Shader&&) = default;
 public:
   virtual ~Shader() {}
 
@@ -76,7 +76,7 @@ private:
 
 /*
  * Vertex shader class, that mostly just acts as a plugin layer between
- * the actual Shader class interfacting with opengl, and the
+ * the actual Shader class interfacing with opengl, and the
  * VertexGenerator that actually specifies the shader program to be
  * compiled
  */
@@ -86,17 +86,17 @@ class VertexShader : public Shader<Generator> {
         detail::generator_traits::valid_vertex_shader((Generator*)nullptr),
         "Template to Shader class must be a child of an GLSLGeneratorBase type");
 public:
-	VertexShader()
+  VertexShader()
     : Shader<Generator>(
         Generator(VariableFactory())
       , GL_VERTEX_SHADER)
     {}
 
-	VertexShader(const VertexShader&) = delete;
-	VertexShader(VertexShader&&) = default;
-	VertexShader& operator=(const VertexShader&) = delete;
-	VertexShader& operator=(VertexShader&&) = default;
-	virtual ~VertexShader() {}
+  VertexShader(const VertexShader&) = delete;
+  VertexShader(VertexShader&&) = default;
+  VertexShader& operator=(const VertexShader&) = delete;
+  VertexShader& operator=(VertexShader&&) = default;
+  virtual ~VertexShader() {}
 };
 
 /*
@@ -111,16 +111,16 @@ class FragmentShader : public Shader<Generator> {
         detail::generator_traits::valid_fragment_shader((Generator*)nullptr),
         "Template to Shader class must be a child of an GLSLGeneratorBase type");
 public:
-	FragmentShader()
+  FragmentShader()
     : Shader<Generator>(
         Generator(VariableFactory())
       , GL_FRAGMENT_SHADER)
     {}
-	FragmentShader(const FragmentShader&) = delete;
-	FragmentShader(FragmentShader&&) = default;
-	FragmentShader& operator=(const FragmentShader&) = delete;
-	FragmentShader& operator=(FragmentShader&&) = default;
-	virtual ~FragmentShader() {}
+  FragmentShader(const FragmentShader&) = delete;
+  FragmentShader(FragmentShader&&) = default;
+  FragmentShader& operator=(const FragmentShader&) = delete;
+  FragmentShader& operator=(FragmentShader&&) = default;
+  virtual ~FragmentShader() {}
 };
 
 }}} // ShapeShifter::Rendering::Shaders

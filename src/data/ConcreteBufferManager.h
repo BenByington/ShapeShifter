@@ -16,7 +16,6 @@
 
 #include "data/AbstractBufferManager.h"
 #include "data/MixedDataMapBase.h"
-#include "rendering/RenderNode.h"
 #include "rendering/shaders/InterfaceVariableBase.h"
 
 #include <cstdlib>
@@ -76,7 +75,7 @@ struct variable_member_exists {
 template <class Child>
 class BaseManager : public AbstractManager {
 public:
-  BaseManager(size_t idx) : AbstractManager(idx) {}
+  BaseManager() : AbstractManager() {}
   BaseManager(const BaseManager&) = delete;
   BaseManager(BaseManager&&) = delete;
   BaseManager& operator=(const BaseManager&) = delete;
@@ -89,7 +88,7 @@ public:
   virtual ~BaseManager() {
     constexpr Child* temp = nullptr;
     static_assert(detail::type_exists::valid(temp),
-        "Children of BaseManager must have either float or uin32_t defined as 'Type'");
+        "Children of BaseManager must have either float or uint32_t defined as 'Type'");
     static_assert(detail::interface_function_exists::valid(temp),
         "Children of BaseManager must define a type Interface for Render nodes to inherit, "
         "which must have a function with the signature void FillData(VectorSlice<T>&) ");
@@ -102,7 +101,7 @@ public:
   // only the correct (and expected) type will have an implementation
   template <class Child_>
   struct Dispatch {
-    static void FillData(VectorSlice<typename Child_::Type>& data, Rendering::RenderNode* node) {
+    static void FillData(VectorSlice<typename Child_::Type>& data, Rendering::BaseLeafNode* node) {
       auto typed_node = dynamic_cast<typename Child_::Interface*>(node);
       assert(typed_node);
       typed_node->FillData(data);
@@ -113,10 +112,14 @@ public:
     static void FillData(...) { assert(false); }
   };
 
-  virtual void FillData(VectorSlice<float>& data, Rendering::RenderNode* node) override {
+  virtual std::string name() const override {
+    return Child::Variable::name();
+  }
+
+  virtual void FillData(VectorSlice<float>& data, Rendering::BaseLeafNode* node) override {
     Dispatch<Child>::FillData(data, node);
   }
-  virtual void FillData(VectorSlice<uint32_t>& data, Rendering::RenderNode* node) override {
+  virtual void FillData(VectorSlice<uint32_t>& data, Rendering::BaseLeafNode* node) override {
     Dispatch<Child>::FillData(data, node);
   }
 };
@@ -126,11 +129,10 @@ public:
   using Type = float;
   using Type2 = Rendering::Shaders::Language::Vec3;
 
-  ColorManager(size_t idx) : BaseManager<ColorManager>(idx) {}
   virtual ~ColorManager(){}
 
-  virtual size_t ElementsPerEntry() override { return 3; }
-  virtual bool isFloating() { return true; }
+  virtual size_t ElementsPerEntry() const override { return 3; }
+  virtual bool isFloating() const override { return true; }
 
   struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable, Type2> {
     using Base = Rendering::Shaders::InterfaceVariableBase<Variable, Type2>;
@@ -145,7 +147,7 @@ public:
   class Interface {
   public:
     void FillData(VectorSlice<Type>& data) { FillColorData(data); }
-	  virtual void FillColorData(Data::VectorSlice<Type>& data) const = 0;
+    virtual void FillColorData(Data::VectorSlice<Type>& data) const = 0;
   };
 };
 
@@ -153,11 +155,10 @@ class VertexManager final : public BaseManager<VertexManager> {
 public:
   using Type = float;
   using Type2 = Rendering::Shaders::Language::Vec3;
-  VertexManager(size_t idx) : BaseManager<VertexManager>(idx) {}
   virtual ~VertexManager(){}
 
-  virtual size_t ElementsPerEntry() override { return 3; }
-  virtual bool isFloating() { return true; }
+  virtual size_t ElementsPerEntry() const override { return 3; }
+  virtual bool isFloating() const override { return true; }
 
   struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable, Type2> {
     using Base = Rendering::Shaders::InterfaceVariableBase<Variable, Type2>;
@@ -172,7 +173,7 @@ public:
   class Interface {
   public:
     void FillData(VectorSlice<Type>& data) { FillVertexData(data); }
-	  virtual void FillVertexData(Data::VectorSlice<Type>& data) const = 0;
+    virtual void FillVertexData(Data::VectorSlice<Type>& data) const = 0;
   };
 };
 

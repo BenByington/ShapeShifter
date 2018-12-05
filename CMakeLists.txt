@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 2.8.1)
 
+cmake_policy(SET CMP0025 NEW)
+
 project (Project)
 
 find_package(Doxygen REQUIRED)
@@ -8,7 +10,7 @@ find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Gui REQUIRED)
 find_package(Qt5OpenGL REQUIRED)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS off)
 
 set(CMAKE_AUTOMOC ON)

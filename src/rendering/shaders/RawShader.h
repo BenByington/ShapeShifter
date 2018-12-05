@@ -52,8 +52,8 @@ public:
 
   RawShader(const RawShader&) = delete;
   RawShader(RawShader&&) = default;
-	RawShader& operator=(const RawShader&) = delete;
-	RawShader& operator=(RawShader&&) = default;
+  RawShader& operator=(const RawShader&) = delete;
+  RawShader& operator=(RawShader&&) = default;
 
   virtual ~RawShader() {}
 
@@ -68,8 +68,8 @@ private:
   std::map<std::string, size_t> layout_map_;
 
   static std::string ReadFile(const std::string& filename) {
-  	auto input_stream = std::ifstream(filename);
-  	return std::string((std::istreambuf_iterator<char>(input_stream)), std::istreambuf_iterator<char>());
+    auto input_stream = std::ifstream(filename);
+    return std::string((std::istreambuf_iterator<char>(input_stream)), std::istreambuf_iterator<char>());
   }
 
   static GLenum RawEnum() {

@@ -26,6 +26,7 @@ Quaternion::Quaternion(float s, float x, float y, float z) {
   qx = sina*x;
   qy = sina*y;
   qz = sina*z;
+  Normalize();
 }
 
 Quaternion::Quaternion(float s, const Vector3& dir) {
@@ -34,11 +35,12 @@ Quaternion::Quaternion(float s, const Vector3& dir) {
   qx = sina*dir[0];
   qy = sina*dir[1];
   qz = sina*dir[2];
+  Normalize();
 }
 
 Matrix4 Quaternion::RotationMatrix() const {
   return {{1 - 2*qy*qy - 2*qz*qz, 2*qx*qy + 2*qz*qw, 2*qx*qz - 2*qy*qw, 0
-         ,2*qx*qy - 2*qz*qw, 1 - 2*qx*qx - 2*qz*qz,	2*qy*qz + 2*qx*qw, 0
+         ,2*qx*qy - 2*qz*qw, 1 - 2*qx*qx - 2*qz*qz,  2*qy*qz + 2*qx*qw, 0
          ,2*qx*qz + 2*qy*qw, 2*qy*qz - 2*qx*qw, 1 - 2*qx*qx - 2*qy*qy, 0
          ,0, 0, 0, 1}};
 

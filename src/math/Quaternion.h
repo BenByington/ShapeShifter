@@ -26,10 +26,18 @@ public:
   Quaternion(float s, const Vector3& dir);
   Quaternion() : Quaternion(0, 0, 0, 0) {}
   Quaternion(const Quaternion& orig) = default;
-	Quaternion& operator=(const Quaternion& other) = default;
+  Quaternion& operator=(const Quaternion& other) = default;
   virtual ~Quaternion() {}
 
   Quaternion operator*(const Quaternion& other) const;
+  // TODO leave inline?
+  Quaternion Inverse() const {
+    Quaternion ret = *this;
+    ret.qx *= -1;
+    ret.qy *= -1;
+    ret.qz *= -1;
+    return ret;
+  }
   void Normalize();
 
   Matrix4 RotationMatrix() const;

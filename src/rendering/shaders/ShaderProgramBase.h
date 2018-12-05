@@ -29,29 +29,26 @@ namespace Shaders {
 class ShaderProgramBase {
 public:
   ShaderProgramBase(const ShaderProgramBase&) = delete;
-	ShaderProgramBase& operator()(ShaderProgramBase&) = delete;
+  ShaderProgramBase& operator()(ShaderProgramBase&) = delete;
   ShaderProgramBase(
       std::unique_ptr<ShaderBase> vert,
       std::unique_ptr<ShaderBase> frag);
 
   virtual ~ShaderProgramBase();
 
-	void UseProgram() const { glUseProgram(program_); }
-  void uploadMatrix(const Math::Matrix4& mat) const;
-
-  virtual std::vector<std::shared_ptr<Data::AbstractManager>>
-  BufferMapping() const = 0;
-
-protected:
+  void UseProgram() const { glUseProgram(program_); }
 
   const auto& layout_map() const {
     return vert_shader_->layout_map();
   }
 
+protected:
+  void UploadValue(const Math::Matrix4& mat, const char* name) const;
+
 private:
-	std::unique_ptr<ShaderBase> vert_shader_;
-	std::unique_ptr<ShaderBase> frag_shader_;
-	GLuint program_;
+  std::unique_ptr<ShaderBase> vert_shader_;
+  std::unique_ptr<ShaderBase> frag_shader_;
+  GLuint program_;
 };
 
 }}} // ShapeShifter::Rendering::Shaders

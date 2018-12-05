@@ -97,14 +97,6 @@ public:
     return {Child::name(), idx};
   }
 
-  void UniformDeclaration(VariableFactory& factory) {
-    factory.stream()
-        << "uniform "
-        << Variable_T::TypeName()
-        << " " << Child::name()
-        << ";\n";
-  }
-
   void OutputDeclaration(VariableFactory& factory) {
     if (Child::smooth) factory.stream() << "smooth ";
     factory.stream()

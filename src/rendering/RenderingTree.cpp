@@ -5,14 +5,13 @@
  */
 
 /*
- * File:   TypedRenderNode.cpp
+ * File:   RenderingTree.cpp
  * Author: bbyington
  *
- * Created on October 13, 2016, 3:52 PM
+ * Created on December 6, 2016, 8:22 PM
  */
 
-#include "data/ConcreteBufferManager.h"
-#include "rendering/TypedRenderNode.h"
+#include "rendering/RenderingTree.h"
 
 namespace ShapeShifter {
 namespace Rendering {

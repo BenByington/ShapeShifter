@@ -34,13 +34,13 @@ protected:
   ShaderBase(const std::string& data, GLenum shader_type);
   ShaderBase(const ShaderBase&) = delete;
   ShaderBase(ShaderBase&& other);
-	ShaderBase& operator=(const ShaderBase&) = delete;
-	ShaderBase& operator=(ShaderBase&& other);
+  ShaderBase& operator=(const ShaderBase&) = delete;
+  ShaderBase& operator=(ShaderBase&& other);
 public:
   virtual ~ShaderBase();
 
 public:
-	operator GLuint() const {return shader;}
+  operator GLuint() const {return shader;}
   virtual const std::map<std::string, size_t>& layout_map() const = 0;
 private:
   GLuint shader = 0;

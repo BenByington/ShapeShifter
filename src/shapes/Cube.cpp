@@ -77,7 +77,6 @@ void Cube::FillVertexData(VectorSlice<float>& data) const {
 
 void Cube::FillColorData(VectorSlice<float>& data) const {
   auto DataFiller = data.Filler();
-  auto idx = size_t{0};
   auto FillFaceColor = [&](float f1, float f2, float f3) {
     for (size_t i = 0; i < 6; ++i) {
       DataFiller(f1, f2, f3);

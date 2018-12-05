@@ -15,7 +15,7 @@
 #define DATA_ABSTRACT_BUFFERTYPES_H
 
 #include "data/MixedDataMapBase.h"
-#include "rendering/RenderNode.h"
+#include "rendering/LeafNode.h"
 
 #include <cstdlib>
 #include <type_traits>
@@ -50,22 +50,18 @@ public:
    * function, and it will handle the dispatch to make sure the correct function
    * in the RenderNode gets called.
    */
-  virtual void FillData(VectorSlice<float>& data, Rendering::RenderNode* node) = 0;
-  virtual void FillData(VectorSlice<uint32_t>& data, Rendering::RenderNode* node) = 0;
+  virtual void FillData(VectorSlice<float>& data, Rendering::BaseLeafNode* node) = 0;
+  virtual void FillData(VectorSlice<uint32_t>& data, Rendering::BaseLeafNode* node) = 0;
 
   // E.g. vertices require three floats while textures only require two.
-  virtual size_t ElementsPerEntry() = 0;
-  virtual bool isFloating() = 0;
-
-  // Returns the layout index as defined by the shader program
-  size_t idx() { return idx_; }
+  virtual size_t ElementsPerEntry() const = 0;
+  virtual bool isFloating() const = 0;
+  virtual std::string name() const = 0;
 
 protected:
   // BaseManager should be the only deriving class.
   // @param idx: the layout index as defined by the shader program
-  AbstractManager(size_t idx) : idx_(idx) {}
-private:
-  size_t idx_;
+  AbstractManager() {}
 };
 
 }} // ShapeShifter::Data

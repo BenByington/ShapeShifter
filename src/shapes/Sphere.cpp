@@ -19,6 +19,7 @@ namespace ShapeShifter {
 namespace Shapes {
 
 using namespace Data;
+static const auto phi = (1.0f + std::sqrt(5.0f))/2.0f;
 
 Sphere::Sphere(float radius) : radius_(radius) {}
 

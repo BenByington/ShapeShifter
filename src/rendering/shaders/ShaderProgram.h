@@ -18,6 +18,7 @@
 #include "rendering/shaders/RawShader.h"
 #include "rendering/shaders/ShaderProgramBase.h"
 #include "rendering/shaders/Shader.h"
+#include "rendering/shaders/UniformManager.h"
 
 #include <limits>
 #include <map>
@@ -28,51 +29,14 @@ namespace ShapeShifter {
 namespace Rendering {
 namespace Shaders {
 
-namespace detail {
+template <class Interface, class Uniforms>
+class ShaderProgram;
 
-template <class... Args> struct instantiate_managers_helper;
-template <> struct instantiate_managers_helper<> {
-  static void foo(
-      std::vector<std::shared_ptr<Data::AbstractManager>>& managers,
-      std::map<std::string, size_t>& map) {}
-};
-
-template <class Head, class... Args>
-struct instantiate_managers_helper<Head, Args...> {
-  static void foo(
-      std::vector<std::shared_ptr<Data::AbstractManager>>& managers,
-      std::map<std::string, size_t>& map) {
-    if (map.count(Head::Variable::name()) == 0) {
-      throw std::runtime_error("Shader does not support required buffer");
-    }
-    managers.emplace_back(
-        std::make_shared<Head>(map.at(Head::Variable::name())));
-    map.erase(Head::Variable::name());
-    if (sizeof...(Args) > 0) {
-      instantiate_managers_helper<Args...>::foo(managers, map);
-    }
-  }
-};
-
-template <class... Args>
-struct instantiate_managers {
-  static auto foo(std::map<std::string, size_t>& mapper) {
-    std::vector<std::shared_ptr<Data::AbstractManager>> ret;
-    instantiate_managers_helper<Args...>::foo(ret, mapper);
-    if (!mapper.empty()) {
-      throw std::runtime_error("Shader requires buffers not present\n");
-    }
-    return ret;
-  }
-};
-
-}
-
-template <class... Interface>
-class ShaderProgram : public ShaderProgramBase {
+template <class... Interface, class... Uniforms>
+class ShaderProgram<Pack<Interface...>, Pack<Uniforms...>> : public ShaderProgramBase {
 public:
   ShaderProgram(const ShaderProgram&) = delete;
-	ShaderProgram& operator()(ShaderProgram&) = delete;
+  ShaderProgram& operator()(ShaderProgram&) = delete;
   template <class Vertex, class Fragment>
   ShaderProgram(
       std::unique_ptr<VertexShader<Vertex>> vert,
@@ -81,42 +45,34 @@ public:
     // Could do extra work allowing for re-ordering of inputs, but that
     // should never be necessary if using the proper convenience functions
     static_assert(
-        std::is_same<typename Vertex::Inputs_t, Pack<Interface...>>::value,
+        std::is_same<typename Vertex::Managers_t, Pack<Interface...>>::value,
         "Input parameters for Vertex shader must match those of the"
         " entire shader program");
     // This one should allow also re-ordering.  It's more important than the
     // above, but still not necessary since the only shader currently written
-    // only has a single variable bridging these two stagess.
+    // only has a single variable bridging these two stages.
     static_assert(
         std::is_same<typename Vertex::Outputs_t, typename Fragment::Inputs_t>::value,
         "Vertex and Fragment shader do not share common IO interface");
-    // ISSUE: Refactor to include Uniform variables as part of interface.
   }
   ShaderProgram(
       std::unique_ptr<RawShader<RawShaderType::VERTEX>> vert,
       std::unique_ptr<RawShader<RawShaderType::FRAGMENT>> frag)
     : ShaderProgramBase(std::move(vert), std::move(frag)) {}
 
-  virtual std::vector<std::shared_ptr<Data::AbstractManager>>
-  BufferMapping() const override {
-    auto map = layout_map();
-    return detail::instantiate_managers<Interface...>::foo(map);
+  void Upload(const Camera& camera, const UniformManager<Uniforms...>& uniforms) const {
+    auto worker = {(
+        UploadValue(
+            static_cast<const typename Uniforms::UniformManager&>(uniforms).Data(camera),
+            Uniforms::name())
+          ,1)
+        ...};
+    (void) worker;
   }
 
   using Interface_t = Pack<Interface...>;
+  using Uniform_t = Pack<Uniforms...>;
 };
-
-namespace detail {
-
-template <typename Input>
-struct get_program_type;
-
-template <typename... Inputs>
-struct get_program_type<Pack<Inputs...>> {
-  using Type = Rendering::Shaders::ShaderProgram<Inputs...>;
-};
-
-}
 
 /*
  * Helper function that does a lot of the legwork in creating a shader
@@ -127,8 +83,10 @@ template <class VertexGenerator, class FragmentGenerator>
 decltype(auto) CreateShaderProgram() {
   auto vert = std::make_unique<VertexShader<VertexGenerator>>();
   auto frag = std::make_unique<FragmentShader<FragmentGenerator>>();
-  using ShaderProgram = typename detail::get_program_type<typename VertexGenerator::Inputs_t>::Type;
-	return std::make_shared<ShaderProgram>(std::move(vert), std::move(frag));
+  using ShaderProgram = ShaderProgram<
+      typename VertexGenerator::Managers_t,
+      typename VertexGenerator::Uniforms_t>;
+  return std::make_shared<ShaderProgram>(std::move(vert), std::move(frag));
 }
 
 }}} // ShapeShifter::Rendering::Shaders
