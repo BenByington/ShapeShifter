@@ -15,13 +15,70 @@
 #define RENDERING_PURE_NODE_H
 
 #include "data/MixedDataMapBase.h"
-#include "rendering/BasePureNode.h"
 #include "rendering/shaders/Pack.h"
+#include "rendering/shaders/ShaderProgram.h"
 #include "rendering/shaders/UniformManager.h"
 
 
 namespace ShapeShifter {
 namespace Rendering {
+
+// TODO put this elsewhere...
+/*
+ * Used to create a non-owning reference_wrapper that can be called like a smart
+ * pointer.  It has a main type T with normal semantics, but in the event of
+ * type erasure with multiple inheritance, it can optionally provide access
+ * to other parent types as well.
+ */
+template <class T, class...Other>
+class CallableReferenceWrapper {
+  template <typename U>
+  static constexpr bool validate_aux_types() {
+    const std::array<bool, sizeof...(Other)> is_child = {{std::is_base_of<Other, U>::value...}};
+    int sum = 0;
+    for (int i = 0; i < sizeof...(Other); ++i) {
+      if (is_child[i]) sum++;
+    }
+    return sum == sizeof...(Other);
+  }
+  template <typename U>
+  static constexpr bool validate_conversion() {
+    const std::array<bool, sizeof...(Other)> is_child = {{std::is_base_of<Other, U>::value...}};
+    int sum = 0;
+    for (int i = 0; i < sizeof...(Other); ++i) {
+      if (is_child[i]) sum++;
+    }
+    return sum == 1;
+  }
+public:
+  template <typename U>
+  explicit CallableReferenceWrapper(U& u) : w_(u) {
+    static_assert(std::is_base_of<T,U>::value, "Is not a child of main type");
+    static_assert(validate_aux_types<U>(), "Is not a child of one or more auxiliary types");
+  }
+  CallableReferenceWrapper(const CallableReferenceWrapper&) = delete;
+  CallableReferenceWrapper(CallableReferenceWrapper&&) = default;
+  CallableReferenceWrapper& operator=(const CallableReferenceWrapper&) = delete;
+  CallableReferenceWrapper& operator=(CallableReferenceWrapper&&) = default;
+
+  T* operator->() { return &(w_.get()); }
+  T& operator*() { return w_.get(); }
+  operator T&() { return w_; }
+  operator const T&() const { return w_; }
+
+  template<typename U>
+  CallableReferenceWrapper<U> Convert() {
+    static_assert(validate_conversion<U>(), "is not valid auxiliary type");
+    return CallableReferenceWrapper<U>(dynamic_cast<U&>(w_.get()));
+  }
+  template<typename U>
+  CallableReferenceWrapper<const U> Convert() const {
+    static_assert(validate_conversion<U>(), "is not valid auxiliary type");
+    return CallableReferenceWrapper<const U>(dynamic_cast<const U&>(w_.get()));
+  }
+private:
+  std::reference_wrapper<T> w_;
+};
 
 /*
  * This is the main base class for all custom concrete RenderNode
@@ -43,7 +100,7 @@ namespace Rendering {
 template <class Interface, class Uniforms>
 struct PureNode;
 template <class... Interface, class... Uniforms>
-struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : BasePureNode, Shaders::UniformManager<Uniforms...> {
+struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : Shaders::UniformManager<Uniforms...> {
   PureNode() {}
   virtual ~PureNode() {}
 
@@ -60,7 +117,7 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : BasePureNode, Shaders::U
   using Manipulator_t = Shaders::UniformManager<Uniforms...>;
 
   template <typename Other>
-  CallableReferenceWrapper<Manipulator_t, BasePureNode> AddChild(
+  CallableReferenceWrapper<Manipulator_t, PureNode> AddChild(
       std::unique_ptr<Other> child) {
 
     static_assert(
@@ -70,14 +127,14 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : BasePureNode, Shaders::U
         is_permutation<Uniform_t, typename Other::Uniform_t>::value,
         "Internal nodes must all have the same uniforms");
 
-    CallableReferenceWrapper<Manipulator_t, BasePureNode> ret(*child);
+    CallableReferenceWrapper<Manipulator_t, PureNode> ret(*child);
     this->subtrees_.emplace_back(std::move(child));
     return ret;
 
   }
 
   template <class Leaf, typename... Args>
-  CallableReferenceWrapper<Manipulator_t, BasePureNode> AddLeaf(Args&&... args) {
+  CallableReferenceWrapper<Manipulator_t, PureNode> AddLeaf(Args&&... args) {
     static_assert(
         is_subset<Interface_t, typename Leaf::Interface_t>::value(),
         "Attempting to add leaf node that does not fulfill the input interface"
@@ -86,10 +143,80 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : BasePureNode, Shaders::U
     auto child = std::make_unique<PureNode>();
     auto leaf = std::make_unique<Leaf>(std::forward<Args>(args)...);
     child->leaf_ = std::move(leaf);
-    CallableReferenceWrapper<Manipulator_t, BasePureNode> ret(*child);
+    CallableReferenceWrapper<Manipulator_t, PureNode> ret(*child);
     this->subtrees_.emplace_back(std::move(child));
     return ret;
   }
+
+  const PureNode* Parent() const { return parent_; }
+
+protected:
+
+  // Compute how big the VAO should be
+  Data::BufferIndex SubtreeCounts() const {
+    auto ret = Data::BufferIndex{};
+    for (const auto& child : subtrees_) {
+      ret += child->SubtreeCounts();
+    }
+    if (leaf_) {
+      ret += leaf_->ExclusiveNodeDataCount();
+    }
+    return ret;
+  }
+
+  // Fill the VAO with data and push to card
+  void PopulateBufferData(Data::MixedDataMap& data) {
+    for (auto& child : subtrees_) {
+      child->PopulateBufferData(data);
+    }
+    if (leaf_) {
+      leaf_->FillLocalBuffer(data);
+    }
+  }
+
+  // Renders all children in the tree.
+  template <class IPack, class... Uniforms_>
+  void DrawChildren(
+      const Camera& camera,
+      const Shaders::UniformManager<Uniforms_...>& cumulativeUniforms,
+      const Shaders::ShaderProgram<IPack, Pack<Uniforms_...>>& shader) const {
+
+    // ISSUE see about only doing dynamic casts in debug mode or something.
+    for (const auto& child : subtrees_) {
+      auto child_uniforms = cumulativeUniforms;
+      child_uniforms.Combine(*child);
+      child->DrawChildren(camera, child_uniforms, shader);
+    }
+    if (leaf_) {
+      shader.Upload(camera, cumulativeUniforms);
+      leaf_->DrawSelf();
+    }
+  }
+
+  // TODO some of these should be private?
+protected:
+  void FinalizeTree() {
+    for (auto& child : subtrees_) {
+      child->parent_ = this;
+      child->FinalizeTree();
+    }
+  }
+
+  bool IsAncestor(const PureNode& node) const {
+    if (parent_ == nullptr) return &node == this;
+    else return parent_->IsAncestor(node);
+  }
+
+  bool IsChild(const PureNode& node) const {
+    return node.IsAncestor(*this);
+  }
+
+private:
+  PureNode* parent_ = nullptr;
+  // TODO does this need to be ref/pointer?
+  std::vector<std::unique_ptr<PureNode>> subtrees_;
+  std::unique_ptr<BaseLeafNode> leaf_;
+
 };
 
 /*

@@ -5,24 +5,20 @@
  */
 
 /*
- * File:   RootNode.cpp
+ * File:   GLDataLoader.cpp
  * Author: bbyington
  *
  * Created on October 13, 2016, 4:02 PM
  */
 
+// TODO this file named poorly?
 #include "RootNode.h"
 
 namespace ShapeShifter {
 namespace Rendering {
 
-void RootNode::UpdateData() {
+GLDataLoader::GLDataLoader(Data::MixedDataMap& data) {
 
-  auto size = SubtreeCounts();
-
-  Data::MixedDataMap data(managers_, size);
-
-  PopulateBufferData(data);
   assert(data.DataRemaining().vertex_ == 0);
   assert(data.DataRemaining().index_ == 0);
 
@@ -52,7 +48,7 @@ void RootNode::UpdateData() {
 
 }
 
-RootNode::~RootNode() {
+GLDataLoader::~GLDataLoader() {
   for (auto& kv : buffers_) {
     glDeleteBuffers(1, &kv.second);
   }

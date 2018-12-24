@@ -54,36 +54,17 @@ namespace detail {
 //        Note: When doing this, try and clean up this odd inheritance.  If
 //        RootNode needs access to some of PureNodes methods, but not the
 //        template parameters, maybe the class needs to be split
-class RootNode : public PureNode<Pack<>, Pack<>> {
-protected:
-  template <typename TreePack, typename UniformPack>
-  RootNode(std::unique_ptr<PureNode<TreePack, UniformPack>> tree)
-    : managers_(detail::manage<TreePack>::instantiate()) {
-
-    subtrees_.emplace_back(std::move(tree));
-    FinalizeTree();
-    UpdateData();
-  }
-
+class GLDataLoader {
 public:
+  GLDataLoader(Data::MixedDataMap& data);
 
-  virtual ~RootNode();
+  ~GLDataLoader();
 
   GLuint ibo() const { return ibo_; }
 
   const std::map<std::shared_ptr<Data::AbstractManager>, GLuint>&
   buffers() const { return buffers_; }
-
-  bool Contains(const BasePureNode& node) const {
-    return IsChild(node);
-  }
 private:
-
-  /**
-   * Generates the actual VBO's for this tree.  This function is called once
-   * upon construction of the object.
-   */
-  void UpdateData();
 
   GLuint ibo_ = 0;
   std::map<std::shared_ptr<Data::AbstractManager>, GLuint> buffers_;
@@ -91,14 +72,28 @@ private:
 };
 
 template <class TreePack, class UniformPack>
-struct TypedRootNode;
+struct RootNode;
 template <class... Tree, class... Uniforms>
-struct TypedRootNode<Pack<Tree...>, Pack<Uniforms...>> final : public RootNode, Shaders::UniformInitializer<Uniforms...> {
+struct RootNode<Pack<Tree...>, Pack<Uniforms...>> final
+  : PureNode<Pack<Tree...>, Pack<Uniforms...>>
+  , Shaders::UniformInitializer<Uniforms...> {
 public:
   using TreePack = Pack<Tree...>;
   using UniformPack = Pack<Uniforms...>;
 
-  TypedRootNode(std::unique_ptr<PureNode<TreePack, UniformPack>> tree) : RootNode(std::move(tree)) {}
+  RootNode(std::unique_ptr<PureNode<TreePack, UniformPack>> tree) {
+
+    // TODO: Brittle ordering.  Had to fix multiple bugs here
+    this->AddChild(std::move(tree));
+    this->FinalizeTree();
+
+    auto size = this->SubtreeCounts();
+    auto managers = detail::manage<TreePack>::instantiate();
+    Data::MixedDataMap data(managers, size);
+
+    this->PopulateBufferData(data);
+    loader_ = std::make_unique<GLDataLoader>(data);
+  }
 
   /**
    * Walks down the tree, applies rotation matrices, and calls opengl to render
@@ -112,13 +107,21 @@ public:
     static_assert(is_subset<Pack<Uniforms_...>, UniformPack>::value(),
         "Invalid shader requiring unsupported uniforms");
     const auto& uniforms = Shaders::UniformInitializer<Uniforms_...>::InitializeUniforms(*this);
-    DrawChildren(camera, uniforms, program);
+    this->DrawChildren(camera, uniforms, program);
   }
+
+  const std::map<std::shared_ptr<Data::AbstractManager>, GLuint>&
+  buffers() const { return loader_->buffers(); }
+
+  GLuint ibo() const { return loader_->ibo(); }
+
+private:
+  std::unique_ptr<GLDataLoader> loader_;
 };
 
 template <class TreePack, class UniformPack>
 auto CreateRootPtr(std::unique_ptr<PureNode<TreePack, UniformPack>> tree) {
-  return std::make_shared<TypedRootNode<TreePack, UniformPack>>(std::move(tree));
+  return std::make_shared<RootNode<TreePack, UniformPack>>(std::move(tree));
 }
 
 }} // ShapeShifter::Rendering

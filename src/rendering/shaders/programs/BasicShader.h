@@ -21,7 +21,7 @@
 #include "rendering/Camera.h"
 
 // TODO don't really like this here
-#include "rendering/BasePureNode.h"
+#include "rendering/PureNode.h"
 
 namespace ShapeShifter {
 namespace Rendering {
@@ -119,11 +119,11 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
       return ret;
     }
 
-    template <typename...T>
-    void SetOriginNode(const CallableReferenceWrapper<T...>& node)
+    template <typename T1, typename T2>
+    void SetOriginNode(const CallableReferenceWrapper<T1, T2>& node)
     {
-      const BasePureNode& ref = node.template Convert<BasePureNode>();
-      const BasePureNode* ptr = &ref;
+      const T2& ref = node.template Convert<T2>();
+      const T2* ptr = &ref;
       while (ptr != nullptr) {
         auto * manager = dynamic_cast<const UniformManager*>(ptr);
         // TODO better error handling
@@ -137,7 +137,7 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
         ptr = ptr->Parent();
       }
     }
-        
+
     private:
       std::vector<const UniformManager*> path;
   };
