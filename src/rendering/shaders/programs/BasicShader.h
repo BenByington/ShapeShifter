@@ -122,10 +122,13 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
     template <typename T1, typename T2>
     void SetOriginNode(const CallableReferenceWrapper<T1, T2>& node)
     {
+      static_assert(std::is_base_of<UniformManager, T2>::value,
+                    "SetOriginNode called node without Transform Uniform");
+
       const T2& ref = node.template Convert<T2>();
       const T2* ptr = &ref;
       while (ptr != nullptr) {
-        auto * manager = dynamic_cast<const UniformManager*>(ptr);
+        auto * manager = static_cast<const UniformManager*>(ptr);
         // TODO better error handling
         // TODO fix this ugliness with RootNode inheriting from stripped down
         // PureNode
