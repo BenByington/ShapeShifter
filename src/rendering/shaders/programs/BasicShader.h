@@ -19,6 +19,7 @@
 #include "rendering/shaders/language/GLSLGeneratorBase.h"
 #include "math/Quaternion.h"
 #include "rendering/Camera.h"
+#include "util/MultiReferenceWrapper.h"
 
 // TODO don't really like this here
 #include "rendering/PureNode.h"
@@ -120,7 +121,7 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
     }
 
     template <typename T1, typename T2>
-    void SetOriginNode(const CallableReferenceWrapper<T1, T2>& node)
+    void SetOriginNode(const Util::MultiReferenceWrapper<T1, T2>& node)
     {
       static_assert(std::is_base_of<UniformManager, T2>::value,
                     "SetOriginNode called node without Transform Uniform");

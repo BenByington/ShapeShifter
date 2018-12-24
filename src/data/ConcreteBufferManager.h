@@ -99,10 +99,9 @@ public:
 
   // Helper class, so that both FillData functions can direct to here, and
   // only the correct (and expected) type will have an implementation
-  template <class Child_>
   struct Dispatch {
-    static void FillData(VectorSlice<typename Child_::Type>& data, Rendering::BaseLeafNode* node) {
-      auto typed_node = dynamic_cast<typename Child_::Interface*>(node);
+    static void FillData(VectorSlice<typename Child::Type>& data, Rendering::BaseLeafNode* node) {
+      auto typed_node = dynamic_cast<typename Child::Interface*>(node);
       assert(typed_node);
       typed_node->FillData(data);
     }
@@ -117,10 +116,10 @@ public:
   }
 
   virtual void FillData(VectorSlice<float>& data, Rendering::BaseLeafNode* node) override {
-    Dispatch<Child>::FillData(data, node);
+    Dispatch::FillData(data, node);
   }
   virtual void FillData(VectorSlice<uint32_t>& data, Rendering::BaseLeafNode* node) override {
-    Dispatch<Child>::FillData(data, node);
+    Dispatch::FillData(data, node);
   }
 };
 

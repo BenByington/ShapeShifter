@@ -18,67 +18,11 @@
 #include "rendering/shaders/Pack.h"
 #include "rendering/shaders/ShaderProgram.h"
 #include "rendering/shaders/UniformManager.h"
+#include "util/MultiReferenceWrapper.h"
 
 
 namespace ShapeShifter {
 namespace Rendering {
-
-// TODO put this elsewhere...
-/*
- * Used to create a non-owning reference_wrapper that can be called like a smart
- * pointer.  It has a main type T with normal semantics, but in the event of
- * type erasure with multiple inheritance, it can optionally provide access
- * to other parent types as well.
- */
-template <class T, class...Other>
-class CallableReferenceWrapper {
-  template <typename U>
-  static constexpr bool validate_aux_types() {
-    const std::array<bool, sizeof...(Other)> is_child = {{std::is_base_of<Other, U>::value...}};
-    int sum = 0;
-    for (int i = 0; i < sizeof...(Other); ++i) {
-      if (is_child[i]) sum++;
-    }
-    return sum == sizeof...(Other);
-  }
-  template <typename U>
-  static constexpr bool validate_conversion() {
-    const std::array<bool, sizeof...(Other)> is_child = {{std::is_base_of<Other, U>::value...}};
-    int sum = 0;
-    for (int i = 0; i < sizeof...(Other); ++i) {
-      if (is_child[i]) sum++;
-    }
-    return sum == 1;
-  }
-public:
-  template <typename U>
-  explicit CallableReferenceWrapper(U& u) : w_(u) {
-    static_assert(std::is_base_of<T,U>::value, "Is not a child of main type");
-    static_assert(validate_aux_types<U>(), "Is not a child of one or more auxiliary types");
-  }
-  CallableReferenceWrapper(const CallableReferenceWrapper&) = delete;
-  CallableReferenceWrapper(CallableReferenceWrapper&&) = default;
-  CallableReferenceWrapper& operator=(const CallableReferenceWrapper&) = delete;
-  CallableReferenceWrapper& operator=(CallableReferenceWrapper&&) = default;
-
-  T* operator->() { return &(w_.get()); }
-  T& operator*() { return w_.get(); }
-  operator T&() { return w_; }
-  operator const T&() const { return w_; }
-
-  template<typename U>
-  CallableReferenceWrapper<U> Convert() {
-    static_assert(validate_conversion<U>(), "is not valid auxiliary type");
-    return CallableReferenceWrapper<U>(dynamic_cast<U&>(w_.get()));
-  }
-  template<typename U>
-  CallableReferenceWrapper<const U> Convert() const {
-    static_assert(validate_conversion<U>(), "is not valid auxiliary type");
-    return CallableReferenceWrapper<const U>(dynamic_cast<const U&>(w_.get()));
-  }
-private:
-  std::reference_wrapper<T> w_;
-};
 
 /*
  * This is the main base class for all custom concrete RenderNode
@@ -117,7 +61,7 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : Shaders::UniformManager<
   using Manipulator_t = Shaders::UniformManager<Uniforms...>;
 
   template <typename Other>
-  CallableReferenceWrapper<Manipulator_t, PureNode> AddChild(
+  Util::MultiReferenceWrapper<Manipulator_t, PureNode> AddChild(
       std::unique_ptr<Other> child) {
 
     static_assert(
@@ -127,14 +71,14 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : Shaders::UniformManager<
         is_permutation<Uniform_t, typename Other::Uniform_t>::value,
         "Internal nodes must all have the same uniforms");
 
-    CallableReferenceWrapper<Manipulator_t, PureNode> ret(*child);
+    Util::MultiReferenceWrapper<Manipulator_t, PureNode> ret(*child);
     this->subtrees_.emplace_back(std::move(child));
     return ret;
 
   }
 
   template <class Leaf, typename... Args>
-  CallableReferenceWrapper<Manipulator_t, PureNode> AddLeaf(Args&&... args) {
+  Util::MultiReferenceWrapper<Manipulator_t, PureNode> AddLeaf(Args&&... args) {
     static_assert(
         is_subset<Interface_t, typename Leaf::Interface_t>::value(),
         "Attempting to add leaf node that does not fulfill the input interface"
@@ -143,7 +87,7 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : Shaders::UniformManager<
     auto child = std::make_unique<PureNode>();
     auto leaf = std::make_unique<Leaf>(std::forward<Args>(args)...);
     child->leaf_ = std::move(leaf);
-    CallableReferenceWrapper<Manipulator_t, PureNode> ret(*child);
+    Util::MultiReferenceWrapper<Manipulator_t, PureNode> ret(*child);
     this->subtrees_.emplace_back(std::move(child));
     return ret;
   }
