@@ -14,6 +14,10 @@
 #ifndef RENDERING_SHADERS_PACK_H
 #define RENDERING_SHADERS_PACK_H
 
+#include <array>
+
+//TODO move to another place?
+
 // Simply class used to keep different variadic template packs separate
 template <class ... Ts>
 class Pack {};

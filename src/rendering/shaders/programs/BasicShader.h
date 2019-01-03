@@ -21,9 +21,6 @@
 #include "rendering/Camera.h"
 #include "util/MultiReferenceWrapper.h"
 
-// TODO don't really like this here
-#include "rendering/PureNode.h"
-
 namespace ShapeShifter {
 namespace Rendering {
 namespace Shaders {
@@ -113,7 +110,7 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
     public:
     UniformManager InitUniform() const {
       UniformManager ret{};
-      for (auto m : path)
+      for (auto m : path_)
       {
         ret.CombineInverse(*m);
       }
@@ -126,24 +123,12 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
       static_assert(std::is_base_of<UniformManager, T2>::value,
                     "SetOriginNode called node without Transform Uniform");
 
-      const T2& ref = node.template Convert<T2>();
-      const T2* ptr = &ref;
-      while (ptr != nullptr) {
-        auto * manager = static_cast<const UniformManager*>(ptr);
-        // TODO better error handling
-        // TODO fix this ugliness with RootNode inheriting from stripped down
-        // PureNode
-        if (manager == nullptr) {
-          assert(ptr->Parent() == nullptr);
-          return;
-        }
-        path.push_back(manager);
-        ptr = ptr->Parent();
-      }
+      const auto& path = node.template Convert<T2>()->PathToRoot();
+      path_ = std::vector<const UniformManager*>(path.begin(), path.end());
     }
 
     private:
-      std::vector<const UniformManager*> path;
+      std::vector<const UniformManager*> path_;
   };
 };
 

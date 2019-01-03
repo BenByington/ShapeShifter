@@ -23,20 +23,6 @@
 namespace ShapeShifter {
 namespace Rendering {
 
-namespace detail {
-
-  template <typename T>
-  struct manage;
-
-  template <typename... Ts>
-  struct manage<Pack<Ts...>> {
-    static std::vector<std::shared_ptr<Data::AbstractManager>> instantiate() {
-      return {std::make_shared<Ts>()...};
-    }
-  };
-
-}
-
 /*
  * This node forms the root of a tree, and a tree is not valid until it is
  * finalized by the addition of a root node.  It type erases the internal tree
@@ -54,11 +40,42 @@ namespace detail {
 //        Note: When doing this, try and clean up this odd inheritance.  If
 //        RootNode needs access to some of PureNodes methods, but not the
 //        template parameters, maybe the class needs to be split
+
+namespace detail {
+
 class GLDataLoader {
 public:
-  GLDataLoader(Data::MixedDataMap& data);
+  template <typename... Keys>
+  GLDataLoader(Data::BufferMap<Keys...>& data) {
 
-  ~GLDataLoader();
+    assert(data.DataRemaining().vertex_ == 0);
+    assert(data.DataRemaining().index_ == 0);
+
+    auto func = [&](std::shared_ptr<Data::AbstractManager> key, auto& data){
+        auto vbo = GLuint{0};
+        glGenBuffers (1, &vbo);
+        buffers_[key] = vbo;
+        glBindBuffer (GL_ARRAY_BUFFER, vbo);
+        glBufferData (GL_ARRAY_BUFFER, data, GL_STATIC_DRAW);
+    };
+    data.ForEachKeyVal(func);
+
+    const auto& indices = data.indices();
+    ibo_ = GLuint{0};
+    glGenBuffers (1, &ibo_);
+    glBindBuffer (GL_ARRAY_BUFFER, ibo_);
+    glBufferData (GL_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
+  
+  }
+
+  ~GLDataLoader() {
+    for (auto& kv : buffers_) {
+      glDeleteBuffers(1, &kv.second);
+    }
+    if (ibo_ != 0) glDeleteBuffers(1, &ibo_);
+    ibo_ = 0;
+    buffers_.clear();
+  }
 
   GLuint ibo() const { return ibo_; }
 
@@ -68,8 +85,9 @@ private:
 
   GLuint ibo_ = 0;
   std::map<std::shared_ptr<Data::AbstractManager>, GLuint> buffers_;
-  std::vector<std::shared_ptr<Data::AbstractManager>> managers_;
 };
+
+}
 
 template <class TreePack, class UniformPack>
 struct RootNode;
@@ -83,16 +101,14 @@ public:
 
   RootNode(std::unique_ptr<PureNode<TreePack, UniformPack>> tree) {
 
-    // TODO: Brittle ordering.  Had to fix multiple bugs here
     this->AddChild(std::move(tree));
     this->FinalizeTree();
 
     auto size = this->SubtreeCounts();
-    auto managers = detail::manage<TreePack>::instantiate();
-    Data::MixedDataMap data(managers, size);
+    Data::BufferMap<Tree...> data(size);
 
     this->PopulateBufferData(data);
-    loader_ = std::make_unique<GLDataLoader>(data);
+    loader_ = std::make_unique<detail::GLDataLoader>(data);
   }
 
   /**
@@ -116,7 +132,7 @@ public:
   GLuint ibo() const { return loader_->ibo(); }
 
 private:
-  std::unique_ptr<GLDataLoader> loader_;
+  std::unique_ptr<detail::GLDataLoader> loader_;
 };
 
 template <class TreePack, class UniformPack>

@@ -4,4 +4,5 @@
  * and open the template in the editor.
  */
 
-#include "data/MixedDataMapBase.h"
+#include "data/BufferSliceMap.h"
+

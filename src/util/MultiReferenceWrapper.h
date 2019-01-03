@@ -45,7 +45,7 @@ class MultiReferenceWrapper : private detail::aux_wrapper<Other>... {
 public:
   // If any compilation errors crop up here, change contraints to SFINAE
   template <typename U>
-    explicit MultiReferenceWrapper(U& u) : detail::aux_wrapper<Other>(u)..., w_(u) {
+  explicit MultiReferenceWrapper(U& u) : detail::aux_wrapper<Other>(u)..., w_(u) {
     static_assert(std::is_base_of<T,U>::value, "Is not a child of main type");
     static_assert(validate_aux_types<U>(), "Is not a child of one or more auxiliary types");
   }
@@ -76,6 +76,18 @@ private:
   std::reference_wrapper<T> w_;
 };
 
+template <class T, class...Other>
+class MultiReferenceOwner : public MultiReferenceWrapper<T, Other...> {
+public:
+  template <typename U>
+  MultiReferenceOwner(std::unique_ptr<U> u)
+    : MultiReferenceWrapper<T, Other...>(*u)
+    , owner_(std::move(u)) {}
+
+  using MultiReferenceWrapper<T, Other...>::operator->;
+private:
+  std::unique_ptr<T> owner_;
+};
 }}
 
 #endif // UTIL_MULTI_REFERENCE_WRAPPER_H

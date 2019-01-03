@@ -8,8 +8,8 @@ rm -rf build/Release
 mkdir -p build/Debug
 mkdir -p build/Release
 
-gcc=/opt/local/bin/gcc-mp-6
-gpp=/opt/local/bin/g++-mp-6
+gcc=/opt/local/bin/gcc-mp-7
+gpp=/opt/local/bin/g++-mp-7
 
 clangcc=/opt/local/bin/clang-mp-7.0
 clangpp=/opt/local/bin/clang++-mp-7.0

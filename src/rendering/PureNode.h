@@ -14,7 +14,7 @@
 #ifndef RENDERING_PURE_NODE_H
 #define RENDERING_PURE_NODE_H
 
-#include "data/MixedDataMapBase.h"
+#include "data/BufferMapBase.h"
 #include "rendering/shaders/Pack.h"
 #include "rendering/shaders/ShaderProgram.h"
 #include "rendering/shaders/UniformManager.h"
@@ -86,13 +86,23 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : Shaders::UniformManager<
 
     auto child = std::make_unique<PureNode>();
     auto leaf = std::make_unique<Leaf>(std::forward<Args>(args)...);
-    child->leaf_ = std::move(leaf);
+    child->leaf_ = LeafWrapper<Interface...>{std::move(leaf)};
     Util::MultiReferenceWrapper<Manipulator_t, PureNode> ret(*child);
     this->subtrees_.emplace_back(std::move(child));
     return ret;
   }
 
   const PureNode* Parent() const { return parent_; }
+
+  std::vector<const PureNode*> PathToRoot() const {
+    const PureNode* ptr = this;
+    std::vector<const PureNode*> path;
+    while (ptr != nullptr) {
+      path.push_back(ptr);
+      ptr = ptr->Parent();
+    }
+    return path;
+  }
 
 protected:
 
@@ -109,12 +119,13 @@ protected:
   }
 
   // Fill the VAO with data and push to card
-  void PopulateBufferData(Data::MixedDataMap& data) {
+  template <typename Map>
+  void PopulateBufferData(Map& data) {
     for (auto& child : subtrees_) {
       child->PopulateBufferData(data);
     }
     if (leaf_) {
-      leaf_->FillLocalBuffer(data);
+      leaf_.FillLocalBuffer(data);
     }
   }
 
@@ -137,7 +148,6 @@ protected:
     }
   }
 
-  // TODO some of these should be private?
 protected:
   void FinalizeTree() {
     for (auto& child : subtrees_) {
@@ -146,21 +156,10 @@ protected:
     }
   }
 
-  bool IsAncestor(const PureNode& node) const {
-    if (parent_ == nullptr) return &node == this;
-    else return parent_->IsAncestor(node);
-  }
-
-  bool IsChild(const PureNode& node) const {
-    return node.IsAncestor(*this);
-  }
-
 private:
   PureNode* parent_ = nullptr;
-  // TODO does this need to be ref/pointer?
   std::vector<std::unique_ptr<PureNode>> subtrees_;
-  std::unique_ptr<BaseLeafNode> leaf_;
-
+  LeafWrapper<Interface...> leaf_;
 };
 
 /*

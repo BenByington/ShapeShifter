@@ -67,6 +67,8 @@ private:
   size_t size_;
 };
 
+template <typename T> VectorSlice(std::vector<T>, size_t, size_t, size_t) -> VectorSlice<T>;
+
 /*
  * Convenience class for populating a VectorSlice.
  * It automatically keeps track of the next available index, so you can
