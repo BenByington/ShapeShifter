@@ -116,6 +116,7 @@
      </property>
      <addaction name="actionSquare2D"/>
      <addaction name="actionIndexBuffer"/>
+     <addaction name="actionPhongLighting"/>
     </widget>
     <addaction name="actionEmpty"/>
     <addaction name="menuTests"/>
@@ -167,6 +168,11 @@
   <action name="actionIndexBuffer">
    <property name="text">
     <string>IndexBuffer</string>
+   </property>
+  </action>
+  <action name="actionPhongLighting">
+   <property name="text">
+    <string>PhongLighting</string>
    </property>
   </action>
  </widget>

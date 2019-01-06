@@ -35,6 +35,10 @@ void MainWindow::LinkActions() {
           &QAction::triggered,
           qtw_.get(),
           &MyQtWidget::IndexBufferScenario);
+  connect(widget.actionPhongLighting,
+          &QAction::triggered,
+          qtw_.get(),
+          &MyQtWidget::PhongLightingScenario);
 }
 
 } // namespace ShapeShifter::ui

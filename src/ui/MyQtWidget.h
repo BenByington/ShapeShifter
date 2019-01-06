@@ -57,6 +57,7 @@ public slots:
   void EmptyScenario();
   void Squares2DScenario();
   void IndexBufferScenario();
+  void PhongLightingScenario();
 
 private:
   std::pair<float, float> PixelCoordToCameraProj(const QPointF& p) const;
