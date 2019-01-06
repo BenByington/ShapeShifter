@@ -27,4 +27,13 @@ void BasicFragmentShader::DefineMain(const VariableFactory& factory) {
   outputColor = factory_.temporary<Language::Vec4>(theColor, 1.0f);
 }
 
+void PhongVertexShader::DefineMain(const VariableFactory& factory) {
+  gl_Position = transform * factory_.temporary<Language::Vec4>(inPosition, 1.0f);
+  theColor = inColor;
+}
+
+void PhongFragmentShader::DefineMain(const VariableFactory& factory) {
+  outputColor = ambientLight * factory_.temporary<Language::Vec4>(theColor, 1.0f);
+}
+
 }}}} // ShapeShifter::Rendering::Shaders::Programs

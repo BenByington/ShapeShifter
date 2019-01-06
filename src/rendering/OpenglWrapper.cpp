@@ -43,6 +43,7 @@ static constexpr size_t TYPE_IDX = std::numeric_limits<size_t>::max();
 // [] now but add it to the value printing.
 template <class T>
 std::string type();
+template <> std::string type<float>() { return "float";}
 template <> std::string type<long>() { return "long";}
 template <> std::string type<unsigned long>() { return "unsigned long";}
 template <> std::string type<uint32_t>() { return "uint32_t";}
@@ -359,6 +360,10 @@ GLint glGetUniformLocation (GLuint program, const GLchar *name) {
 void glUniformMatrix4fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) {
   std::map<size_t, size_t> count_map {{3,16*count}};
   FUNC_BODY(glUniformMatrix4fv, location, count, transpose, value);
+}
+void glUniform1f (GLint location, const GLfloat value) {
+  std::map<size_t, size_t> count_map;
+  FUNC_BODY(glUniform1f, location, value);
 }
 void glDrawArrays (GLenum mode, GLint first, GLsizei count) {
   std::map<size_t, size_t> count_map;

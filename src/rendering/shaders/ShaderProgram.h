@@ -85,7 +85,9 @@ decltype(auto) CreateShaderProgram() {
   auto frag = std::make_unique<FragmentShader<FragmentGenerator>>();
   using ShaderProgram = ShaderProgram<
       typename VertexGenerator::Managers_t,
-      typename VertexGenerator::Uniforms_t>;
+      typename set_union<typename VertexGenerator::Uniforms_t,
+                         typename FragmentGenerator::Uniforms_t>
+      ::type>;
   return std::make_shared<ShaderProgram>(std::move(vert), std::move(frag));
 }
 

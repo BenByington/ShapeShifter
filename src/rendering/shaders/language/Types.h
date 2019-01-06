@@ -40,6 +40,10 @@ public:
   Vec4 operator*(const Vec4& other) {}
 };
 
+class Float {
+public:
+  Vec4 operator*(const Vec4&) {}
+};
 
 template <>
 struct VariableTraits<Mat4> {
@@ -60,6 +64,14 @@ template <>
 struct VariableTraits<Vec3> {
   static constexpr const char* name() {
     return "vec3";
+  }
+  static constexpr bool InterfaceAllowed = true;
+};
+
+template <>
+struct VariableTraits<Float> {
+  static constexpr const char* name() {
+    return "float";
   }
   static constexpr bool InterfaceAllowed = true;
 };

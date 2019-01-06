@@ -181,6 +181,7 @@ public:
   std::string program() { return Base::program(false); }
 
   using Inputs_t = Pack<Inputs...>;
+  using Uniforms_t = Pack<Uniforms...>;
 };
 
 }}}} // ShapeShifter::Rendering::Shaders::Language

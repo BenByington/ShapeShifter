@@ -43,7 +43,9 @@ public:
   }
 
 protected:
+  // TODO need constraints to make sure type matches?
   void UploadValue(const Math::Matrix4& mat, const char* name) const;
+  void UploadValue(float val, const char* name) const;
 
 private:
   std::unique_ptr<ShaderBase> vert_shader_;

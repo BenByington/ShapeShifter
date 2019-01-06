@@ -29,7 +29,9 @@ namespace Programs {
 using Data::ColorManager;
 using Data::VertexManager;
 
+// TODO organize this so it scales
 namespace detail {
+
 struct ColorPass : InterfaceVariableBase<ColorPass, Language::Vec3> {
   ColorPass() = delete;
 
@@ -132,6 +134,34 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
   };
 };
 
+struct AmbientLight : UniformVariableBase<AmbientLight, Language::Float> {
+
+  AmbientLight() = delete;
+  using Base = UniformVariableBase<AmbientLight, Language::Float>;
+  using Base::UniformVariableBase;
+  static constexpr const char* name() {
+    return "ambientLight";
+  }
+  static constexpr bool smooth = false;
+  Variable_T& ambientLight = Base::var;
+
+  struct UniformManager {
+    UniformManager(float v) : val_{v} {}
+    UniformManager() : val_{1.0f} {}
+    using StorageType = float;
+    float Data(const Camera&) const { return val_; }
+    void Combine(const UniformManager& o) {/*do nothing*/}
+    void Clone(const UniformManager& o) { val_ = o.val_; }
+  private:
+    float val_ = 1.0f;
+  };
+  struct UniformInitializer {
+    UniformManager InitUniform() const { return UniformManager(val_); }
+    void SetAmbientLight(float v) { val_ = v; }
+  private:
+    float val_ = 1.0f;
+  };
+};
 
 }
 
@@ -159,6 +189,34 @@ class BasicFragmentShader : public Language::GLSLFragmentGeneratorBase<
       Pack<detail::OutputColor>>;
 public:
   BasicFragmentShader(VariableFactory&& factory) : Base(std::move(factory)) {}
+private:
+  void DefineMain(const VariableFactory& factory) override;
+};
+
+class PhongVertexShader : public Language::GLSLVertexGeneratorBase<
+    Pack<ColorManager, VertexManager>,
+    Pack<detail::Transform>,
+    Pack<detail::ColorPass>> {
+  using Base = Language::GLSLVertexGeneratorBase<
+      Pack<ColorManager, VertexManager>,
+      Pack<detail::Transform>,
+      Pack<detail::ColorPass>>;
+public:
+  PhongVertexShader(VariableFactory&& factory) : Base(std::move(factory)) {}
+private:
+  void DefineMain(const VariableFactory& factory) override;
+};
+
+class PhongFragmentShader : public Language::GLSLFragmentGeneratorBase<
+    Pack<detail::ColorPass>,
+    Pack<detail::AmbientLight>,
+    Pack<detail::OutputColor>> {
+  using Base = Language::GLSLFragmentGeneratorBase<
+      Pack<detail::ColorPass>,
+      Pack<detail::AmbientLight>,
+      Pack<detail::OutputColor>>;
+public:
+  PhongFragmentShader(VariableFactory&& factory) : Base(std::move(factory)) {}
 private:
   void DefineMain(const VariableFactory& factory) override;
 };

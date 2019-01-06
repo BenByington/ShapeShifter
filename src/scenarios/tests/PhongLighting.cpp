@@ -37,7 +37,7 @@ std::unique_ptr<Rendering::World> PhongLighting::Setup() {
 
   using namespace Rendering::Shaders;
   using namespace Rendering::Shaders::Programs;
-  auto program = CreateShaderProgram<BasicVertexShader, BasicFragmentShader>();
+  auto program = CreateShaderProgram<PhongVertexShader, PhongFragmentShader>();
   auto node1 = Rendering::CompatiblePureNode(*program);
 
   auto cube = node1->AddLeaf<Shapes::Cube>(.5f, .7f, .85f);
@@ -79,6 +79,7 @@ std::unique_ptr<Rendering::World> PhongLighting::Setup() {
 
   auto root = Rendering::CreateRootPtr(std::move(dummy4));
   root->SetOriginNode(manipulator);
+  root->SetAmbientLight(0.1f);
 
   auto frust = Rendering::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
   auto camera = std::make_unique<Rendering::Camera>(frust, 2.5);
