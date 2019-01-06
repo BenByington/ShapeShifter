@@ -16,6 +16,7 @@
 #include "scenarios/Empty.h"
 #include "scenarios/tests/Squares2D.h"
 #include "scenarios/tests/IndexBuffers.h"
+#include "scenarios/tests/PhongLighting.h"
 
 #include <QtCore/QDebug>
 #include <QtGui/QMouseEvent>
@@ -53,7 +54,7 @@ void MyQtWidget::initializeGL() {
 
   //world_ = scenarios::Empty().Setup();
   //world_ = scenarios::tests::Squares2D().Setup();
-  world_ = scenarios::tests::IndexBuffers().Setup();
+  world_ = scenarios::tests::PhongLighting().Setup();
 }
 
 void MyQtWidget::resizeGL(int width, int height) {
@@ -104,6 +105,10 @@ void MyQtWidget::Squares2DScenario() {
 
 void MyQtWidget::IndexBufferScenario() {
   ScenarioSlotHelper<scenarios::tests::IndexBuffers>();
+}
+
+void MyQtWidget::PhongLightingScenario() {
+  ScenarioSlotHelper<scenarios::tests::PhongLighting>();
 }
 
 }} //ShapeShifter::ui

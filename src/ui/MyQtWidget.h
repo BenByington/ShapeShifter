@@ -56,6 +56,7 @@ public slots:
   void EmptyScenario();
   void Squares2DScenario();
   void IndexBufferScenario();
+  void PhongLightingScenario();
 
 private:
 
