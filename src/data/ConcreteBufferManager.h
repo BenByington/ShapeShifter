@@ -15,7 +15,7 @@
 #define DATA_CONCRETE_BUFFERTYPES_H
 
 #include "data/AbstractBufferManager.h"
-#include "data/MixedDataMapBase.h"
+#include "data/BufferMapBase.h"
 #include "rendering/shaders/InterfaceVariableBase.h"
 
 #include <cstdlib>
@@ -97,30 +97,8 @@ public:
         " InterfaceVariableBase and is named Variable, for use in the shader program");
   }
 
-  // Helper class, so that both FillData functions can direct to here, and
-  // only the correct (and expected) type will have an implementation
-  template <class Child_>
-  struct Dispatch {
-    static void FillData(VectorSlice<typename Child_::Type>& data, Rendering::BaseLeafNode* node) {
-      auto typed_node = dynamic_cast<typename Child_::Interface*>(node);
-      assert(typed_node);
-      typed_node->FillData(data);
-    }
-    // Dummy implementation, should never be called unless the types got
-    // mixed up.  Just needed as we can't tell in this class which type
-    // is used in this buffer storage.
-    static void FillData(...) { assert(false); }
-  };
-
   virtual std::string name() const override {
     return Child::Variable::name();
-  }
-
-  virtual void FillData(VectorSlice<float>& data, Rendering::BaseLeafNode* node) override {
-    Dispatch<Child>::FillData(data, node);
-  }
-  virtual void FillData(VectorSlice<uint32_t>& data, Rendering::BaseLeafNode* node) override {
-    Dispatch<Child>::FillData(data, node);
   }
 };
 

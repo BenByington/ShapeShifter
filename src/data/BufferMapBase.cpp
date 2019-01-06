@@ -4,11 +4,4 @@
  * and open the template in the editor.
  */
 
-/*
- * File:   RootNode.cpp
- * Author: bbyington
- *
- * Created on October 13, 2016, 4:02 PM
- */
-
-#include "RootNode.h"
+#include "data/BufferMapBase.h"

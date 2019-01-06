@@ -14,10 +14,11 @@
 #ifndef RENDERING_PURE_NODE_H
 #define RENDERING_PURE_NODE_H
 
-#include "data/MixedDataMapBase.h"
-#include "rendering/BasePureNode.h"
+#include "data/BufferMapBase.h"
 #include "rendering/shaders/Pack.h"
+#include "rendering/shaders/ShaderProgram.h"
 #include "rendering/shaders/UniformManager.h"
+#include "util/MultiReferenceWrapper.h"
 
 
 namespace ShapeShifter {
@@ -43,7 +44,7 @@ namespace Rendering {
 template <class Interface, class Uniforms>
 struct PureNode;
 template <class... Interface, class... Uniforms>
-struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : BasePureNode, Shaders::UniformManager<Uniforms...> {
+struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : Shaders::UniformManager<Uniforms...> {
   PureNode() {}
   virtual ~PureNode() {}
 
@@ -60,7 +61,7 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : BasePureNode, Shaders::U
   using Manipulator_t = Shaders::UniformManager<Uniforms...>;
 
   template <typename Other>
-  CallableReferenceWrapper<Manipulator_t, BasePureNode> AddChild(
+  Util::MultiReferenceWrapper<Manipulator_t, PureNode> AddChild(
       std::unique_ptr<Other> child) {
 
     static_assert(
@@ -70,14 +71,14 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : BasePureNode, Shaders::U
         is_permutation<Uniform_t, typename Other::Uniform_t>::value,
         "Internal nodes must all have the same uniforms");
 
-    CallableReferenceWrapper<Manipulator_t, BasePureNode> ret(*child);
+    Util::MultiReferenceWrapper<Manipulator_t, PureNode> ret(*child);
     this->subtrees_.emplace_back(std::move(child));
     return ret;
 
   }
 
   template <class Leaf, typename... Args>
-  CallableReferenceWrapper<Manipulator_t, BasePureNode> AddLeaf(Args&&... args) {
+  Util::MultiReferenceWrapper<Manipulator_t, PureNode> AddLeaf(Args&&... args) {
     static_assert(
         is_subset<Interface_t, typename Leaf::Interface_t>::value(),
         "Attempting to add leaf node that does not fulfill the input interface"
@@ -85,11 +86,80 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : BasePureNode, Shaders::U
 
     auto child = std::make_unique<PureNode>();
     auto leaf = std::make_unique<Leaf>(std::forward<Args>(args)...);
-    child->leaf_ = std::move(leaf);
-    CallableReferenceWrapper<Manipulator_t, BasePureNode> ret(*child);
+    child->leaf_ = LeafWrapper<Interface...>{std::move(leaf)};
+    Util::MultiReferenceWrapper<Manipulator_t, PureNode> ret(*child);
     this->subtrees_.emplace_back(std::move(child));
     return ret;
   }
+
+  const PureNode* Parent() const { return parent_; }
+
+  std::vector<const PureNode*> PathToRoot() const {
+    const PureNode* ptr = this;
+    std::vector<const PureNode*> path;
+    while (ptr != nullptr) {
+      path.push_back(ptr);
+      ptr = ptr->Parent();
+    }
+    return path;
+  }
+
+protected:
+
+  // Compute how big the VAO should be
+  Data::BufferIndex SubtreeCounts() const {
+    auto ret = Data::BufferIndex{};
+    for (const auto& child : subtrees_) {
+      ret += child->SubtreeCounts();
+    }
+    if (leaf_) {
+      ret += leaf_->ExclusiveNodeDataCount();
+    }
+    return ret;
+  }
+
+  // Fill the VAO with data and push to card
+  template <typename Map>
+  void PopulateBufferData(Map& data) {
+    for (auto& child : subtrees_) {
+      child->PopulateBufferData(data);
+    }
+    if (leaf_) {
+      leaf_.FillLocalBuffer(data);
+    }
+  }
+
+  // Renders all children in the tree.
+  template <class IPack, class... Uniforms_>
+  void DrawChildren(
+      const Camera& camera,
+      const Shaders::UniformManager<Uniforms_...>& cumulativeUniforms,
+      const Shaders::ShaderProgram<IPack, Pack<Uniforms_...>>& shader) const {
+
+    // ISSUE see about only doing dynamic casts in debug mode or something.
+    for (const auto& child : subtrees_) {
+      auto child_uniforms = cumulativeUniforms;
+      child_uniforms.Combine(*child);
+      child->DrawChildren(camera, child_uniforms, shader);
+    }
+    if (leaf_) {
+      shader.Upload(camera, cumulativeUniforms);
+      leaf_->DrawSelf();
+    }
+  }
+
+protected:
+  void FinalizeTree() {
+    for (auto& child : subtrees_) {
+      child->parent_ = this;
+      child->FinalizeTree();
+    }
+  }
+
+private:
+  PureNode* parent_ = nullptr;
+  std::vector<std::unique_ptr<PureNode>> subtrees_;
+  LeafWrapper<Interface...> leaf_;
 };
 
 /*

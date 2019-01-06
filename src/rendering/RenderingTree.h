@@ -14,7 +14,7 @@
 #ifndef RENDERING_RENDERING_TREE_H
 #define RENDERING_RENDERING_TREE_H
 
-#include "rendering/BasePureNode.h"
+#include "rendering/PureNode.h"
 #include "rendering/RootNode.h"
 
 #include <type_traits>
@@ -33,9 +33,9 @@ public:
       >::type
   >
   RenderingTree(
-      std::shared_ptr<TypedRootNode<TreePack, UniformPack>> root,
+      std::shared_ptr<RootNode<TreePack, UniformPack>> root,
       std::shared_ptr<ShaderProgram> program)
-  : data_(std::make_unique<TypedStorage<TypedRootNode<TreePack, UniformPack>, ShaderProgram>>(root, program)) {
+  : data_(std::make_unique<TypedStorage<RootNode<TreePack, UniformPack>, ShaderProgram>>(root, program)) {
 
     static_assert(
         is_subset<typename ShaderProgram::Interface_t, TreePack>::value(),

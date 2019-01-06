@@ -19,9 +19,7 @@
 #include "rendering/shaders/language/GLSLGeneratorBase.h"
 #include "math/Quaternion.h"
 #include "rendering/Camera.h"
-
-// TODO don't really like this here
-#include "rendering/BasePureNode.h"
+#include "util/MultiReferenceWrapper.h"
 
 namespace ShapeShifter {
 namespace Rendering {
@@ -112,34 +110,25 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
     public:
     UniformManager InitUniform() const {
       UniformManager ret{};
-      for (auto m : path)
+      for (auto m : path_)
       {
         ret.CombineInverse(*m);
       }
       return ret;
     }
 
-    template <typename...T>
-    void SetOriginNode(const CallableReferenceWrapper<T...>& node)
+    template <typename T1, typename T2>
+    void SetOriginNode(const Util::MultiReferenceWrapper<T1, T2>& node)
     {
-      const BasePureNode& ref = node.template Convert<BasePureNode>();
-      const BasePureNode* ptr = &ref;
-      while (ptr != nullptr) {
-        auto * manager = dynamic_cast<const UniformManager*>(ptr);
-        // TODO better error handling
-        // TODO fix this ugliness with RootNode inheriting from stripped down
-        // PureNode
-        if (manager == nullptr) {
-          assert(ptr->Parent() == nullptr);
-          return;
-        }
-        path.push_back(manager);
-        ptr = ptr->Parent();
-      }
+      static_assert(std::is_base_of<UniformManager, T2>::value,
+                    "SetOriginNode called node without Transform Uniform");
+
+      const auto& path = node.template Convert<T2>()->PathToRoot();
+      path_ = std::vector<const UniformManager*>(path.begin(), path.end());
     }
-        
+
     private:
-      std::vector<const UniformManager*> path;
+      std::vector<const UniformManager*> path_;
   };
 };
 

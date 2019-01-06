@@ -15,7 +15,7 @@
 #define SCENARIOS_TESTS_SQUARES2D_H
 
 #include "data/ConcreteBufferManager.h"
-#include "rendering/BasePureNode.h"
+#include "rendering/PureNode.h"
 #include "rendering/World.h"
 #include "scenarios/Scenario.h"
 
