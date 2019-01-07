@@ -155,6 +155,32 @@ public:
   };
 };
 
+class NormalManager final : public BaseManager<NormalManager> {
+public:
+  using Type = float;
+  using Type2 = Rendering::Shaders::Language::Vec3;
+  virtual ~NormalManager(){}
+
+  virtual size_t ElementsPerEntry() const override { return 3; }
+  virtual bool isFloating() const override { return true; }
+
+  struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable, Type2> {
+    using Base = Rendering::Shaders::InterfaceVariableBase<Variable, Type2>;
+    using Base::InterfaceVariableBase;
+    static constexpr const char* name() {
+      return "inNormal";
+    }
+    static constexpr bool smooth = false;
+    Variable_T& inNormal = Base::var;
+  };
+
+  class Interface {
+  public:
+    void FillData(VectorSlice<Type>& data) { FillNormalData(data); }
+    virtual void FillNormalData(Data::VectorSlice<Type>& data) const = 0;
+  };
+};
+
 }} // ShapeShifter::Data
 
 #endif /* DATA_BUFFERTYPES_H */

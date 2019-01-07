@@ -28,6 +28,7 @@ namespace Programs {
 
 using Data::ColorManager;
 using Data::VertexManager;
+using Data::NormalManager;
 
 // TODO organize this so it scales
 namespace detail {
@@ -194,11 +195,11 @@ private:
 };
 
 class PhongVertexShader : public Language::GLSLVertexGeneratorBase<
-    Pack<ColorManager, VertexManager>,
+    Pack<ColorManager, VertexManager, NormalManager>,
     Pack<detail::Transform>,
     Pack<detail::ColorPass>> {
   using Base = Language::GLSLVertexGeneratorBase<
-      Pack<ColorManager, VertexManager>,
+      Pack<ColorManager, VertexManager, NormalManager>,
       Pack<detail::Transform>,
       Pack<detail::ColorPass>>;
 public:

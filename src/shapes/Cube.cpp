@@ -75,6 +75,29 @@ void Cube::FillVertexData(VectorSlice<float>& data) const {
   FillFace(2, false);
 }
 
+void Cube::FillNormalData(VectorSlice<float>& data) const {
+  // Note above we first fill three faces touching the origin, in
+  // order of increasing dimension.  These faces will have normal
+  // vector in the same dimension but the negative direction.  Then
+  // we fill the three faces all at coordinate 1 of their respective
+  // dimension, now in the positive dimension
+  auto DataFiller = data.Filler();
+
+  auto FillFace = [&](const size_t dim, const bool pos) {
+      std::array<float, 3> vec = {0.0f, 0.0f, 0.0f};
+      vec[dim] = pos ? -1.0f : 1.0f;
+      DataFiller(vec[0], vec[1], vec[2]);
+  };
+
+  FillFace(0, true);
+  FillFace(1, true);
+  FillFace(2, true);
+  FillFace(0, false);
+  FillFace(1, false);
+  FillFace(2, false);
+
+}
+
 void Cube::FillColorData(VectorSlice<float>& data) const {
   auto DataFiller = data.Filler();
   auto FillFaceColor = [&](float f1, float f2, float f3) {

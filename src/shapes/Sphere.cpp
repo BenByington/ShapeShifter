@@ -55,6 +55,38 @@ void Sphere::FillVertexData(VectorSlice<float>& data) const {
   FillVertex(-phi, 0, -1);
 }
 
+void Sphere::FillNormalData(VectorSlice<float>& data) const {
+  // TODO think up way to validate assumptions in debug?  For instance these should all be unit vectors
+  
+  // TODO validate the resulting data
+  auto data_filler = data.Filler();
+  auto normalizer = 1 / std::sqrt(phi*phi + 1);
+  
+  auto FillVertex = [&](float f1, float f2, float f3) {
+    data_filler(normalizer*f1, normalizer*f2, normalizer*f3);
+  };
+
+  // Note copy paste from above.  Too lazy to unify, but for this shape normal vectors
+  // have the same direction as vertex positions, if not the same magnitude.
+  FillVertex(phi, 0, 1);
+  FillVertex(phi, 0, -1);
+  FillVertex(1, phi, 0);
+  FillVertex(1, -phi, 0);
+
+  FillVertex(0, 1, phi);
+  FillVertex(0, -1, phi);
+
+  FillVertex(-1, -phi, 0);
+
+  FillVertex(0, -1, -phi);
+  FillVertex(0, 1, -phi);
+
+  FillVertex(-1, phi, 0);
+
+  FillVertex(-phi, 0, 1);
+  FillVertex(-phi, 0, -1);
+}
+
 void Sphere::FillColorData(VectorSlice<float>& data) const {
   auto DataFiller = data.Filler();
 
