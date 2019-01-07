@@ -45,6 +45,18 @@ struct ColorPass : InterfaceVariableBase<ColorPass, Language::Vec3> {
   Variable_T& theColor = Base::var;
 };
 
+struct NormalPass : InterfaceVariableBase<NormalPass, Language::Vec3> {
+  NormalPass() = delete;
+
+  using Base = InterfaceVariableBase<NormalPass, Language::Vec3>;
+  using Base::InterfaceVariableBase;
+  static constexpr const char* name() {
+    return "theNormal";
+  }
+  static constexpr bool smooth = true;
+  Variable_T& theNormal = Base::var;
+};
+
 struct OutputColor : InterfaceVariableBase<OutputColor, Language::Vec4> {
   OutputColor() = delete;
 
@@ -197,11 +209,11 @@ private:
 class PhongVertexShader : public Language::GLSLVertexGeneratorBase<
     Pack<ColorManager, VertexManager, NormalManager>,
     Pack<detail::Transform>,
-    Pack<detail::ColorPass>> {
+    Pack<detail::ColorPass, detail::NormalPass>> {
   using Base = Language::GLSLVertexGeneratorBase<
       Pack<ColorManager, VertexManager, NormalManager>,
       Pack<detail::Transform>,
-      Pack<detail::ColorPass>>;
+      Pack<detail::ColorPass, NormalPass>>;
 public:
   PhongVertexShader(VariableFactory&& factory) : Base(std::move(factory)) {}
 private:
@@ -209,11 +221,11 @@ private:
 };
 
 class PhongFragmentShader : public Language::GLSLFragmentGeneratorBase<
-    Pack<detail::ColorPass>,
+    Pack<detail::ColorPass, detail::NormalPass>,
     Pack<detail::AmbientLight>,
     Pack<detail::OutputColor>> {
   using Base = Language::GLSLFragmentGeneratorBase<
-      Pack<detail::ColorPass>,
+      Pack<detail::ColorPass, detail::NormalPass>,
       Pack<detail::AmbientLight>,
       Pack<detail::OutputColor>>;
 public:

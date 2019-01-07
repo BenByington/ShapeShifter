@@ -30,6 +30,7 @@ void BasicFragmentShader::DefineMain(const VariableFactory& factory) {
 void PhongVertexShader::DefineMain(const VariableFactory& factory) {
   gl_Position = transform * factory_.temporary<Language::Vec4>(inPosition, 1.0f);
   theColor = inColor;
+  theNormal = inNormal;
 }
 
 void PhongFragmentShader::DefineMain(const VariableFactory& factory) {
