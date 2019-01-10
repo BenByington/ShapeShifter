@@ -15,6 +15,8 @@
 #define RENDERING_SHADERS_UNIFORM_VARIABLE_BASE_H
 
 #include "rendering/shaders/InterfaceVariableBase.h"
+#include "rendering/shaders/UniformManager.h"
+#include "rendering/Camera.h"
 
 namespace ShapeShifter {
 namespace Rendering {
@@ -58,12 +60,11 @@ struct combine_function_exists {
 struct data_function_exists {
   template <class T>
   static constexpr auto valid(T*) -> decltype(&T::UniformManager::Data, true) {
-    using Type = decltype(&T::UniformManager::Data);
+    using ActualType = decltype(&T::UniformManager::Data);
+
     using ReturnType = typename T::UniformManager::StorageType;
-    return true;
-    // TODO: enable this again once we no longer have to hand in a Camera
-    //       to this function
-    //return std::is_same<Type, ReturnType (T::UniformManager::*)()>::value;
+    using ExpectedType = ReturnType (T::UniformManager::*)(const Camera&) const;
+    return std::is_same<ActualType, ExpectedType>::value;
   }
   static constexpr bool valid(...) { return false; }
 };
@@ -102,12 +103,14 @@ public:
         "Children of UniformVariableBase must must define an inner class called"
         " UniformInitializer");
     static_assert(detail::data_function_exists::valid(child),
-        "UniformManager must have a function: T Data()");
+        "UniformManager must have a function: T Data() const");
 
     constexpr typename Child::UniformManager* uniform = nullptr;
     static_assert(detail::storage_member_exists::valid(uniform),
         "UniformManager class must have a StorageType typedef "
         "declaring the data type it will return");
+    // TODO how does the AntiCombine function fit with this?  Do we need new validation?
+    //      I suspect not but need to verify
     static_assert(detail::combine_function_exists::valid(uniform),
         "UniformManager class must have function "
         "void Combine(const UniformManager&)");
