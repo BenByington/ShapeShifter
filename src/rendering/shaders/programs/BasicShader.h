@@ -176,6 +176,35 @@ struct AmbientLight : UniformVariableBase<AmbientLight, Language::Float> {
   };
 };
 
+struct LightColor : UniformVariableBase<LightColor, Language::Vec3> {
+
+  LightColor() = delete;
+  using Base = UniformVariableBase<LightColor, Language::Vec3>;
+  using Base::UniformVariableBase;
+  static constexpr const char* name() {
+    return "lightColor";
+  }
+  static constexpr bool smooth = false;
+  Variable_T& lightColor = Base::var;
+
+  struct UniformManager {
+    UniformManager(const Math::Vector3& v) : val_{v} {}
+    UniformManager() : val_{1.0f, 1.0f, 1.0f} {}
+    using StorageType = Math::Vector3;
+    Math::Vector3 Data(const Camera&) const { return val_; }
+    void Combine(const UniformManager& o) {/*do nothing*/}
+    void Clone(const UniformManager& o) { val_ = o.val_; }
+  private:
+    Math::Vector3 val_;
+  };
+  struct UniformInitializer {
+    UniformManager InitUniform() const { return UniformManager(val_); }
+    void SetLightColor(const Math::Vector3& v) { val_ = v; }
+  private:
+    Math::Vector3 val_ {1.0f, 1.0f, 1.0f};
+  };
+};
+
 }
 
 class BasicVertexShader : public Language::GLSLVertexGeneratorBase<
@@ -222,11 +251,11 @@ private:
 
 class PhongFragmentShader : public Language::GLSLFragmentGeneratorBase<
     Pack<detail::ColorPass, detail::NormalPass>,
-    Pack<detail::AmbientLight>,
+    Pack<detail::AmbientLight, detail::LightColor>,
     Pack<detail::OutputColor>> {
   using Base = Language::GLSLFragmentGeneratorBase<
       Pack<detail::ColorPass, detail::NormalPass>,
-      Pack<detail::AmbientLight>,
+      Pack<detail::AmbientLight, detail::LightColor>,
       Pack<detail::OutputColor>>;
 public:
   PhongFragmentShader(VariableFactory&& factory) : Base(std::move(factory)) {}

@@ -31,7 +31,7 @@
 //#define ERROR_CHECKING
 //#define LOG_FUNCTIONS
 //#define LOG_PARAMETERS
-//#define DETAIL_LOG_PARAMETERS
+#define DETAIL_LOG_PARAMETERS
 
 // Ugly hack, but in the count_map, we will toss in a GL_ENUM instead of
 // a count, so that sections that took a void pointer to a single value
@@ -364,6 +364,10 @@ void glUniformMatrix4fv (GLint location, GLsizei count, GLboolean transpose, con
 void glUniform1f (GLint location, const GLfloat value) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glUniform1f, location, value);
+}
+void glUniform3f (GLint location, const GLfloat v1, GLfloat v2, GLfloat v3) {
+  std::map<size_t, size_t> count_map;
+  FUNC_BODY(glUniform3f, location, v1, v2, v3);
 }
 void glDrawArrays (GLenum mode, GLint first, GLsizei count) {
   std::map<size_t, size_t> count_map;

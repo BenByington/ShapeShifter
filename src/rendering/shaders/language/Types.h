@@ -29,7 +29,7 @@ namespace Language {
 template <class T>
 class VariableTraits;
 
-class Vec3 {};
+struct Vec3 {};
 class Vec4 {
 public:
   static Vec4 Create(Vec3, float) {}

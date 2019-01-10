@@ -16,6 +16,7 @@
 
 #include "data/AbstractBufferManager.h"
 #include "math/Matrix4.h"
+#include "math/Vector3.h"
 #include "rendering/shaders/ShaderBase.h"
 
 namespace ShapeShifter {
@@ -45,6 +46,7 @@ public:
 protected:
   // TODO need constraints to make sure type matches?
   void UploadValue(const Math::Matrix4& mat, const char* name) const;
+  void UploadValue(const Math::Vector3& vec, const char* name) const;
   void UploadValue(float val, const char* name) const;
 
 private:

@@ -80,6 +80,7 @@ std::unique_ptr<Rendering::World> PhongLighting::Setup() {
   auto root = Rendering::CreateRootPtr(std::move(dummy4));
   root->SetOriginNode(manipulator);
   root->SetAmbientLight(0.1f);
+  root->SetLightColor({1.0f, 1.0f, 1.0f});
 
   auto frust = Rendering::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
   auto camera = std::make_unique<Rendering::Camera>(frust, 2.5);

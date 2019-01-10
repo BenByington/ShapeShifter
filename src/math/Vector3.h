@@ -33,6 +33,7 @@ public:
 
   const float& operator[](size_t idx) const { return data_[idx]; }
   float& operator[](size_t idx) { return data_[idx]; }
+  const float* data() const { return &data_[0]; }
 
   void Print() const;
 private:

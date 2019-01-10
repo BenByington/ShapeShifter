@@ -61,7 +61,11 @@ void ShaderProgramBase::UploadValue(const Math::Matrix4& mat, const char* name) 
   glUniformMatrix4fv(transform_location, 1, GL_FALSE, mat.data());
 }
 
-// TODO look into uniform vs attribute
+void ShaderProgramBase::UploadValue(const Math::Vector3& vec, const char* name) const {
+  auto transform_location = glGetUniformLocation(program_, name);
+  glUniform3f(transform_location, vec[0], vec[1], vec[2]);
+}
+
 void ShaderProgramBase::UploadValue(float val, const char* name) const {
   auto transform_location = glGetUniformLocation(program_, name);
   glUniform1f(transform_location, val);

@@ -70,6 +70,7 @@ void glDeleteBuffers (GLsizei n, const GLuint *buffers);
 GLint glGetUniformLocation (GLuint program, const GLchar *name);
 void glUniformMatrix4fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 void glUniform1f (GLint location, GLfloat value);
+void glUniform3f (GLint location, GLfloat v1, GLfloat v2, GLfloat v3);
 void glDrawArrays (GLenum mode, GLint first, GLsizei count);
 void glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
 GLboolean glIsVertexArray (GLuint array);
