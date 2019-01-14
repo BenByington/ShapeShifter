@@ -81,6 +81,7 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
   }
   static constexpr bool smooth = false;
   Variable_T& transform = Base::var;
+  using Required = Pack<>;
 
   class UniformManager {
   public:
@@ -100,6 +101,12 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
       return camera.ProjectionMatrix() * mat;
     }
 
+    Math::Matrix4 WorldTransform() const {
+      auto mat = rotation_.RotationMatrix();
+      mat.WriteColumn(3, translation_);
+      return mat;
+    }
+
     void Combine(const UniformManager& other) {
       SetTranslation(translation_ + rotation_.RotationMatrix() * other.translation_);
       SetRotation(rotation_*other.rotation_);
@@ -115,7 +122,8 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
       translation_ = other.translation_;
     }
 
-  private:
+    // TODO make private again or leave?
+  public:
     Math::Quaternion rotation_;
     Math::Vector4 translation_;
   };
@@ -157,6 +165,7 @@ struct AmbientLight : UniformVariableBase<AmbientLight, Language::Float> {
   }
   static constexpr bool smooth = false;
   Variable_T& ambientLight = Base::var;
+  using Required = Pack<>;
 
   struct UniformManager {
     UniformManager(float v) : val_{v} {}
@@ -186,6 +195,7 @@ struct LightColor : UniformVariableBase<LightColor, Language::Vec3> {
   }
   static constexpr bool smooth = false;
   Variable_T& lightColor = Base::var;
+  using Required = Pack<>;
 
   struct UniformManager {
     UniformManager(const Math::Vector3& v) : val_{v} {}
@@ -202,6 +212,77 @@ struct LightColor : UniformVariableBase<LightColor, Language::Vec3> {
     void SetLightColor(const Math::Vector3& v) { val_ = v; }
   private:
     Math::Vector3 val_ {1.0f, 1.0f, 1.0f};
+  };
+};
+
+struct LightPos : UniformVariableBase<LightPos, Language::Vec3> {
+  LightPos() = delete;
+  using Base = UniformVariableBase<LightPos, Language::Vec3>;
+  using Base::UniformVariableBase;
+  static constexpr const char* name() {
+    return "lightPos";
+  }
+  static constexpr bool smooth = false;
+  Variable_T& lightPos = Base::var;
+
+  using Required = Pack<Transform>;
+  class UniformManager {
+  public:
+    using StorageType = Math::Vector3;
+    UniformManager() : worldPos_(0,0,0,0) {}
+    UniformManager(const Math::Vector4& v) : worldPos_(v) {}
+
+    Math::Vector3 Data(const Camera& camera) const {
+      const auto& tmp = transRef_->translation_;
+      auto tmp3 = transRef_->rotation_.Inverse().RotationMatrix() * (worldPos_ - tmp); 
+      return Math::Vector3(tmp3[0], tmp3[1], tmp3[2]);
+    }
+
+    void Combine(const UniformManager& other) {
+      worldPos_ = other.worldPos_;
+    }
+
+    void Clone(const UniformManager& other) {
+      worldPos_ = other.worldPos_;
+    }
+
+    void SetSiblings(const Util::MultiReferenceWrapper<UniformManager, Transform::UniformManager>& siblings) {
+      // TODO this is ugly
+      transRef_ = &(*siblings.template Convert<Transform::UniformManager>());
+    }
+
+  private:
+    Math::Vector4 worldPos_;
+    const Transform::UniformManager* transRef_ = nullptr;
+  };
+
+  class UniformInitializer
+  {
+  public:
+    UniformManager InitUniform() const {
+      Transform::UniformManager trans{};
+      for (auto m : path_)
+      {
+        trans.Combine(*m);
+      }
+      return UniformManager(trans.rotation_.RotationMatrix() * relPos_ + trans.translation_);
+    }
+
+    // TODO rename transform SetOriginNode to SetCameraNode
+    template <typename T1, typename T2>
+    void SetLightNode(const Util::MultiReferenceWrapper<T1, T2>& node)
+    {
+      static_assert(std::is_base_of<UniformManager, T2>::value,
+                    "SetLightNode called node without LightPos Uniform");
+      // TODO add assert to make sure Transform is also present
+
+      const auto& path = node.template Convert<T2>()->PathToRoot();
+      path_ = std::vector<const Transform::UniformManager*>(path.rbegin(), path.rend());
+    }
+
+  private:
+    std::vector<const Transform::UniformManager*> path_;
+    Math::Vector4 relPos_ = Math::Vector4(0,0,0,0);
   };
 };
 
@@ -251,11 +332,11 @@ private:
 
 class PhongFragmentShader : public Language::GLSLFragmentGeneratorBase<
     Pack<detail::ColorPass, detail::NormalPass>,
-    Pack<detail::AmbientLight, detail::LightColor>,
+    Pack<detail::AmbientLight, detail::LightColor, detail::LightPos>,
     Pack<detail::OutputColor>> {
   using Base = Language::GLSLFragmentGeneratorBase<
       Pack<detail::ColorPass, detail::NormalPass>,
-      Pack<detail::AmbientLight, detail::LightColor>,
+      Pack<detail::AmbientLight, detail::LightColor, detail::LightPos>,
       Pack<detail::OutputColor>>;
 public:
   PhongFragmentShader(VariableFactory&& factory) : Base(std::move(factory)) {}

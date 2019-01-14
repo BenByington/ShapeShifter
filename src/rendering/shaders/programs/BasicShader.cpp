@@ -34,6 +34,7 @@ void PhongVertexShader::DefineMain(const VariableFactory& factory) {
 }
 
 void PhongFragmentShader::DefineMain(const VariableFactory& factory) {
+  Language::Vec3 v = lightPos - this->theNormal;
   outputColor = ambientLight * factory_.temporary<Language::Vec4>(theColor, 1.0f);
 }
 

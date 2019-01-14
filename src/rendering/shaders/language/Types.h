@@ -27,7 +27,7 @@ namespace Language {
  * will need to do this themselves
  */
 template <class T>
-class VariableTraits;
+struct VariableTraits;
 
 struct Vec3 {};
 class Vec4 {
