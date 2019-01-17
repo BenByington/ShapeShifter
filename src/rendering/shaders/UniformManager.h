@@ -14,7 +14,6 @@
 #ifndef RENDERING_SHADERS_UNIFORM_MANAGER_H
 #define RENDERING_SHADERS_UNIFORM_MANAGER_H
 
-#include "rendering/shaders/BaseUniformManager.h"
 #include "rendering/shaders/ShaderProgramBase.h"
 #include "rendering/Camera.h"
 
@@ -43,7 +42,7 @@ struct required_wrapper<Self, Pack<>> {
 
 // TODO cleanup the Required nonsense, or make it a check in UniformVariableBase
 template <class... Uniforms>
-struct UniformManager : BaseUniformManager, Uniforms::UniformManager... {
+struct UniformManager : Uniforms::UniformManager... {
   template <typename T> void SiblingHelper(int) {};
   template <typename T, typename... Us>
   void SiblingHelper(const Util::MultiReferenceWrapper<Us...>& m) {
@@ -83,7 +82,7 @@ private:
 
 // Move elsewhere?
 template <class... Uniforms>
-struct UniformInitializer : BaseUniformInitializer, Uniforms::UniformInitializer... {
+struct UniformInitializer : Uniforms::UniformInitializer... {
 private:
   template <class T>
   using Initializer = typename T::UniformInitializer;
