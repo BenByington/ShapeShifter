@@ -33,7 +33,8 @@ namespace Language {
 class ExpressionBase {
 private:
   ExpressionBase() {}
-protected:
+  // TODO Nuke this...
+public:
   static ExpressionBase Key() {
     return ExpressionBase{};
   }
@@ -76,10 +77,13 @@ protected:
 
   using ExpressionBase::Key;
 
+  // TODO nuke
+public:
   std::reference_wrapper<IndentedStringStream> stream_;
 
 public:
-  Expression(Expression&&) = default;
+  Expression(Expression&& other) = default;
+
   virtual ~Expression() {
     if(!state_.empty()) stream_.get() << state_ << ";" << std::endl;
   }
@@ -87,15 +91,59 @@ public:
   // ISSUE need to handle precidence!  Right now, a * (b+c) will get written as
   // a * b + c;
   template <typename U>
-  auto operator*(U&& other) -> Expression<decltype(std::declval<T>()*std::declval<typename U::Type>())> {
-    using Type = Expression<decltype(std::declval<T>()*std::declval<typename U::Type>())>;
-    std::string result = state_ + " * " + other.state_;
+  auto operator*(U&& other) -> Expression<decltype(std::declval<T>()*std::declval<typename std::decay<U>::type::Type>())> {
+    using Type = Expression<decltype(std::declval<T>()*std::declval<typename std::decay<U>::type::Type>())>;
+    std::string result = "(" + state_ + " * " + other.state_ + ")";
     other.clear_state();
-    return Type(this->stream_, result, Key());
+    Type ret(this->stream_, result, Key());
+    clear_state();
+    return ret;
+  }
+
+  // ISSUE need to handle precidence!  Right now, a * (b+c) will get written as
+  // a * b + c;
+  template <typename U>
+  auto operator-(U&& other) -> Expression<decltype(std::declval<T>()-std::declval<typename std::decay<U>::type::Type>())> {
+    using Type = Expression<decltype(std::declval<T>()*std::declval<typename std::decay<U>::type::Type>())>;
+    std::string result = "(" + state_ + " - " + other.state_ + ")";
+    other.clear_state();
+    Type ret(this->stream_, result, Key());
+    clear_state();
+    return ret;
+  }
+
+  template <typename U>
+  auto operator+(U&& other) -> Expression<decltype(std::declval<T>()+std::declval<typename std::decay<U>::type::Type>())> {
+    using Type = Expression<decltype(std::declval<T>()*std::declval<typename std::decay<U>::type::Type>())>;
+    std::string result = "(" + state_ + " + " + other.state_ + ")";
+    other.clear_state();
+    Type ret(this->stream_, result, Key());
+    clear_state();
+    return ret;
   }
 };
 
+// Temporary crap until I rework the language.  This isn't tightly constrained enough
+template <typename T>
+Expression<T> normalize(Expression<T>&& o) {
+  std::string result = "normalize(" + o.state_ + ")";
+  o.clear_state();
+  return Expression<T>(o.stream_, result, ExpressionBase::Key());
+}
 
+template <typename T>
+Expression<Float> dot(Expression<T>&& o, Expression<T>&& o2) {
+  std::string result = "dot(" + o.state_ + ", " + o2.state_ + ")";
+  o.clear_state();
+  o2.clear_state();
+  return Expression<Float>(o.stream_, result, ExpressionBase::Key());
+}
+
+inline Expression<Float> max(Expression<Float>&& o, float f) {
+  std::string result = "max(" + o.state_ + ", " + std::to_string(f) + ")";
+  o.clear_state();
+  return Expression<Float>(o.stream_, result, ExpressionBase::Key());
+}
 
 }}}} // ShapeShifter::Rendering::Shaders::Language
 

@@ -57,6 +57,19 @@ struct NormalPass : InterfaceVariableBase<NormalPass, Language::Vec3> {
   Variable_T& theNormal = Base::var;
 };
 
+struct PosPass : InterfaceVariableBase<PosPass, Language::Vec3> {
+  PosPass() = delete;
+
+  using Base = InterfaceVariableBase<PosPass, Language::Vec3>;
+  using Base::InterfaceVariableBase;
+  static constexpr const char* name() {
+    return "thePos";
+  }
+  static constexpr bool smooth = true;
+  Variable_T& thePos = Base::var;
+};
+
+
 struct OutputColor : InterfaceVariableBase<OutputColor, Language::Vec4> {
   OutputColor() = delete;
 
@@ -98,7 +111,7 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
     Math::Matrix4 Data(const Camera& camera) const {
       auto mat = rotation_.RotationMatrix();
       mat.WriteColumn(3, translation_);
-      return camera.ProjectionMatrix() * mat;
+      return camera.ProjectionMatrix() * rootToCamera_ * mat;
     }
 
     Math::Matrix4 WorldTransform() const {
@@ -120,24 +133,26 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
     void Clone(const UniformManager& other) {
       rotation_ = other.rotation_;
       translation_ = other.translation_;
+      rootToCamera_ = other.rootToCamera_;
     }
 
     // TODO make private again or leave?
   public:
     Math::Quaternion rotation_;
     Math::Vector4 translation_;
+    Math::Matrix4 rootToCamera_ = Math::Matrix4::Identity();
   };
 
   class UniformInitializer
   {
     public:
-    UniformManager InitUniform() const {
-      UniformManager ret{};
+    void InitUniform(UniformManager& manager) const {
+      UniformManager tmp{};
       for (auto m : path_)
       {
-        ret.CombineInverse(*m);
+        tmp.CombineInverse(*m);
       }
-      return ret;
+      manager.rootToCamera_ = tmp.WorldTransform();
     }
 
     template <typename T1, typename T2>
@@ -174,11 +189,12 @@ struct AmbientLight : UniformVariableBase<AmbientLight, Language::Float> {
     float Data(const Camera&) const { return val_; }
     void Combine(const UniformManager& o) {/*do nothing*/}
     void Clone(const UniformManager& o) { val_ = o.val_; }
-  private:
+    // TODO change access
+  public:
     float val_ = 1.0f;
   };
   struct UniformInitializer {
-    UniformManager InitUniform() const { return UniformManager(val_); }
+    void InitUniform(UniformManager& manager ) const { manager.val_ = val_; }
     void SetAmbientLight(float v) { val_ = v; }
   private:
     float val_ = 1.0f;
@@ -204,11 +220,12 @@ struct LightColor : UniformVariableBase<LightColor, Language::Vec3> {
     Math::Vector3 Data(const Camera&) const { return val_; }
     void Combine(const UniformManager& o) {/*do nothing*/}
     void Clone(const UniformManager& o) { val_ = o.val_; }
-  private:
+    // TODO change access
+  public:
     Math::Vector3 val_;
   };
   struct UniformInitializer {
-    UniformManager InitUniform() const { return UniformManager(val_); }
+    void InitUniform(UniformManager& manager) const { manager.val_ = val_; }
     void SetLightColor(const Math::Vector3& v) { val_ = v; }
   private:
     Math::Vector3 val_ {1.0f, 1.0f, 1.0f};
@@ -238,9 +255,7 @@ struct LightPos : UniformVariableBase<LightPos, Language::Vec3> {
       return Math::Vector3(tmp3[0], tmp3[1], tmp3[2]);
     }
 
-    void Combine(const UniformManager& other) {
-      worldPos_ = other.worldPos_;
-    }
+    void Combine(const UniformManager& other) {}
 
     void Clone(const UniformManager& other) {
       worldPos_ = other.worldPos_;
@@ -249,9 +264,11 @@ struct LightPos : UniformVariableBase<LightPos, Language::Vec3> {
     void SetSiblings(const Util::MultiReferenceWrapper<UniformManager, Transform::UniformManager>& siblings) {
       // TODO this is ugly
       transRef_ = &(*siblings.template Convert<Transform::UniformManager>());
+      assert(transRef_ != nullptr);
     }
 
-  private:
+    // TODO change access
+  public:
     Math::Vector4 worldPos_;
     const Transform::UniformManager* transRef_ = nullptr;
   };
@@ -259,13 +276,13 @@ struct LightPos : UniformVariableBase<LightPos, Language::Vec3> {
   class UniformInitializer
   {
   public:
-    UniformManager InitUniform() const {
+    void InitUniform(UniformManager& manager ) const {
       Transform::UniformManager trans{};
       for (auto m : path_)
       {
         trans.Combine(*m);
       }
-      return UniformManager(trans.rotation_.RotationMatrix() * relPos_ + trans.translation_);
+      manager.worldPos_ = trans.rotation_.RotationMatrix() * relPos_ + trans.translation_;
     }
 
     // TODO rename transform SetOriginNode to SetCameraNode
@@ -279,6 +296,7 @@ struct LightPos : UniformVariableBase<LightPos, Language::Vec3> {
       const auto& path = node.template Convert<T2>()->PathToRoot();
       path_ = std::vector<const Transform::UniformManager*>(path.rbegin(), path.rend());
     }
+    void SetLightRelPos(const Math::Vector4& v) { relPos_ = v; }
 
   private:
     std::vector<const Transform::UniformManager*> path_;
@@ -319,11 +337,11 @@ private:
 class PhongVertexShader : public Language::GLSLVertexGeneratorBase<
     Pack<ColorManager, VertexManager, NormalManager>,
     Pack<detail::Transform>,
-    Pack<detail::ColorPass, detail::NormalPass>> {
+    Pack<detail::ColorPass, detail::NormalPass, detail::PosPass>> {
   using Base = Language::GLSLVertexGeneratorBase<
       Pack<ColorManager, VertexManager, NormalManager>,
       Pack<detail::Transform>,
-      Pack<detail::ColorPass, NormalPass>>;
+      Pack<detail::ColorPass, NormalPass, detail::PosPass>>;
 public:
   PhongVertexShader(VariableFactory&& factory) : Base(std::move(factory)) {}
 private:
@@ -331,11 +349,11 @@ private:
 };
 
 class PhongFragmentShader : public Language::GLSLFragmentGeneratorBase<
-    Pack<detail::ColorPass, detail::NormalPass>,
+    Pack<detail::ColorPass, detail::NormalPass, detail::PosPass>,
     Pack<detail::AmbientLight, detail::LightColor, detail::LightPos>,
     Pack<detail::OutputColor>> {
   using Base = Language::GLSLFragmentGeneratorBase<
-      Pack<detail::ColorPass, detail::NormalPass>,
+      Pack<detail::ColorPass, detail::NormalPass, detail::PosPass>,
       Pack<detail::AmbientLight, detail::LightColor, detail::LightPos>,
       Pack<detail::OutputColor>>;
 public:

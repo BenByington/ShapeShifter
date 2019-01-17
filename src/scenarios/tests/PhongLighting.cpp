@@ -44,7 +44,7 @@ std::unique_ptr<Rendering::World> PhongLighting::Setup() {
   cube->SetRotation(Quaternion(.5, 1, 1, 1));
   cube->SetTranslation(Vector4(.7, .6, -1.0f, 1));
 
-  node1->AddLeaf<Shapes::Sphere>(0.2);
+  auto sphere = node1->AddLeaf<Shapes::Sphere>(0.2);
 
   auto node2 = Rendering::CompatiblePureNode(*program);
   auto manipulator = node2->AddChild(std::move(node1));
@@ -79,8 +79,10 @@ std::unique_ptr<Rendering::World> PhongLighting::Setup() {
 
   auto root = Rendering::CreateRootPtr(std::move(dummy4));
   root->SetOriginNode(manipulator);
-  root->SetAmbientLight(0.1f);
-  root->SetLightColor({1.0f, 1.0f, 1.0f});
+  root->SetAmbientLight(0.15f);
+  root->SetLightColor({.90f, .90f, .90f});
+  root->SetLightNode(sphere);
+  root->SetLightRelPos(Vector4(1,1,1,1));
 
   auto frust = Rendering::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
   auto camera = std::make_unique<Rendering::Camera>(frust, 2.5);

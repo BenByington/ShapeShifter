@@ -86,7 +86,8 @@ void Cube::FillNormalData(VectorSlice<float>& data) const {
   auto FillFace = [&](const size_t dim, const bool pos) {
       std::array<float, 3> vec = {0.0f, 0.0f, 0.0f};
       vec[dim] = pos ? -1.0f : 1.0f;
-      DataFiller(vec[0], vec[1], vec[2]);
+      for (size_t i = 0; i < 6; ++i)
+        DataFiller(vec[0], vec[1], vec[2]);
   };
 
   FillFace(0, true);

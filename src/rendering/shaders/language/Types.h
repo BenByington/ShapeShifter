@@ -29,7 +29,11 @@ namespace Language {
 template <class T>
 struct VariableTraits;
 
-struct Vec3 {};
+struct Vec3 {
+  static Vec3 Create(Vec3) {}
+  Vec3 operator-(const Vec3&){}
+  Vec3 operator*(const Vec3&){}
+};
 class Vec4 {
 public:
   static Vec4 Create(Vec3, float) {}
@@ -43,6 +47,9 @@ public:
 class Float {
 public:
   Vec4 operator*(const Vec4&) {}
+  Vec3 operator*(const Vec3&) {}
+  Float operator*(const Float&) {}
+  Float operator+(const Float&) {}
 };
 
 template <>

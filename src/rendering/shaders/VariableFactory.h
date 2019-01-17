@@ -35,7 +35,9 @@ struct can_create {
     using Type = decltype(&T::Create);
     return std::is_same<Type, T (*)(Args...)>::value;
   }
-  static bool constexpr valid(...) { return false; }
+  static bool constexpr valid(...) {
+    return false;
+  }
 };
 
 template <typename T>
@@ -81,6 +83,10 @@ struct extract<Expression<T>>{
  * an entire Shader, as it's internal stringstream is what will store the
  * output state.
  */
+inline void clearer(float f) {}
+template <typename T>
+void clearer(T& t) { t.clear_state(); }
+
 class VariableFactory {
 public:
   template <typename T>
@@ -115,6 +121,7 @@ public:
     if (names.size() > 0) {
       argument += names.back();
     }
+    auto worker = {(clearer(args),1)...};
     return Type(s, std::string(Type::TypeName()) + "(" + argument + ")", Type::Key());
   }
 

@@ -50,11 +50,7 @@ struct UniformManager : BaseUniformManager, Uniforms::UniformManager... {
     T::UniformManager::SetSiblings(m);
   }
   UniformManager() {
-    auto worker = {(SiblingHelper<Uniforms>(
-        detail::required_wrapper<typename Uniforms::UniformManager,
-                                 typename Uniforms::Required>::make(*this))
-                    ,1)...};
-    (void) worker;
+    SetSiblings();
   }
 
   void Combine(const UniformManager& other) {
@@ -65,8 +61,22 @@ struct UniformManager : BaseUniformManager, Uniforms::UniformManager... {
   const UniformManager& operator=(const UniformManager& other) {
     auto worker = {(Manager<Uniforms>::Clone(other),1)...};
     (void) worker;
+    SetSiblings();
+  }
+  UniformManager(const UniformManager& other) {
+    auto worker = {(Manager<Uniforms>::Clone(other),1)...};
+    (void) worker;
+    SetSiblings();
   }
 private:
+  void SetSiblings() {
+    auto worker = {(SiblingHelper<Uniforms>(
+        detail::required_wrapper<typename Uniforms::UniformManager,
+                                 typename Uniforms::Required>::make(*this))
+                    ,1)...};
+    (void) worker;
+  }
+
   template <class Manage>
   using Manager = typename Manage::UniformManager;
 };
@@ -88,7 +98,7 @@ public:
     // rename these damned _ differences
     UniformManager<Uniforms...> ret;
     auto worker = {(
-        static_cast<Manager<Uniforms>&>(ret) = static_cast<const Initializer<Uniforms>&>(initializer).InitUniform()
+        static_cast<const Initializer<Uniforms>&>(initializer).InitUniform(ret)
         ,1)...};
     (void) worker;
     return ret;

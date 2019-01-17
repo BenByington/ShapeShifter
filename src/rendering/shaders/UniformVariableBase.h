@@ -83,7 +83,7 @@ struct init_function_exists {
   template <class T>
   static constexpr auto valid(T*) -> decltype(&T::InitUniform, true) {
     using Type = decltype(&T::InitUniform);
-    return std::is_same<Type, Result (T::*) () const>::value;
+    return std::is_same<Type, void (T::*) (Result&) const>::value;
   }
   static constexpr bool valid(...) { return false; }
 };

@@ -31,7 +31,7 @@
 //#define ERROR_CHECKING
 //#define LOG_FUNCTIONS
 //#define LOG_PARAMETERS
-#define DETAIL_LOG_PARAMETERS
+//#define DETAIL_LOG_PARAMETERS
 
 // Ugly hack, but in the count_map, we will toss in a GL_ENUM instead of
 // a count, so that sections that took a void pointer to a single value
