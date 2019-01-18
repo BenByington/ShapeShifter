@@ -96,67 +96,70 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
   Variable_T& transform = Base::var;
   using Required = Pack<>;
 
-  class UniformManager {
-  public:
+  struct UniformManager {
     using StorageType = Math::Matrix4;
     UniformManager() : translation_(0,0,0,1) {}
 
-    void SetRotation(const Math::Quaternion& rot) {
-      rotation_ = rot;
-    }
-    void SetTranslation(const Math::Vector4& trans) {
-      translation_ = trans;
-    }
+    void Rotation(const Math::Quaternion& rot) { rotation_ = rot; }
+    const Math::Quaternion& Rotation() const { return rotation_; }
+    
+    void Translation(const Math::Vector4& trans) { translation_ = trans; }
+    const Math::Vector4& Translation() const { return translation_; }
+
+  private:
+    Math::Quaternion rotation_;
+    Math::Vector4 translation_;
+  };
+
+  struct UniformAccumulator : public UniformManager {
 
     Math::Matrix4 Data(const Camera& camera) const {
-      auto mat = rotation_.RotationMatrix();
-      mat.WriteColumn(3, translation_);
+      auto mat = Rotation().RotationMatrix();
+      mat.WriteColumn(3, Translation());
       return camera.ProjectionMatrix() * rootToCamera_ * mat;
     }
 
     Math::Matrix4 WorldTransform() const {
-      auto mat = rotation_.RotationMatrix();
-      mat.WriteColumn(3, translation_);
+      auto mat = Rotation().RotationMatrix();
+      mat.WriteColumn(3, Translation());
       return mat;
     }
 
-    void Combine(const UniformManager& other) {
-      SetTranslation(translation_ + rotation_.RotationMatrix() * other.translation_);
-      SetRotation(rotation_*other.rotation_);
+    void Combine(const UniformManager& manager) {
+      Translation(Translation() + Rotation().RotationMatrix() * manager.Translation());
+      Rotation(Rotation()*manager.Rotation());
     }
 
-    void CombineInverse(const UniformManager& other) {
-      SetRotation(rotation_*other.rotation_.Inverse());
-      SetTranslation(translation_ - rotation_.RotationMatrix() * other.translation_);
+    void CombineInverse(const UniformManager& manager) {
+      Rotation(Rotation() * manager.Rotation().Inverse());
+      Translation(Translation() - Rotation().RotationMatrix() * manager.Translation());
     }
 
-    void Clone(const UniformManager& other) {
-      rotation_ = other.rotation_;
-      translation_ = other.translation_;
+    void Clone(const UniformAccumulator& other) {
+      Rotation(other.Rotation());
+      Translation(other.Translation());
       rootToCamera_ = other.rootToCamera_;
     }
 
-    // TODO make private again or leave?
-  public:
-    Math::Quaternion rotation_;
-    Math::Vector4 translation_;
+    void RootToCamera(const Math::Matrix4& mat) { rootToCamera_ = mat; }
+
+  private:
     Math::Matrix4 rootToCamera_ = Math::Matrix4::Identity();
   };
 
-  class UniformInitializer
+  struct UniformInitializer
   {
-    public:
-    void InitUniform(UniformManager& manager) const {
-      UniformManager tmp{};
+    void InitUniform(UniformAccumulator& accumulator) const {
+      UniformAccumulator tmp{};
       for (auto m : path_)
       {
         tmp.CombineInverse(*m);
       }
-      manager.rootToCamera_ = tmp.WorldTransform();
+      accumulator.RootToCamera(tmp.WorldTransform());
     }
 
     template <typename T1, typename T2>
-    void SetOriginNode(const Util::MultiReferenceWrapper<T1, T2>& node)
+    void SetCameraNode(const Util::MultiReferenceWrapper<T1, T2>& node)
     {
       static_assert(std::is_base_of<UniformManager, T2>::value,
                     "SetOriginNode called node without Transform Uniform");
@@ -183,21 +186,27 @@ struct AmbientLight : UniformVariableBase<AmbientLight, Language::Float> {
   using Required = Pack<>;
 
   struct UniformManager {
-    UniformManager(float v) : val_{v} {}
-    UniformManager() : val_{1.0f} {}
+    UniformManager(float v) : ambientAmp_{v} {}
+    UniformManager() : ambientAmp_{1.0f} {}
     using StorageType = float;
-    float Data(const Camera&) const { return val_; }
-    void Combine(const UniformManager& o) {/*do nothing*/}
-    void Clone(const UniformManager& o) { val_ = o.val_; }
-    // TODO change access
-  public:
-    float val_ = 1.0f;
+  protected:
+    float ambientAmp_ = 1.0f;
   };
+
+  struct UniformAccumulator : public UniformManager {
+    float Data(const Camera&) const { return ambientAmp_; }
+    void Combine(const UniformManager&) {/*do nothing*/}
+    void Clone(const UniformAccumulator& o) { ambientAmp_ = o.ambientAmp_; }
+    void AmbientAmplitude(float a) { ambientAmp_ = a; }
+  };
+
   struct UniformInitializer {
-    void InitUniform(UniformManager& manager ) const { manager.val_ = val_; }
-    void SetAmbientLight(float v) { val_ = v; }
+    void InitUniform(UniformAccumulator& accumulator ) const {
+      accumulator.AmbientAmplitude(ambientAmp_);
+    }
+    void SetAmbientLight(float v) { ambientAmp_ = v; }
   private:
-    float val_ = 1.0f;
+    float ambientAmp_ = 1.0f;
   };
 };
 
@@ -214,21 +223,27 @@ struct LightColor : UniformVariableBase<LightColor, Language::Vec3> {
   using Required = Pack<>;
 
   struct UniformManager {
-    UniformManager(const Math::Vector3& v) : val_{v} {}
-    UniformManager() : val_{1.0f, 1.0f, 1.0f} {}
+    UniformManager(const Math::Vector3& v) : lightColor_{v} {}
+    UniformManager() : lightColor_{1.0f, 1.0f, 1.0f} {}
     using StorageType = Math::Vector3;
-    Math::Vector3 Data(const Camera&) const { return val_; }
-    void Combine(const UniformManager& o) {/*do nothing*/}
-    void Clone(const UniformManager& o) { val_ = o.val_; }
-    // TODO change access
-  public:
-    Math::Vector3 val_;
+  protected:
+    Math::Vector3 lightColor_;
   };
+
+  struct UniformAccumulator : public UniformManager{
+    Math::Vector3 Data(const Camera&) const { return lightColor_; }
+    void Combine(const UniformManager&) {/*do nothing*/}
+    void Clone(const UniformAccumulator& o) { lightColor_ = o.lightColor_; }
+    void LightColor(const Math::Vector3& l) { lightColor_ = l; }
+  };
+
   struct UniformInitializer {
-    void InitUniform(UniformManager& manager) const { manager.val_ = val_; }
-    void SetLightColor(const Math::Vector3& v) { val_ = v; }
+    void InitUniform(UniformAccumulator& accumulator) const {
+      accumulator.LightColor(lightColor_);
+    }
+    void SetLightColor(const Math::Vector3& v) { lightColor_ = v; }
   private:
-    Math::Vector3 val_ {1.0f, 1.0f, 1.0f};
+    Math::Vector3 lightColor_ {1.0f, 1.0f, 1.0f};
   };
 };
 
@@ -243,55 +258,53 @@ struct LightPos : UniformVariableBase<LightPos, Language::Vec3> {
   Variable_T& lightPos = Base::var;
 
   using Required = Pack<Transform>;
-  class UniformManager {
-  public:
+  struct UniformManager {
     using StorageType = Math::Vector3;
     UniformManager() : worldPos_(0,0,0,0) {}
     UniformManager(const Math::Vector4& v) : worldPos_(v) {}
 
+  protected:
+    Math::Vector4 worldPos_;
+  };
+
+  struct UniformAccumulator : public UniformManager {
     Math::Vector3 Data(const Camera& camera) const {
-      const auto& tmp = transRef_->translation_;
-      auto tmp3 = transRef_->rotation_.Inverse().RotationMatrix() * (worldPos_ - tmp); 
+      const auto& tmp = transRef_->Translation();
+      auto tmp3 = transRef_->Rotation().Inverse().RotationMatrix() * (worldPos_ - tmp); 
       return Math::Vector3(tmp3[0], tmp3[1], tmp3[2]);
     }
 
-    void Combine(const UniformManager& other) {}
-
-    void Clone(const UniformManager& other) {
+    void Combine(const UniformManager&) {}
+    void Clone(const UniformAccumulator& other) {
       worldPos_ = other.worldPos_;
     }
 
-    void SetSiblings(const Util::MultiReferenceWrapper<UniformManager, Transform::UniformManager>& siblings) {
+    void SetSiblings(const Util::MultiReferenceWrapper<UniformAccumulator, Transform::UniformAccumulator>& siblings) {
       // TODO this is ugly
-      transRef_ = &(*siblings.template Convert<Transform::UniformManager>());
+      transRef_ = &(*siblings.template Convert<Transform::UniformAccumulator>());
       assert(transRef_ != nullptr);
     }
-
-    // TODO change access
-  public:
-    Math::Vector4 worldPos_;
-    const Transform::UniformManager* transRef_ = nullptr;
+    void WorldPos(const Math::Vector4& p) { worldPos_ = p; }
+  private:
+    const Transform::UniformAccumulator* transRef_ = nullptr;
   };
 
-  class UniformInitializer
+  struct UniformInitializer
   {
-  public:
-    void InitUniform(UniformManager& manager ) const {
-      Transform::UniformManager trans{};
+    void InitUniform(UniformAccumulator& accumulator ) const {
+      Transform::UniformAccumulator trans{};
       for (auto m : path_)
       {
         trans.Combine(*m);
       }
-      manager.worldPos_ = trans.rotation_.RotationMatrix() * relPos_ + trans.translation_;
+      accumulator.WorldPos(trans.Rotation().RotationMatrix() * relPos_ + trans.Translation());
     }
 
-    // TODO rename transform SetOriginNode to SetCameraNode
     template <typename T1, typename T2>
     void SetLightNode(const Util::MultiReferenceWrapper<T1, T2>& node)
     {
       static_assert(std::is_base_of<UniformManager, T2>::value,
                     "SetLightNode called node without LightPos Uniform");
-      // TODO add assert to make sure Transform is also present
 
       const auto& path = node.template Convert<T2>()->PathToRoot();
       path_ = std::vector<const Transform::UniformManager*>(path.rbegin(), path.rend());

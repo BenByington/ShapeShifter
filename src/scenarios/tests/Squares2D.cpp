@@ -46,32 +46,32 @@ std::unique_ptr<Rendering::World> Squares2D::Setup() {
   auto fifth = Rendering::CompatiblePureNode(*program);
   fifth->AddLeaf<SquareTest2D>();
   auto manipulator = fifth->AddChild(std::move(sixth));
-  manipulator->SetRotation({pi/2, 0, 1, 0});
-  manipulator->SetTranslation(Vector4(1, 0, 1, 1.0));
+  manipulator->Rotation({pi/2, 0, 1, 0});
+  manipulator->Translation(Vector4(1, 0, 1, 1.0));
 
   auto fourth = Rendering::CompatiblePureNode(*program);
   fourth->AddLeaf<SquareTest2D>();
   manipulator = fourth->AddChild(std::move(fifth));
-  manipulator->SetTranslation(Vector4(0, 0 , -1.0, 1.0));
+  manipulator->Translation(Vector4(0, 0 , -1.0, 1.0));
 
   auto third = Rendering::CompatiblePureNode(*program);
   third->AddLeaf<SquareTest2D>();
   manipulator = third->AddChild(std::move(fourth));
-  manipulator->SetRotation({pi/2, 1, 0, 0});
+  manipulator->Rotation({pi/2, 1, 0, 0});
 
   auto second = Rendering::CompatiblePureNode(*program);
   second->AddLeaf<SquareTest2D>();
   manipulator = second->AddChild(std::move(third));
-  manipulator->SetTranslation(Vector4(0, 0 , -1.0, 1.0));
+  manipulator->Translation(Vector4(0, 0 , -1.0, 1.0));
 
   auto first = Rendering::CompatiblePureNode(*program);
   first->AddLeaf<SquareTest2D>();
   manipulator = first->AddChild(std::move(second));
-  manipulator->SetRotation({-pi/2, 0 , 1, 0});
+  manipulator->Rotation({-pi/2, 0 , 1, 0});
 
   auto base = Rendering::CompatiblePureNode(*program);
   manipulator = base->AddChild(std::move(first));
-  manipulator->SetTranslation(Vector4(-.5, -.5, -2.5, 1));
+  manipulator->Translation(Vector4(-.5, -.5, -2.5, 1));
 
   auto root = Rendering::CreateRootPtr(std::move(base));
 

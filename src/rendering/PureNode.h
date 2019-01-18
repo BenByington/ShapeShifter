@@ -133,7 +133,7 @@ protected:
   template <class IPack, class... Uniforms_>
   void DrawChildren(
       const Camera& camera,
-      const Shaders::UniformManager<Uniforms_...>& cumulativeUniforms,
+      const Shaders::UniformAccumulator<Uniforms_...>& cumulativeUniforms,
       const Shaders::ShaderProgram<IPack, Pack<Uniforms_...>>& shader) const {
 
     // ISSUE see about only doing dynamic casts in debug mode or something.

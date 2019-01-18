@@ -93,7 +93,7 @@ template <class TreePack, class UniformPack>
 struct RootNode;
 template <class... Tree, class... Uniforms>
 struct RootNode<Pack<Tree...>, Pack<Uniforms...>> final
-  : PureNode<Pack<Tree...>, Pack<Uniforms...>>
+  : private PureNode<Pack<Tree...>, Pack<Uniforms...>>
   , Shaders::UniformInitializer<Uniforms...> {
 public:
   using TreePack = Pack<Tree...>;

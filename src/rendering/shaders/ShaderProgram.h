@@ -60,10 +60,10 @@ public:
       std::unique_ptr<RawShader<RawShaderType::FRAGMENT>> frag)
     : ShaderProgramBase(std::move(vert), std::move(frag)) {}
 
-  void Upload(const Camera& camera, const UniformManager<Uniforms...>& uniforms) const {
+  void Upload(const Camera& camera, const UniformAccumulator<Uniforms...>& uniforms) const {
     auto worker = {(
         UploadValue(
-            static_cast<const typename Uniforms::UniformManager&>(uniforms).Data(camera),
+            static_cast<const typename Uniforms::UniformAccumulator&>(uniforms).Data(camera),
             Uniforms::name())
           ,1)
         ...};
