@@ -31,7 +31,7 @@
 //#define ERROR_CHECKING
 //#define LOG_FUNCTIONS
 //#define LOG_PARAMETERS
-//#define DETAIL_LOG_PARAMETERS
+#define DETAIL_LOG_PARAMETERS
 
 // Ugly hack, but in the count_map, we will toss in a GL_ENUM instead of
 // a count, so that sections that took a void pointer to a single value
@@ -238,8 +238,7 @@ void check(bool first) {
   OPEN_SCOPE \
   PRINT_PARAMS(__VA_ARGS__); \
   PRINT_CALL(function, __VA_ARGS__); \
-  CLOSE_SCOPE \
-  return;
+  CLOSE_SCOPE 
 
 #define FUNC_BODY_RETURN(function, ...)  \
   CHECK(true) \
@@ -268,6 +267,7 @@ GLuint glCreateShader (GLenum type) {
 void glShaderSource (GLuint shader, GLsizei count, const GLchar* const *string, const GLint *length) {
   std::map<size_t, size_t> count_map {{3, count}};
   FUNC_BODY(glShaderSource, shader, count, string, length);
+  assert(false);
 }
 void glCompileShader (GLuint shader) {
   std::map<size_t, size_t> count_map;

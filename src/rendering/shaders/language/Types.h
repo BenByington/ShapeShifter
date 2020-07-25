@@ -14,74 +14,51 @@
 #ifndef RENDERING_SHADERS_LANGUAGE_TYPES_H
 #define RENDERING_SHADERS_LANGUAGE_TYPES_H
 
+#include "rendering/shaders/language/Variable.h"
+#include "rendering/shaders/Pack.h"
+
+#include <string>
+
 namespace ShapeShifter {
 namespace Rendering {
 namespace Shaders {
 namespace Language {
 
-/*
- * Every valid variable type in GLSL needs a specialization for this class,
- * defining both what string to use for the variable type, and if the
- * variable is allowed to be used as an InterfaceVariable (between c++ and opengl)
- * Common types will have a specialization supplied here, but any custom types
- * will need to do this themselves
- */
-template <class T>
-struct VariableTraits;
-
-struct Vec3 {
-  static Vec3 Create(Vec3) {}
-  Vec3 operator-(const Vec3&){}
-  Vec3 operator*(const Vec3&){}
-};
-class Vec4 {
-public:
-  static Vec4 Create(Vec3, float) {}
-
-};
-class Mat4 {
-public:
-  Vec4 operator*(const Vec4& other) {}
-};
-
-class Float {
-public:
-  Vec4 operator*(const Vec4&) {}
-  Vec3 operator*(const Vec3&) {}
-  Float operator*(const Float&) {}
-  Float operator+(const Float&) {}
-};
-
-template <>
-struct VariableTraits<Mat4> {
-  static constexpr const char* name() {
-    return "mat4";
-  }
+struct Vec3Policy {
   static constexpr bool InterfaceAllowed = true;
+  static constexpr bool Subtract = true;
+  using CtorArgs = Pack<Pack<>>;
+  static constexpr const char* TypeNameImpl() { return "vec3"; }
 };
-template <>
-struct VariableTraits<Vec4> {
-  static constexpr const char* name() {
-    return "vec4";
-  }
-  static constexpr bool InterfaceAllowed = true;
-};
+using Vec3 = Variable<Vec3Policy>;
 
-template <>
-struct VariableTraits<Vec3> {
-  static constexpr const char* name() {
-    return "vec3";
-  }
+struct Vec4Policy {
   static constexpr bool InterfaceAllowed = true;
+  static constexpr bool Subtract = true;
+  using CtorArgs = Pack<Pack<>,
+                        Pack<Vec3, float>>;
+  static constexpr const char* TypeNameImpl() { return "vec4"; }
 };
+using Vec4 = Variable<Vec4Policy>;
 
-template <>
-struct VariableTraits<Float> {
-  static constexpr const char* name() {
-    return "float";
-  }
+struct Mat4Policy {
   static constexpr bool InterfaceAllowed = true;
+  static constexpr bool Subtract = true;
+  using CtorArgs = Pack<Pack<>>;
+  static constexpr const char* TypeNameImpl() { return "mat4"; }
 };
+using Mat4 = Variable<Mat4Policy>;
+
+struct FloatPolicy {
+  static constexpr bool InterfaceAllowed = true;
+  static constexpr bool Subtract = true;
+  using CtorArgs = Pack<Pack<>>;
+  static constexpr const char* TypeNameImpl() { return "float"; }
+};
+using Float = Variable<FloatPolicy>;
+
+inline Expr<Vec4> operator*(const Expr<Mat4>&, const Expr<Vec4>& v) {}
+inline Expr<Vec3> operator-(const Expr<Vec3>&, const Expr<Vec3>&) {}
 
 }}}} // ShapeShifter::Rendering::Shaders::Language
 

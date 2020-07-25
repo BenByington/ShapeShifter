@@ -88,7 +88,7 @@ class VertexShader : public Shader<Generator> {
 public:
   VertexShader()
     : Shader<Generator>(
-        Generator(VariableFactory())
+        Generator()
       , GL_VERTEX_SHADER)
     {}
 
@@ -113,7 +113,7 @@ class FragmentShader : public Shader<Generator> {
 public:
   FragmentShader()
     : Shader<Generator>(
-        Generator(VariableFactory())
+        Generator()
       , GL_FRAGMENT_SHADER)
     {}
   FragmentShader(const FragmentShader&) = delete;

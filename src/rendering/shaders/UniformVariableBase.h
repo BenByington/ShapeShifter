@@ -101,8 +101,8 @@ struct init_function_exists {
 
 template <class Child, typename T>
 class UniformVariableBase : public InterfaceVariableBase<Child, T> {
-  using Base = InterfaceVariableBase<Child, T>;
 public:
+  using Base = InterfaceVariableBase<Child, T>;
 
   // Destructor used to enforce expected features of UniformVariables.
   ~UniformVariableBase() {
@@ -156,8 +156,8 @@ public:
   }
   using InterfaceVariableBase<Child, T>::InterfaceVariableBase;
 
-  void UniformDeclaration(VariableFactory& factory) {
-    factory.stream()
+  void UniformDeclaration() {
+    Language::Stream()
         << "uniform "
         << Base::Variable_T::TypeName()
         << " " << Child::name()

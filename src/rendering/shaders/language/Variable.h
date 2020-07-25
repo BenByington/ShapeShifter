@@ -14,7 +14,10 @@
 #ifndef RENDERING_SHADERS_LANGUAGE_VARIABLE_H
 #define RENDERING_SHADERS_LANGUAGE_VARIABLE_H
 
-#include "rendering/shaders/language/Expression.h"
+#include "rendering/shaders/Pack.h"
+
+#include <cassert>
+#include <string>
 
 namespace ShapeShifter {
 namespace Rendering {
@@ -25,60 +28,117 @@ class VariableFactory;
 
 namespace Language {
 
-/*
- * Named type for use in a ShaderProgram.  T will be the underlying type that
- * results in the GLSL code.  This class will provide normal c++ operators
- * as long as the underlying T classes support those same operators, though
- * the T classes only need dummy implementations as they will not be called.
- */
+template<typename T>
+class Expr;
+
+namespace detail {
+
 template <typename T>
-class Variable : public Expression<T> {
-  friend class ShapeShifter::Rendering::Shaders::VariableFactory;
-  Variable(IndentedStringStream& stream, const std::string& name)
-    : Expression<T>(stream, name, Expression<T>::Key()) {}
+struct extract_underlying {
+  using type = typename std::decay<T>::type;
+};
+template <typename T>
+struct extract_underlying<Expr<T>> {
+  using type = T;
+};
+
+template <typename Is, typename Allowed>
+struct AnyMatch;
+template <typename Is, typename... Allowed>
+struct AnyMatch<Is, Pack<Allowed...>> {
+  template <bool... bs>
+  static constexpr bool Any() {
+    return (... || bs);
+  }
+  static constexpr bool Run() {
+    static_assert((... || std::is_same<Is, Allowed>::value));
+    return true;//Any(std::is_same<Is, Allowed>::value...);
+  }
+};
+
+}
+
+// Bases classes used for simplified type detection
+struct VariableBase {};
+struct ExprBase {};
+
+template <typename ArithmeticPolicy>
+class Variable : VariableBase {
 public:
-  using Base = Expression<T>;
+  using Policy = ArithmeticPolicy;
+  Variable() : name_("crap"){}
+  template <typename T1, typename... Ts>
+  Variable(T1&& t1, Ts&&... types) {
+
+    auto convert = [&](auto&& v)
+    {
+        using type = typename std::decay<decltype(v)>::type;
+        if constexpr(std::is_floating_point<type>::value) {
+          return v;
+        } else if constexpr (std::is_base_of<VariableBase, type>::value) {
+          return Expr<type>(v);
+        } else if constexpr (std::is_base_of<ExprBase, type>::value) {
+          return std::forward<decltype(v)>(v);
+        } else {
+          // can't use static_assert(false) because we need the condition to be a
+          // dependant type, else this triggers always regardless of the types involved
+          static_assert(!std::is_same<type, type>::value,
+                        "Language::Variable conversion error");
+        }
+    };
+
+    if constexpr (sizeof...(Ts) == 0 && std::is_same<typename detail::extract_underlying<T1>::type, Variable>::value) {
+        //handle copy
+        assert(false);
+    } else if constexpr (std::is_convertible<T1, std::string>::value) {
+      name_ = t1;
+      Proc(convert(std::forward<Ts>(types))...);
+    } else {
+      name_ = "crap";
+      Proc(convert(std::forward<T1>(t1)), convert(std::forward<Ts>(types))...);
+    }
+  }
+
+  template <typename T1>
+  void operator=(T1&& t) {
+    using BaseType = typename std::decay<T1>::type;
+
+    if constexpr(std::is_same<BaseType, Variable>::value) {
+        assert(false);
+      } else if constexpr(std::is_same<BaseType, Expr<Variable>>::value) {
+        assert(false);
+      }
+    else
+      static_assert(!std::is_same<BaseType, BaseType>::value);
+  }
 
   Variable(const Variable&) = delete;
   Variable(Variable&&) = default;
+  Variable& operator=(const Variable&) = delete;
+  Variable& operator=(Variable&&) = default;
 
-  ~Variable() {
-    // We don't want to output the variable name if we're being destroyed
-    // because of end-of-scope or something
-    this->state_.clear();
+  ~Variable() = default;
+
+  static constexpr const char* TypeName() { return Policy::TypeNameImpl(); }
+
+  template <typename... Types>
+  void Proc(Types... types) {
+    using Signature = Pack<typename detail::extract_underlying<Types>::type...>;
+    static_assert(detail::AnyMatch<Signature, typename Policy::CtorArgs>::Run(),
+                  "Invalid Variable construction arguemnts");
+
+    assert(false);
   }
 
-  // Allow any implicit conversions?
-  //
-  // Note that we are explicitly not returning a reference to ourself.  The
-  // return type either needs to be captured by another operator, so the
-  // information in the state_ variable can be slurped up, or it needs to be
-  // destroyed so the information in the state_ variable can be output as a
-  // line in the program.
-  template <typename U>
-  typename std::enable_if<std::is_same<U,T>::value, Expression<T>>::type
-  operator=(Expression<U>&& other) {
-    // ISSUE precidence for other operators?
-    std::string result = this->state_ + " = " + other.state_;
-    other.state_.clear();
-    return Expression<T>(this->stream_, result, Base::Key());
-  }
-
-  // See above function for comment on why we're not returning *this;
-  Expression<T> operator=(const Variable<T>& other) {
-    std::string result = this->state_ + " = " + other.state_;
-    return Expression<T>(this->stream_, result, Base::Key());
-  }
-
-  // Little bit of trickery here.  For Expression<T> classes, the state_
-  // variable holds the line we are building up to output, and each operator
-  // will suck out the state from what it operates on to add more to it.  When
-  // destroyed the state_ variable will be output to the program, so intermediate
-  // temporaries need their state cleared before they are destroyed.  However,
-  // Variable<T> types use this field to store their variable name, and need to
-  // avoid being cleared every time they are used, thus the noop here.
-  virtual void clear_state() const {}
 private:
+  std::string name_;
+};
+
+template<typename T>
+class Expr<Variable<T>> : ExprBase {
+public:
+  Expr(const Variable<T>& v) {}
+  Expr(Variable<T>&& v) {}
 };
 
 }}}} // ShapeShifter::Rendering::Shaders::Language

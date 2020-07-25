@@ -16,6 +16,7 @@
 
 #include "rendering/shaders/language/Types.h"
 #include "rendering/shaders/language/Variable.h"
+#include "rendering/shaders/language/IndentedStringStream.h"
 #include "rendering/shaders/VariableFactory.h"
 
 namespace ShapeShifter {
@@ -58,15 +59,12 @@ struct declares_smooth {
  */
 template <class Child, typename T>
 struct InterfaceVariableBase {
-protected:
-  InterfaceVariableBase(VariableFactory& factory)
-    : factory_(factory), var(factory.create<T>(Child::name())) {
+  InterfaceVariableBase() {
     constexpr Child* temp = nullptr;
     static_assert(detail::name_function_exists::valid(temp),
         "Children of InterfaceVariableBase must supply a (preferably"
         "constexpr) static function called name that returns a char*");
-    static_assert(
-        Language::VariableTraits<T>::InterfaceAllowed
+    static_assert(T::Policy::InterfaceAllowed
       , "Type not allowed in InterfaceVariable");
     static_assert(
         detail::declares_smooth::valid(temp)
@@ -76,7 +74,9 @@ protected:
 
 public:
   using Type = T;
-  using Variable_T = Language::Variable<T>;
+
+  // TODO add static assert making sure it's a proper Language::Variable subclass
+  using Variable_T = T;
 
   InterfaceVariableBase(const InterfaceVariableBase&) = default;
   InterfaceVariableBase(InterfaceVariableBase&&) = default;
@@ -87,8 +87,8 @@ public:
   virtual ~InterfaceVariableBase() {};
 
   std::pair<const std::string, size_t>
-  LayoutDeclaration(VariableFactory& factory, size_t idx) {
-    factory.stream()
+  LayoutDeclaration(size_t idx) {
+    Language::Stream()
         << "layout (location = "
         << idx << ") in "
         << Variable_T::TypeName()
@@ -97,18 +97,18 @@ public:
     return {Child::name(), idx};
   }
 
-  void OutputDeclaration(VariableFactory& factory) {
-    if (Child::smooth) factory.stream() << "smooth ";
-    factory.stream()
+  void OutputDeclaration() {
+    if (Child::smooth) Language::Stream() << "smooth ";
+    Language::Stream()
         << "out "
         << Variable_T::TypeName()
         << " " << Child::name()
         << ";\n";
   }
 
-  void InputDeclaration(VariableFactory& factory) {
-    if (Child::smooth) factory.stream() << "smooth ";
-    factory.stream()
+  void InputDeclaration() {
+    if (Child::smooth) Language::Stream() << "smooth ";
+    Language::Stream()
         << "in "
         << Variable_T::TypeName()
         << " " << Child::name()
@@ -117,7 +117,6 @@ public:
 
 protected:
   Variable_T var;
-  std::reference_wrapper<VariableFactory> factory_;
 };
 
 }}} // ShapeShifter::Rendering::Shaders

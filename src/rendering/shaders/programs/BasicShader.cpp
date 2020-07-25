@@ -18,26 +18,25 @@ namespace Rendering {
 namespace Shaders {
 namespace Programs {
 
-void BasicVertexShader::DefineMain(const VariableFactory& factory) {
-  gl_Position = transform * factory_.temporary<Language::Vec4>(inPosition, 1.0f);
+void BasicVertexShader::DefineMain() {
+  gl_Position = transform * Language::Vec4(inPosition, 1.0f);
   theColor = inColor;
 }
 
-void BasicFragmentShader::DefineMain(const VariableFactory& factory) {
-  outputColor = factory_.temporary<Language::Vec4>(theColor, 1.0f);
+void BasicFragmentShader::DefineMain() {
+  outputColor = Language::Vec4(theColor, 1.0f);
 }
 
-void PhongVertexShader::DefineMain(const VariableFactory& factory) {
-  gl_Position = transform * factory_.temporary<Language::Vec4>(inPosition, 1.0f);
+void PhongVertexShader::DefineMain() {
+  gl_Position = transform * Language::Vec4(inPosition, 1.0f);
   theColor = inColor;
   theNormal = inNormal;
   thePos = inPosition;
 }
 
-void PhongFragmentShader::DefineMain(const VariableFactory& factory) {
-  outputColor =factory_.temporary<Language::Vec4>((max(dot(normalize(lightPos - thePos), factory_.temporary<Language::Vec3>(theNormal)), 0.0f) + ambientLight) * lightColor * theColor, 1.0f);
-  //Language::Vec3 v = lightPos - this->theNormal;
-  //outputColor = ambientLight * factory_.temporary<Language::Vec4>(theColor, 1.0f);
+void PhongFragmentShader::DefineMain() {
+  Language::Vec3 diff = lightPos - thePos;
+  //outputColor = Language::Vec4((max(dot(normalize(lightPos - thePos)), theNormal), 0.0f) + ambientLight) * lightColor * theColor, 1.0f);
 }
 
 }}}} // ShapeShifter::Rendering::Shaders::Programs

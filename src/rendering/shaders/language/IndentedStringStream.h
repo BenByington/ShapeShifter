@@ -44,12 +44,21 @@ public:
 
   void incIndent() { ++indentation_; }
   void decIndent() { assert(indentation_ >= 0); --indentation_; }
-  std::string str() { return stream_.str(); }
+  std::string str() {
+    auto ret = stream_.str();
+    stream_.str("");
+    return ret;
+  }
 
 private:
   std::stringstream stream_;
   size_t indentation_ = 0;
 };
+
+static IndentedStringStream& Stream() {
+  static IndentedStringStream strm;
+  return strm;
+}
 
 
 }}}} // ShapeShifter::Rendering::Shaders::Language

@@ -34,7 +34,6 @@ using Data::NormalManager;
 namespace detail {
 
 struct ColorPass : InterfaceVariableBase<ColorPass, Language::Vec3> {
-  ColorPass() = delete;
 
   using Base = InterfaceVariableBase<ColorPass, Language::Vec3>;
   using Base::InterfaceVariableBase;
@@ -46,7 +45,6 @@ struct ColorPass : InterfaceVariableBase<ColorPass, Language::Vec3> {
 };
 
 struct NormalPass : InterfaceVariableBase<NormalPass, Language::Vec3> {
-  NormalPass() = delete;
 
   using Base = InterfaceVariableBase<NormalPass, Language::Vec3>;
   using Base::InterfaceVariableBase;
@@ -58,7 +56,6 @@ struct NormalPass : InterfaceVariableBase<NormalPass, Language::Vec3> {
 };
 
 struct PosPass : InterfaceVariableBase<PosPass, Language::Vec3> {
-  PosPass() = delete;
 
   using Base = InterfaceVariableBase<PosPass, Language::Vec3>;
   using Base::InterfaceVariableBase;
@@ -71,7 +68,6 @@ struct PosPass : InterfaceVariableBase<PosPass, Language::Vec3> {
 
 
 struct OutputColor : InterfaceVariableBase<OutputColor, Language::Vec4> {
-  OutputColor() = delete;
 
   using Base = InterfaceVariableBase<OutputColor, Language::Vec4>;
   using Base::InterfaceVariableBase;
@@ -86,7 +82,6 @@ struct OutputColor : InterfaceVariableBase<OutputColor, Language::Vec4> {
 //        template parameter here is consistent with the StorageType
 //        defined in the inner class.
 struct Transform : UniformVariableBase<Transform, Language::Mat4> {
-  Transform() = delete;
   using Base = UniformVariableBase<Transform, Language::Mat4>;
   using Base::UniformVariableBase;
   static constexpr const char* name() {
@@ -175,7 +170,6 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
 
 struct AmbientLight : UniformVariableBase<AmbientLight, Language::Float> {
 
-  AmbientLight() = delete;
   using Base = UniformVariableBase<AmbientLight, Language::Float>;
   using Base::UniformVariableBase;
   static constexpr const char* name() {
@@ -212,7 +206,6 @@ struct AmbientLight : UniformVariableBase<AmbientLight, Language::Float> {
 
 struct LightColor : UniformVariableBase<LightColor, Language::Vec3> {
 
-  LightColor() = delete;
   using Base = UniformVariableBase<LightColor, Language::Vec3>;
   using Base::UniformVariableBase;
   static constexpr const char* name() {
@@ -248,7 +241,6 @@ struct LightColor : UniformVariableBase<LightColor, Language::Vec3> {
 };
 
 struct LightPos : UniformVariableBase<LightPos, Language::Vec3> {
-  LightPos() = delete;
   using Base = UniformVariableBase<LightPos, Language::Vec3>;
   using Base::UniformVariableBase;
   static constexpr const char* name() {
@@ -328,9 +320,9 @@ class BasicVertexShader : public Language::GLSLVertexGeneratorBase<
       Pack<detail::Transform>,
       Pack<detail::ColorPass>>;
 public:
-  BasicVertexShader(VariableFactory&& factory) : Base(std::move(factory)) {}
+  BasicVertexShader() : Base() {}
 private:
-  void DefineMain(const VariableFactory& factory) override;
+  void DefineMain() override;
 };
 
 class BasicFragmentShader : public Language::GLSLFragmentGeneratorBase<
@@ -342,9 +334,9 @@ class BasicFragmentShader : public Language::GLSLFragmentGeneratorBase<
       Pack<>,
       Pack<detail::OutputColor>>;
 public:
-  BasicFragmentShader(VariableFactory&& factory) : Base(std::move(factory)) {}
+  BasicFragmentShader() : Base() {}
 private:
-  void DefineMain(const VariableFactory& factory) override;
+  void DefineMain() override;
 };
 
 class PhongVertexShader : public Language::GLSLVertexGeneratorBase<
@@ -356,9 +348,9 @@ class PhongVertexShader : public Language::GLSLVertexGeneratorBase<
       Pack<detail::Transform>,
       Pack<detail::ColorPass, NormalPass, detail::PosPass>>;
 public:
-  PhongVertexShader(VariableFactory&& factory) : Base(std::move(factory)) {}
+  PhongVertexShader() : Base() {}
 private:
-  void DefineMain(const VariableFactory& factory) override;
+  void DefineMain() override;
 };
 
 class PhongFragmentShader : public Language::GLSLFragmentGeneratorBase<
@@ -370,9 +362,9 @@ class PhongFragmentShader : public Language::GLSLFragmentGeneratorBase<
       Pack<detail::AmbientLight, detail::LightColor, detail::LightPos>,
       Pack<detail::OutputColor>>;
 public:
-  PhongFragmentShader(VariableFactory&& factory) : Base(std::move(factory)) {}
+  PhongFragmentShader() : Base() {}
 private:
-  void DefineMain(const VariableFactory& factory) override;
+  void DefineMain() override;
 };
 
 }}}} // ShapeShifter::Rendering::Shaders::Programs
