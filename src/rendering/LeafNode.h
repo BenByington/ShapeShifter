@@ -110,7 +110,7 @@ struct LeafWrapper {
     (*leaf_)->start_= local_data.start();
     (*leaf_)->end_= local_data.end();
 
-    auto worker = {(leaf_->template Convert<typename Keys::Interface>()->FillData(local_data.template Val<Keys>())
+    auto worker = {(static_cast<typename Keys::Interface&>(*leaf_).FillData(local_data.template Val<Keys>())
                     ,1)...
     };
     (void) worker;

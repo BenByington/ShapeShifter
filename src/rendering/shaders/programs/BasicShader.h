@@ -123,7 +123,7 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
       static_assert(std::is_base_of<UniformManager, T2>::value,
                     "SetOriginNode called node without Transform Uniform");
 
-      const auto& path = node.template Convert<T2>()->PathToRoot();
+      const auto& path = static_cast<const T2&>(node).PathToRoot();
       path_ = std::vector<const UniformManager*>(path.begin(), path.end());
     }
 
