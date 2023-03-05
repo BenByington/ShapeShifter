@@ -13,8 +13,7 @@
 
 #include "ui/MainWindow.h"
 
-namespace ShapeShifter {
-namespace ui {
+namespace ShapeShifter::ui {
 
 MainWindow::MainWindow() {
     widget.setupUi(this);
@@ -34,4 +33,4 @@ void MainWindow::LinkActions() {
   connect(widget.actionIndexBuffer, &QAction::triggered, qtw_.get(), &MyQtWidget::IndexBufferScenario);
 }
 
-}} //ShapeShifter::ui
+} //ShapeShifter::ui

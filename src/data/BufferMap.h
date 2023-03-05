@@ -21,8 +21,7 @@
 #include <set>
 #include <vector>
 
-namespace ShapeShifter {
-namespace Data {
+namespace ShapeShifter::Data {
 
 /*
  * Convenience class, allowing the buffers to all be stored together even though
@@ -90,7 +89,7 @@ private:
   BufferIndex total_;
 };
 
-}} // ShapeShifter::Data
+} // ShapeShifter::Data
 
 #endif /* DATA_BUFFER_MAP_H */
 

@@ -18,8 +18,7 @@
 #include <cassert>
 #include <smmintrin.h>
 
-namespace ShapeShifter {
-namespace Math {
+namespace ShapeShifter::Math {
 
 class alignas(16) Vector4 final {
 public:
@@ -46,7 +45,7 @@ private:
   std::array<float, 4> data_;
 };
 
-}} // ShapeShifter::Math
+} // ShapeShifter::Math
 
 #endif /* MATH_VECTOR4_H */
 

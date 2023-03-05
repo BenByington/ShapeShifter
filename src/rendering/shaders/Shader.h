@@ -21,9 +21,7 @@
 
 #include <cassert>
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
+namespace ShapeShifter::Rendering::Shaders {
 
 namespace detail {
 
@@ -112,6 +110,6 @@ public:
   virtual ~FragmentShader() {}
 };
 
-}}} // ShapeShifter::Rendering::Shaders
+} // ShapeShifter::Rendering::Shaders
 #endif /* RENDERING_SHADERS_SHADER_H */
 

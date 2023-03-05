@@ -18,9 +18,7 @@
 #include "rendering/shaders/ShaderProgramBase.h"
 #include "rendering/Camera.h"
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
+namespace ShapeShifter::Rendering::Shaders {
 
 template <class... Uniforms>
 struct UniformManager : BaseUniformManager, Uniforms::UniformManager... {
@@ -65,7 +63,7 @@ public:
 
 };
 
-}}} /* ShapeShifter::Rendering::Shaders */
+} /* ShapeShifter::Rendering::Shaders */
 
 #endif /* RENDERING_SHADERS_UNIFORM_MANAGER_H */
 

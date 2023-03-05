@@ -22,8 +22,7 @@
 #include "util/MultiReferenceWrapper.h"
 
 
-namespace ShapeShifter {
-namespace Rendering {
+namespace ShapeShifter::Rendering {
 
 /*
  * This is the main base class for all custom concrete RenderNode
@@ -167,6 +166,6 @@ decltype(auto) CompatiblePureNode(const ShaderProgram&...) {
   return std::make_unique<Type>();
 }
 
-}} //namespace Shapeshifter::Rendering
+} //namespace Shapeshifter::Rendering
 
 #endif /* RENDERING_PURE_NODE_H */

@@ -17,8 +17,7 @@
 #include <cmath>
 #include <iostream>
 
-namespace ShapeShifter {
-namespace Math {
+namespace ShapeShifter::Math {
 
 Vector3 Vector3::cross(const Vector3& other) const {
   auto ret = Vector3 {};
@@ -58,5 +57,5 @@ void Vector3::Print() const {
   std::cerr << data_[0] << " " << data_[1] << " " << data_[2] << std::endl;
 }
 
-}} // ShapeShifter::Math
+} // ShapeShifter::Math
 

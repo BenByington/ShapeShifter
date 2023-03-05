@@ -18,8 +18,7 @@
 
 #include <memory>
 
-namespace ShapeShifter {
-namespace Rendering {
+namespace ShapeShifter::Rendering {
 
 struct Frustum;
 
@@ -84,7 +83,7 @@ private:
 
 };
 
-}} // ShapeShifter::Rendering
+} // ShapeShifter::Rendering
 
 #endif /* RENDERING_FRUSTUM_H */
 

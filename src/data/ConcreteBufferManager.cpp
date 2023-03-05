@@ -6,9 +6,6 @@
 
 #include "data/ConcreteBufferManager.h"
 
-namespace ShapeShifter {
-namespace Data {
 
 
-}
-}
+

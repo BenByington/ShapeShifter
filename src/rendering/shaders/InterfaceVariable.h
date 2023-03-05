@@ -20,9 +20,7 @@
 
 #include <concepts>
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
+namespace ShapeShifter::Rendering::Shaders {
 
 /*
  * Base class used in the framework defining the interface for shader
@@ -46,6 +44,6 @@ concept InterfaceVariable = requires(Var* t) {
     { Var::smooth } -> std::convertible_to<bool>;
 };
 
-}}} // ShapeShifter::Rendering::Shaders
+} // ShapeShifter::Rendering::Shaders
 
 #endif /* RENDERING_SHADERS_INTERFACE_VARIABLE_H */

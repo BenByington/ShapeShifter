@@ -18,8 +18,7 @@
 #include "math/Quaternion.h"
 #include "rendering/Frustum.h"
 
-namespace ShapeShifter {
-namespace Rendering {
+namespace ShapeShifter::Rendering {
 
 class Camera {
 public:
@@ -44,7 +43,7 @@ private:
 
 };
 
-}} // ShapeShifter::Rendering
+} // ShapeShifter::Rendering
 
 #endif /* RENDERING_CAMERA_H */
 

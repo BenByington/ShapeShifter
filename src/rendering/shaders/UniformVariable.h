@@ -17,9 +17,7 @@
 #include "rendering/shaders/InterfaceVariable.h"
 #include "rendering/Camera.h"
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
+namespace ShapeShifter::Rendering::Shaders {
 
 // ISSUE: Clean up camera/transform/uniform.  They are all conflated.
 //        The positions and relative transforms should be pulled out
@@ -60,6 +58,6 @@ concept UniformVariable = requires(Var* var) {
     };
 };
 
-}}} // ShapeShifter::Rendering::Shaders
+} // ShapeShifter::Rendering::Shaders
 
 #endif /* RENDERING_SHADERS_INTERFACE_VARIABLE_H */

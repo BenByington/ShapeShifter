@@ -20,9 +20,7 @@
 #ifndef RENDERING_SHADERS_LANGUAGE_VARIABLE_FACTORY_H
 #define RENDERING_SHADERS_LANGUAGE_VARIABLE_FACTORY_H
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
+namespace ShapeShifter::Rendering::Shaders {
 
 namespace detail {
 
@@ -127,7 +125,7 @@ private:
 };
 
 
-}}} // ShapeShifter::Rendering::Shaders
+} // ShapeShifter::Rendering::Shaders
 
 #endif /* RENDERING_SHADERS_LANGUAGEVVARIABLE_FACTORY_H */
 

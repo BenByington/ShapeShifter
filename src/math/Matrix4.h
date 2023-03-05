@@ -20,8 +20,7 @@
 
 #include <smmintrin.h>
 
-namespace ShapeShifter {
-namespace Math {
+namespace ShapeShifter::Math {
 
 /*
  * Column major 4x4 matrix.  Data is 16 byte aligned, to allow sse operations
@@ -59,7 +58,7 @@ private:
   std::array<float,16> data_;
 };
 
-}} // ShapeShifter::Math
+} // ShapeShifter::Math
 
 #endif /* MATH_MATRIX4_H */
 

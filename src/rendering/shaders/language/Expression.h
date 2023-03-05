@@ -17,9 +17,7 @@
 #include "rendering/shaders/language/IndentedStringStream.h"
 #include "rendering/shaders/language/Types.h"
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
+namespace ShapeShifter::Rendering::Shaders {
 
 // forward declare
 class VariableFactory;
@@ -97,7 +95,7 @@ public:
 
 
 
-}}}} // ShapeShifter::Rendering::Shaders::Language
+}} // ShapeShifter::Rendering::Shaders::Language
 
 #endif /* RENDERING_SHADERS_LANGUAGE_EXPRESSION_H */
 

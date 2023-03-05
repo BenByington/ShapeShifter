@@ -15,8 +15,7 @@
 
 #include <iostream>
 
-namespace ShapeShifter {
-namespace Shapes {
+namespace ShapeShifter::Shapes {
 
 using namespace Data;
 
@@ -99,4 +98,4 @@ void Cube::DrawSelf() const {
   );
 }
 
-}} // ShapeShifter::Shapes
+} // ShapeShifter::Shapes

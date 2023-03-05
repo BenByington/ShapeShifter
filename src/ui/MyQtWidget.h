@@ -23,8 +23,7 @@
 
 #include "rendering/World.h"
 
-namespace ShapeShifter {
-namespace ui {
+namespace ShapeShifter::ui {
 
 class MyQtWidget : public QOpenGLWidget {
   Q_OBJECT
@@ -68,5 +67,5 @@ private:
 
 };
 
-}} //ShapeShifter::ui
+} //ShapeShifter::ui
 #endif /* _MYQTWIDGET_H */

@@ -19,11 +19,7 @@
 #include <map>
 #include <sstream>
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
-
-namespace detail {
+namespace ShapeShifter::Rendering::Shaders::detail {
 std::map<std::string, size_t> ParseLayouts(const std::string& data) {
   std::map<std::string, size_t> ret;
   auto stream = std::istringstream(data);
@@ -52,6 +48,4 @@ std::map<std::string, size_t> ParseLayouts(const std::string& data) {
   }
   return ret;
 }
-}
-
-}}} // ShapeShifter::Rendering::Shaders
+} // ShapeShifter::Rendering::Shaders

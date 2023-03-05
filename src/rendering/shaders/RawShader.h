@@ -19,9 +19,7 @@
 #include <iostream>
 #include <fstream>
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
+namespace ShapeShifter::Rendering::Shaders {
 
 namespace detail {
 
@@ -82,6 +80,6 @@ private:
   }
 };
 
-}}} // ShapeShifter::Rendering::Shaders
+} // ShapeShifter::Rendering::Shaders
 #endif /* RENDERING_SHADERS_RAW_SHADER_H */
 

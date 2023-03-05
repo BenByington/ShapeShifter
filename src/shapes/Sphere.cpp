@@ -15,8 +15,7 @@
 
 #include <iostream>
 
-namespace ShapeShifter {
-namespace Shapes {
+namespace ShapeShifter::Shapes {
 
 using namespace Data;
 static const auto phi = (1.0f + std::sqrt(5.0f))/2.0f;
@@ -119,4 +118,4 @@ void Sphere::DrawSelf() const {
       StartIndexAsVP());
 }
 
-}} // ShapeShifter::Shapes
+} // ShapeShifter::Shapes

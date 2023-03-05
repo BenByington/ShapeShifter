@@ -18,8 +18,7 @@
 #include <cmath>
 #include <iostream>
 
-namespace ShapeShifter {
-namespace Rendering {
+namespace ShapeShifter::Rendering {
 
 Camera::Camera(const Frustum& frust, float look_depth)
   : frust_(frust),
@@ -95,4 +94,4 @@ void Camera::SetAspectRatio(float aspect) {
 }
 
 
-}} // ShapeShifter::Rendering
+} // ShapeShifter::Rendering

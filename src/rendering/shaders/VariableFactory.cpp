@@ -13,11 +13,9 @@
 
 #include "rendering/shaders/VariableFactory.h"
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
 
 
-}}} // ShapeShifter::Rendering::Shaders
+
+
 
 

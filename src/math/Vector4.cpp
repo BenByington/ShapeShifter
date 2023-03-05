@@ -15,8 +15,7 @@
 
 #include <iostream>
 
-namespace ShapeShifter {
-namespace Math {
+namespace ShapeShifter::Math {
 
 Vector4::Vector4(const std::array<float, 4>& other) :
     data_(other) {}
@@ -62,4 +61,4 @@ Vector4 Vector4::operator -(const Vector4& other) const {
   ret[3] = 1;
   return ret;
 }
-}} // ShapeShifter::Math
+} // ShapeShifter::Math

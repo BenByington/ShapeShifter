@@ -24,9 +24,7 @@
 #include <cmath>
 #include <memory>
 
-namespace ShapeShifter {
-namespace scenarios{
-namespace tests {
+namespace ShapeShifter::scenarios::tests {
 
 std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
 
@@ -89,4 +87,4 @@ std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
   return world;
 }
 
-}}}  // ShapeShifter::scenarios::tests
+}  // ShapeShifter::scenarios::tests

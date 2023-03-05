@@ -19,8 +19,7 @@
 
 #include <cmath>
 
-namespace ShapeShifter {
-namespace Shapes {
+namespace ShapeShifter::Shapes {
 
 class Sphere final : public Rendering::LeafNode<
     Data::VertexManager,
@@ -47,7 +46,7 @@ private:
   float radius_;
 };
 
-}} // ShapeShifter::Shapes
+} // ShapeShifter::Shapes
 
 #endif /* SHAPES_SPHERE_H */
 

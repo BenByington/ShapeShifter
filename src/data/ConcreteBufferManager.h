@@ -21,8 +21,7 @@
 #include <cstdlib>
 #include <type_traits>
 
-namespace ShapeShifter {
-namespace Data {
+namespace ShapeShifter::Data {
 
 class ColorManager final : public AbstractManager {
 public:
@@ -85,7 +84,7 @@ public:
   };
 };
 
-}} // ShapeShifter::Data
+} // ShapeShifter::Data
 
 #endif /* DATA_BUFFERTYPES_H */
 

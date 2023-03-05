@@ -13,7 +13,6 @@
 
 #include "rendering/RenderingTree.h"
 
-namespace ShapeShifter {
-namespace Rendering {
 
-}} // ShapeShifter::Rendering
+
+

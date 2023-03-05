@@ -19,8 +19,7 @@
 #include "rendering/shaders/Pack.h"
 #include "util/MultiReferenceWrapper.h"
 
-namespace ShapeShifter {
-namespace Rendering {
+namespace ShapeShifter::Rendering {
 
 class BaseLeafNode {
 protected:
@@ -120,7 +119,7 @@ private:
   std::unique_ptr<Util::MultiReferenceOwner<BaseLeafNode, typename Managers::Interface...>> leaf_;
 };
 
-}} // ShapeShifter::Rendering
+} // ShapeShifter::Rendering
 
 #endif /* SHAPESHIFTER_RENDERING_LEAFNODE_H */
 

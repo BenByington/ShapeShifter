@@ -17,8 +17,7 @@
 #include "rendering/PureNode.h"
 #include "data/ConcreteBufferManager.h"
 
-namespace ShapeShifter {
-namespace Shapes {
+namespace ShapeShifter::Shapes {
 
 class Cube final : public Rendering::LeafNode<
     Data::VertexManager,
@@ -46,7 +45,7 @@ private:
   float sz_;
 };
 
-}} // ShapeShifter::Shapes
+} // ShapeShifter::Shapes
 
  #endif /*SHAPES_CUBE_H */
 

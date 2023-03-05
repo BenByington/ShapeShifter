@@ -20,8 +20,7 @@
 
 #include "ui/MyQtWidget.h"
 
-namespace ShapeShifter {
-namespace ui {
+namespace ShapeShifter::ui {
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -35,6 +34,6 @@ private:
     void LinkActions();
 };
 
-}} //ShapeShifter::ui
+} //ShapeShifter::ui
 
 #endif /* _MAINWINDOW_H */

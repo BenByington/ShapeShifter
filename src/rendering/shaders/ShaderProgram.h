@@ -25,9 +25,7 @@
 #include <memory>
 #include <vector>
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
+namespace ShapeShifter::Rendering::Shaders {
 
 template <class Interface, class Uniforms>
 class ShaderProgram;
@@ -86,7 +84,7 @@ decltype(auto) CreateShaderProgram() {
   return std::make_shared<ShaderProgram>(std::move(vert), std::move(frag));
 }
 
-}}} // ShapeShifter::Rendering::Shaders
+} // ShapeShifter::Rendering::Shaders
 
 #endif /* RENDERING_SHADERS_SHADER_PROGRAM_H */
 

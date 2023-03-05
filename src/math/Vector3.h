@@ -17,8 +17,7 @@
 #include <array>
 #include <cstddef>
 
-namespace ShapeShifter {
-namespace Math {
+namespace ShapeShifter::Math {
 
 class Vector3 {
 public:
@@ -41,7 +40,7 @@ private:
 
 };
 
-}} // ShapeShifter::Math
+} // ShapeShifter::Math
 
 #endif /* MATH_VECTOR3_H */
 

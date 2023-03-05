@@ -13,8 +13,6 @@
 
 #include "Scenario.h"
 
-namespace ShapeShifter {
-namespace scenarios {
 
 
-}} // namespace ShapeShifter::scenarios
+

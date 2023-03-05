@@ -21,8 +21,7 @@
 #include <memory>
 #include <set>
 
-namespace ShapeShifter {
-namespace Data {
+namespace ShapeShifter::Data {
 
 /*
  * Class that combines the view functionality of a VectorSlice with the
@@ -68,7 +67,7 @@ private:
   BufferIndex end_;
 };
 
-}} // ShapeShifter::Data
+} // ShapeShifter::Data
 
 #endif /* DATA_BUFFER_SLICE_MAP_H */
 

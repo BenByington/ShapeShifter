@@ -20,10 +20,8 @@
 #include <iostream>
 #include <limits>
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
 
 
-}}} // ShapeShifter::Rendering::Shaders
+
+
 

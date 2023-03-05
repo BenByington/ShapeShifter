@@ -17,9 +17,7 @@
 #include <memory>
 #include <stdexcept>
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
+namespace ShapeShifter::Rendering::Shaders {
 
 ShaderBase::ShaderBase(const std::string& data, GLenum shader_type) {
   assert(data.size() > 0);
@@ -74,4 +72,4 @@ ShaderBase& ShaderBase::operator =(ShaderBase&& other) {
   return *this;
 }
 
-}}} // ShapeShifter::Rendering::Shaders
+} // ShapeShifter::Rendering::Shaders

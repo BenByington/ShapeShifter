@@ -21,9 +21,7 @@
 
 #include <memory>
 
-namespace ShapeShifter {
-namespace scenarios {
-namespace tests {
+namespace ShapeShifter::scenarios::tests {
 
 class Squares2D : public Scenario{
 public:
@@ -61,7 +59,7 @@ private:
 
 }
 
-}}} // ShapeShifter::scenarios::tests
+} // ShapeShifter::scenarios::tests
 
 #endif /* SCENARIOS_TESTS_SQUARES2D_H */
 

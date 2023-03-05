@@ -20,9 +20,7 @@
 
 #include <memory>
 
-namespace ShapeShifter {
-namespace scenarios {
-namespace tests {
+namespace ShapeShifter::scenarios::tests {
 
 class IndexBuffers : public Scenario{
 public:
@@ -38,7 +36,7 @@ private:
 
 };
 
-}}} // ShapeShifter::scenarios::tests
+} // ShapeShifter::scenarios::tests
 
 #endif /* SCENARIOS_TESTS_INDEXED_BUFFERS_H */
 

@@ -18,9 +18,7 @@
 #include <map>
 #include <string>
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
+namespace ShapeShifter::Rendering::Shaders {
 
 /*
  * Base class that unifies both the RawShaders that parse text files, and the
@@ -46,6 +44,6 @@ private:
   GLuint shader = 0;
 };
 
-}}} // ShapeShifter::Rendering::Shaders
+} // ShapeShifter::Rendering::Shaders
 #endif /* RENDERING_SHADERS_SHADER_BASE_H */
 

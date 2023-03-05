@@ -17,8 +17,7 @@
 #include "math/Matrix4.h"
 #include "math/Vector3.h"
 
-namespace ShapeShifter {
-namespace Math {
+namespace ShapeShifter::Math {
 
 class Quaternion {
 public:
@@ -49,7 +48,7 @@ private:
   float qz;
 };
 
-}} // ShapeShifter::Math
+} // ShapeShifter::Math
 
 #endif /* MATH_QUATERNION_H */
 

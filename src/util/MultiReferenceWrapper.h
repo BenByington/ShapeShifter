@@ -6,8 +6,7 @@
 #include <functional>
 #include <memory>
 
-namespace ShapeShifter {
-namespace Util {
+namespace ShapeShifter::Util {
 
 namespace detail {
 
@@ -77,6 +76,6 @@ public:
 private:
   std::unique_ptr<T> owner_;
 };
-}}
+}
 
 #endif // UTIL_MULTI_REFERENCE_WRAPPER_H

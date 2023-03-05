@@ -13,8 +13,7 @@
 
 #include "World.h"
 
-namespace ShapeShifter {
-namespace Rendering {
+namespace ShapeShifter::Rendering {
 
 World::World(std::unique_ptr<Camera> cam)
   : camera_(std::move(cam))
@@ -34,4 +33,4 @@ void World::Render() const {
   }
 }
 
-}} // ShapeShifter::Rendering
+} // ShapeShifter::Rendering

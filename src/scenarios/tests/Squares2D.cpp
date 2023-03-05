@@ -21,9 +21,7 @@
 #include <cmath>
 #include <memory>
 
-namespace ShapeShifter {
-namespace scenarios{
-namespace tests {
+namespace ShapeShifter::scenarios::tests {
 
 std::unique_ptr<Rendering::World> Squares2D::Setup() {
 
@@ -141,4 +139,4 @@ void SquareTest2D::DrawSelf() const {
 
 }
 
-}}}  // ShapeShifter::scenarios::tests
+}  // ShapeShifter::scenarios::tests

@@ -20,8 +20,7 @@
 
 #include <map>
 
-namespace ShapeShifter {
-namespace Rendering {
+namespace ShapeShifter::Rendering {
 
 /*
  * This node forms the root of a tree, and a tree is not valid until it is
@@ -137,7 +136,7 @@ auto CreateRootPtr(std::unique_ptr<PureNode<TreePack, UniformPack>> tree) {
   return std::make_shared<RootNode<TreePack, UniformPack>>(std::move(tree));
 }
 
-}} // ShapeShifter::Rendering
+} // ShapeShifter::Rendering
 
 #endif /* RENDERING_ROOT_NODE_H */
 

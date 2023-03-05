@@ -18,10 +18,7 @@
 #include <memory>
 #include <sstream>
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
-namespace Language {
+namespace ShapeShifter::Rendering::Shaders::Language {
 
 /*
  * Convenience class for managing indententaion levels in generated
@@ -52,7 +49,7 @@ private:
 };
 
 
-}}}} // ShapeShifter::Rendering::Shaders::Language
+} // ShapeShifter::Rendering::Shaders::Language
 
 #endif /* RENDERING_SHADERS_LANGUAGE_INDENTED_STRINGSTREAM_H */
 

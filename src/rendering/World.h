@@ -19,8 +19,7 @@
 
 #include <memory>
 
-namespace ShapeShifter {
-namespace Rendering {
+namespace ShapeShifter::Rendering {
 
 class World final{
 public:
@@ -40,7 +39,7 @@ private:
   std::unique_ptr<Camera> camera_;
 };
 
-}} // ShapeShifter::Rendering
+} // ShapeShifter::Rendering
 
 #endif /* RENDERING_WORLD_H */
 

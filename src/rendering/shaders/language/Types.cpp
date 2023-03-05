@@ -13,10 +13,7 @@
 
 #include "rendering/shaders/language/Types.h"
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
-namespace Language {
 
 
-}}}} // ShapeShifter::Rendering::Shaders::Language
+
+

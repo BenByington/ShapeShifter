@@ -13,9 +13,7 @@
 
 #include "rendering/shaders/UniformManager.h"
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
 
-}}} /* ShapeShifter::Rendering::Shaders */
+
+
 

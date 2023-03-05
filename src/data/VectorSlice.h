@@ -18,8 +18,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace ShapeShifter {
-namespace Data {
+namespace ShapeShifter::Data {
 
 template <typename T>
 class SliceFiller;
@@ -106,7 +105,7 @@ SliceFiller<T> VectorSlice<T>::Filler() {
   return SliceFiller<T>(*this);
 }
 
-}} // ShapeShifter::Data
+} // ShapeShifter::Data
 
 #endif /* DATA_VECTORSLICE_H */
 

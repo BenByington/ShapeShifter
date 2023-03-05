@@ -20,8 +20,7 @@
 #include <concepts>
 #include <type_traits>
 
-namespace ShapeShifter {
-namespace Rendering {
+namespace ShapeShifter::Rendering {
 
 class RenderingTree final {
 public:
@@ -89,7 +88,7 @@ private:
   GLuint vao = 0;
 };
 
-}} // ShapeShifter::Rendering
+} // ShapeShifter::Rendering
 
 #endif /* RENDERING_RENDERING_TREE_H */
 

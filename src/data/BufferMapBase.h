@@ -24,8 +24,7 @@
 #include <memory>
 #include <set>
 
-namespace ShapeShifter {
-namespace Data {
+namespace ShapeShifter::Data {
 
 /*
  * Generic base class for both BufferMap and BufferSliceMap, giving them the
@@ -115,7 +114,7 @@ struct BufferIndex {
   }
 };
 
-}} // ShapeShifter::Data
+} // ShapeShifter::Data
 
 #endif /* DATA_BUFFER_MAP_BASE_H */
 

@@ -18,9 +18,7 @@
 #include "math/Matrix4.h"
 #include "rendering/shaders/ShaderBase.h"
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
+namespace ShapeShifter::Rendering::Shaders {
 
 /*
  * Abstract base class for all shader programs.  (Children classes will be
@@ -51,7 +49,7 @@ private:
   GLuint program_;
 };
 
-}}} // ShapeShifter::Rendering::Shaders
+} // ShapeShifter::Rendering::Shaders
 
 #endif /* RENDERING_SHADERS_SHADER_PROGRAM_BASE_H */
 

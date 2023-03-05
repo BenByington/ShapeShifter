@@ -16,10 +16,7 @@
 
 #include <concepts>
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
-namespace Language {
+namespace ShapeShifter::Rendering::Shaders::Language {
 
 class Vec3 {};
 class Vec4 {
@@ -66,7 +63,7 @@ concept InterfaceType = std::same_as<T, Mat4>
     || std::same_as<T, Vec4>
     || std::same_as<T, Vec3>;
 
-}}}} // ShapeShifter::Rendering::Shaders::Language
+} // ShapeShifter::Rendering::Shaders::Language
 
 #endif /* RENDERING_SHADERS_LANGUAGE_TYPES_H */
 

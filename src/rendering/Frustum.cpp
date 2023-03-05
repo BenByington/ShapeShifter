@@ -15,8 +15,7 @@
 
 #include <cmath>
 
-namespace ShapeShifter {
-namespace Rendering {
+namespace ShapeShifter::Rendering {
 
 Math::Matrix4 Frustum::FrustTransform() const {
   auto itana = 1.0f / std::tan(fov_);
@@ -56,4 +55,4 @@ namespace detail {
   }
 }
 
-}} // ShapeShifter::Rendering
+} // ShapeShifter::Rendering

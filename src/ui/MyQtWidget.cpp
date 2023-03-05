@@ -24,8 +24,7 @@
 #include <memory>
 #include <cmath>
 
-namespace ShapeShifter {
-namespace ui {
+namespace ShapeShifter::ui {
 
 MyQtWidget::MyQtWidget() {
   widget.setupUi(this);
@@ -106,4 +105,4 @@ void MyQtWidget::IndexBufferScenario() {
   ScenarioSlotHelper<scenarios::tests::IndexBuffers>();
 }
 
-}} //ShapeShifter::ui
+} //ShapeShifter::ui

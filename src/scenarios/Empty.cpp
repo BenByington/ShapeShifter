@@ -13,8 +13,7 @@
 
 #include "Empty.h"
 
-namespace ShapeShifter {
-namespace scenarios {
+namespace ShapeShifter::scenarios {
 
 std::unique_ptr<Rendering::World> Empty::Setup() {
 
@@ -24,4 +23,4 @@ std::unique_ptr<Rendering::World> Empty::Setup() {
   return world;
 }
 
-}} // namespace ShapeShifter::scenarios
+} // namespace ShapeShifter::scenarios

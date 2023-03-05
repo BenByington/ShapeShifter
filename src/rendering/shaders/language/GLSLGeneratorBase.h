@@ -21,10 +21,7 @@
 
 #include <type_traits>
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
-namespace Language {
+namespace ShapeShifter::Rendering::Shaders::Language {
 
 template <typename T>
 struct AllInterface
@@ -209,7 +206,7 @@ public:
   using Inputs_t = Pack<Inputs...>;
 };
 
-}}}} // ShapeShifter::Rendering::Shaders::Language
+} // ShapeShifter::Rendering::Shaders::Language
 
 #endif /* RENDERING_SHADERS_LANGUAGE_GLSLGENERATORBASE_H */
 

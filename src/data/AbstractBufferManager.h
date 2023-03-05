@@ -20,8 +20,7 @@
 #include <cstdlib>
 #include <type_traits>
 
-namespace ShapeShifter {
-namespace Data {
+namespace ShapeShifter::Data {
 
 /*
  * This is a base class that provides a polymorphic handle to a buffer
@@ -81,7 +80,7 @@ concept BufferManager = requires(Child c) {
     requires Rendering::Shaders::InterfaceVariable<typename Child::Variable>;
 };
 
-}} // ShapeShifter::Data
+} // ShapeShifter::Data
 
 #endif /* DATA_ABSTRACT_BUFFERTYPES_H */
 

@@ -17,8 +17,7 @@
 
 #include <cmath>
 
-namespace ShapeShifter {
-namespace Math {
+namespace ShapeShifter::Math {
 
 Quaternion::Quaternion(float s, float x, float y, float z) {
   qw = std::cos(s/2);
@@ -65,4 +64,4 @@ void Quaternion::Normalize() {
   qz /= mag;
 }
 
-}} // ShapeShifter::Math
+} // ShapeShifter::Math

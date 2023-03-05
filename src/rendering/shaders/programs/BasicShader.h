@@ -21,10 +21,7 @@
 #include "rendering/Camera.h"
 #include "util/MultiReferenceWrapper.h"
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
-namespace Programs {
+namespace ShapeShifter::Rendering::Shaders::Programs {
 
 using Data::ColorManager;
 using Data::VertexManager;
@@ -169,7 +166,7 @@ private:
   void DefineMain(const VariableFactory& factory) override;
 };
 
-}}}} // ShapeShifter::Rendering::Shaders::Programs
+} // ShapeShifter::Rendering::Shaders::Programs
 
 #endif /* RENDERING_SHADERS_PROGRAMS_BASIC_SHADER_H */
 

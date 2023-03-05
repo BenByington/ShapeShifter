@@ -13,11 +13,8 @@
 
 #include "rendering/shaders/language/Variable.h"
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
-namespace Language {
 
 
-}}}} // ShapeShifter::Rendering::Shaders::Language
+
+
 
