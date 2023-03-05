@@ -16,16 +16,11 @@
 namespace ShapeShifter::Rendering {
 
 World::World(std::unique_ptr<Camera> cam)
-  : camera_(std::move(cam))
-{}
+    : camera_(std::move(cam)) {}
 
-void World::SetRenderTree(std::unique_ptr<RenderingTree> tree) {
-  tree_ = std::move(tree);
-}
+void World::SetRenderTree(std::unique_ptr<RenderingTree> tree) { tree_ = std::move(tree); }
 
-Camera& World::camera() {
-  return *camera_;
-}
+Camera& World::camera() { return *camera_; }
 
 void World::Render() const {
   if (tree_) {
@@ -33,4 +28,4 @@ void World::Render() const {
   }
 }
 
-} // ShapeShifter::Rendering
+} // namespace ShapeShifter::Rendering

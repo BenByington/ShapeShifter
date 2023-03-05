@@ -16,8 +16,8 @@
 
 #include "rendering/shaders/ShaderBase.h"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 namespace ShapeShifter::Rendering::Shaders {
 
@@ -26,10 +26,7 @@ namespace detail {
 std::map<std::string, size_t> ParseLayouts(const std::string& data);
 
 }
-enum class RawShaderType {
-  VERTEX,
-  FRAGMENT
-};
+enum class RawShaderType { VERTEX, FRAGMENT };
 
 /*
  * Basic class that supports reading in GLSL shader programs from text files.
@@ -42,11 +39,13 @@ class RawShader : public ShaderBase {
   // Hidden constructor so we don't have to read the file data a second time
   // to parse for the the layout_map
   RawShader(const std::string& data, bool dummy)
-    : ShaderBase(data, RawEnum()) {
+      : ShaderBase(data, RawEnum()) {
     layout_map_ = ParseLayouts(data);
   }
+
 public:
-  RawShader(const std::string& filename) : RawShader(ReadFile(filename), true) {}
+  RawShader(const std::string& filename)
+      : RawShader(ReadFile(filename), true) {}
 
   RawShader(const RawShader&) = delete;
   RawShader(RawShader&&) = default;
@@ -55,31 +54,28 @@ public:
 
   virtual ~RawShader() {}
 
-  const std::map<std::string, size_t>& layout_map() const override {
-    return layout_map_;
-  }
+  const std::map<std::string, size_t>& layout_map() const override { return layout_map_; }
+
 private:
-  void ParseLayouts(const std::string& data) {
-    layout_map_ = detail::ParseLayouts(data);
-  }
+  void ParseLayouts(const std::string& data) { layout_map_ = detail::ParseLayouts(data); }
 
   std::map<std::string, size_t> layout_map_;
 
   static std::string ReadFile(const std::string& filename) {
     auto input_stream = std::ifstream(filename);
-    return std::string((std::istreambuf_iterator<char>(input_stream)), std::istreambuf_iterator<char>());
+    return std::string((std::istreambuf_iterator<char>(input_stream)),
+                       std::istreambuf_iterator<char>());
   }
 
   static GLenum RawEnum() {
     switch (type) {
-      case RawShaderType::VERTEX:
-        return GL_VERTEX_SHADER;
-      case RawShaderType::FRAGMENT:
-        return GL_FRAGMENT_SHADER;
+    case RawShaderType::VERTEX:
+      return GL_VERTEX_SHADER;
+    case RawShaderType::FRAGMENT:
+      return GL_FRAGMENT_SHADER;
     }
   }
 };
 
-} // ShapeShifter::Rendering::Shaders
+} // namespace ShapeShifter::Rendering::Shaders
 #endif /* RENDERING_SHADERS_RAW_SHADER_H */
-

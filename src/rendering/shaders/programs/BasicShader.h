@@ -15,10 +15,10 @@
 #define RENDERING_SHADERS_PROGRAMS_BASIC_SHADER_H
 
 #include "data/ConcreteBufferManager.h"
-#include "rendering/shaders/Shader.h"
-#include "rendering/shaders/language/GLSLGeneratorBase.h"
 #include "math/Quaternion.h"
 #include "rendering/Camera.h"
+#include "rendering/shaders/Shader.h"
+#include "rendering/shaders/language/GLSLGeneratorBase.h"
 #include "util/MultiReferenceWrapper.h"
 
 namespace ShapeShifter::Rendering::Shaders::Programs {
@@ -31,28 +31,21 @@ struct ColorPass : Language::Variable<Language::Vec3> {
   using Base = Language::Variable<Language::Vec3>;
   ColorPass() = delete;
   ColorPass(VariableFactory& factory)
-    : Base(factory.create<Language::Vec3>(name()))
-  {}
+      : Base(factory.create<Language::Vec3>(name())) {}
 
-  static constexpr const char* name() {
-    return "theColor";
-  }
+  static constexpr const char* name() { return "theColor"; }
   static constexpr bool smooth = true;
   Base& theColor = static_cast<Base&>(*this);
 };
 static_assert(Rendering::Shaders::InterfaceVariable<ColorPass>);
 
-
 struct OutputColor : Language::Variable<Language::Vec4> {
   using Base = Language::Variable<Language::Vec4>;
   OutputColor() = delete;
   OutputColor(VariableFactory& factory)
-    : Base(factory.create<Language::Vec4>(name()))
-  {}
+      : Base(factory.create<Language::Vec4>(name())) {}
 
-  static constexpr const char* name() {
-    return "outputColor";
-  }
+  static constexpr const char* name() { return "outputColor"; }
   static constexpr bool smooth = false;
   Base& outputColor = static_cast<Base&>(*this);
 };
@@ -65,25 +58,19 @@ struct Transform : Language::Variable<Language::Mat4> {
   using Base = Language::Variable<Language::Mat4>;
   Transform() = delete;
   Transform(VariableFactory& factory)
-    : Base(factory.create<Language::Mat4>(name()))
-  {}
-  static constexpr const char* name() {
-    return "transform";
-  }
+      : Base(factory.create<Language::Mat4>(name())) {}
+  static constexpr const char* name() { return "transform"; }
   static constexpr bool smooth = false;
-    Base& transform = static_cast<Base&>(*this);
+  Base& transform = static_cast<Base&>(*this);
 
   class UniformManager {
   public:
     using StorageType = Math::Matrix4;
-    UniformManager() : translation_(0,0,0,1) {}
+    UniformManager()
+        : translation_(0, 0, 0, 1) {}
 
-    void SetRotation(const Math::Quaternion& rot) {
-      rotation_ = rot;
-    }
-    void SetTranslation(const Math::Vector4& trans) {
-      translation_ = trans;
-    }
+    void SetRotation(const Math::Quaternion& rot) { rotation_ = rot; }
+    void SetTranslation(const Math::Vector4& trans) { translation_ = trans; }
 
     Math::Matrix4 Data(const Camera& camera) const {
       auto mat = rotation_.RotationMatrix();
@@ -93,11 +80,11 @@ struct Transform : Language::Variable<Language::Mat4> {
 
     void Combine(const UniformManager& other) {
       SetTranslation(translation_ + rotation_.RotationMatrix() * other.translation_);
-      SetRotation(rotation_*other.rotation_);
+      SetRotation(rotation_ * other.rotation_);
     }
 
     void CombineInverse(const UniformManager& other) {
-      SetRotation(rotation_*other.rotation_.Inverse());
+      SetRotation(rotation_ * other.rotation_.Inverse());
       SetTranslation(translation_ - rotation_.RotationMatrix() * other.translation_);
     }
 
@@ -111,62 +98,60 @@ struct Transform : Language::Variable<Language::Mat4> {
     Math::Vector4 translation_;
   };
 
-  class UniformInitializer
-  {
-    public:
+  class UniformInitializer {
+  public:
     UniformManager InitUniform() const {
       UniformManager ret{};
-      for (auto m : path_)
-      {
+      for (auto m : path_) {
         ret.CombineInverse(*m);
       }
       return ret;
     }
 
     template <typename T1, std::derived_from<UniformManager> T2>
-    void SetOriginNode(const Util::MultiReferenceWrapper<T1, T2>& node)
-    {
+    void SetOriginNode(const Util::MultiReferenceWrapper<T1, T2>& node) {
       const auto& path = static_cast<const T2&>(node).PathToRoot();
       path_ = std::vector<const UniformManager*>(path.begin(), path.end());
     }
 
-    private:
-      std::vector<const UniformManager*> path_;
+  private:
+    std::vector<const UniformManager*> path_;
   };
 };
 
+} // namespace detail
 
-}
+class BasicVertexShader
+    : public Language::GLSLVertexGeneratorBase<Pack<ColorManager, VertexManager>,
+                                               Pack<detail::Transform>,
+                                               Pack<detail::ColorPass>> {
+  using Base = Language::GLSLVertexGeneratorBase<Pack<ColorManager, VertexManager>,
+                                                 Pack<detail::Transform>,
+                                                 Pack<detail::ColorPass>>;
 
-class BasicVertexShader : public Language::GLSLVertexGeneratorBase<
-    Pack<ColorManager, VertexManager>,
-    Pack<detail::Transform>,
-    Pack<detail::ColorPass>> {
-  using Base = Language::GLSLVertexGeneratorBase<
-      Pack<ColorManager, VertexManager>,
-      Pack<detail::Transform>,
-      Pack<detail::ColorPass>>;
 public:
-  BasicVertexShader(VariableFactory&& factory) : Base(std::move(factory)) {}
+  BasicVertexShader(VariableFactory&& factory)
+      : Base(std::move(factory)) {}
+
 private:
   void DefineMain(const VariableFactory& factory) override;
 };
 
-class BasicFragmentShader : public Language::GLSLFragmentGeneratorBase<
-    Pack<detail::ColorPass>,
-    Pack<>,
-    Pack<detail::OutputColor>> {
-  using Base = Language::GLSLFragmentGeneratorBase<
-      Pack<detail::ColorPass>,
-      Pack<>,
-      Pack<detail::OutputColor>>;
+class BasicFragmentShader
+    : public Language::GLSLFragmentGeneratorBase<Pack<detail::ColorPass>,
+                                                 Pack<>,
+                                                 Pack<detail::OutputColor>> {
+  using Base = Language::
+      GLSLFragmentGeneratorBase<Pack<detail::ColorPass>, Pack<>, Pack<detail::OutputColor>>;
+
 public:
-  BasicFragmentShader(VariableFactory&& factory) : Base(std::move(factory)) {}
+  BasicFragmentShader(VariableFactory&& factory)
+      : Base(std::move(factory)) {}
+
 private:
   void DefineMain(const VariableFactory& factory) override;
 };
 
-} // ShapeShifter::Rendering::Shaders::Programs
+} // namespace ShapeShifter::Rendering::Shaders::Programs
 
 #endif /* RENDERING_SHADERS_PROGRAMS_BASIC_SHADER_H */
-

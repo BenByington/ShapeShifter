@@ -21,7 +21,6 @@
 #include "rendering/shaders/UniformManager.h"
 #include "util/MultiReferenceWrapper.h"
 
-
 namespace ShapeShifter::Rendering {
 
 /*
@@ -44,7 +43,7 @@ namespace ShapeShifter::Rendering {
 template <class Interface, class Uniforms>
 struct PureNode;
 template <class... Interface, class... Uniforms>
-struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : Shaders::UniformManager<Uniforms...> {
+struct PureNode<Pack<Interface...>, Pack<Uniforms...>> : Shaders::UniformManager<Uniforms...> {
   PureNode() {}
   virtual ~PureNode() {}
 
@@ -61,19 +60,16 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : Shaders::UniformManager<
   using Manipulator_t = Shaders::UniformManager<Uniforms...>;
 
   template <typename Other>
-  requires PackPermutation<typename Other::Interface_t, Interface_t> &&
-           PackPermutation<typename Other::Uniform_t, Uniform_t>
-  Util::MultiReferenceWrapper<Manipulator_t, PureNode> AddChild(
-      std::unique_ptr<Other> child) {
-
+    requires PackPermutation<typename Other::Interface_t, Interface_t> &&
+             PackPermutation<typename Other::Uniform_t, Uniform_t>
+  Util::MultiReferenceWrapper<Manipulator_t, PureNode> AddChild(std::unique_ptr<Other> child) {
     Util::MultiReferenceWrapper<Manipulator_t, PureNode> ret(*child);
     this->subtrees_.emplace_back(std::move(child));
     return ret;
-
   }
 
   template <class Leaf, typename... Args>
-  requires PackSubset<Interface_t, typename Leaf::Interface_t>
+    requires PackSubset<Interface_t, typename Leaf::Interface_t>
   Util::MultiReferenceWrapper<Manipulator_t, PureNode> AddLeaf(Args&&... args) {
     auto child = std::make_unique<PureNode>();
     auto leaf = std::make_unique<Leaf>(std::forward<Args>(args)...);
@@ -96,7 +92,6 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : Shaders::UniformManager<
   }
 
 protected:
-
   // Compute how big the VAO should be
   Data::BufferIndex SubtreeCounts() const {
     auto ret = Data::BufferIndex{};
@@ -122,11 +117,9 @@ protected:
 
   // Renders all children in the tree.
   template <class IPack, class... Uniforms_>
-  void DrawChildren(
-      const Camera& camera,
-      const Shaders::UniformManager<Uniforms_...>& cumulativeUniforms,
-      const Shaders::ShaderProgram<IPack, Pack<Uniforms_...>>& shader) const {
-
+  void DrawChildren(const Camera& camera,
+                    const Shaders::UniformManager<Uniforms_...>& cumulativeUniforms,
+                    const Shaders::ShaderProgram<IPack, Pack<Uniforms_...>>& shader) const {
     // ISSUE see about only doing dynamic casts in debug mode or something.
     for (const auto& child : subtrees_) {
       auto child_uniforms = cumulativeUniforms;
@@ -166,6 +159,6 @@ decltype(auto) CompatiblePureNode(const ShaderProgram&...) {
   return std::make_unique<Type>();
 }
 
-} //namespace Shapeshifter::Rendering
+} // namespace ShapeShifter::Rendering
 
 #endif /* RENDERING_PURE_NODE_H */

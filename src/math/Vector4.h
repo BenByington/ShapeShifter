@@ -24,7 +24,7 @@ class alignas(16) Vector4 final {
 public:
   Vector4(const std::array<float, 4>& data);
   Vector4(float f1, float f2, float f3, float f4);
-  Vector4(const __m128 data) {_mm_store_ps(data_.begin(), data); }
+  Vector4(const __m128 data) { _mm_store_ps(data_.begin(), data); }
   Vector4(const Vector4& orig);
   const Vector4& operator=(const Vector4& other);
   ~Vector4();
@@ -32,8 +32,14 @@ public:
   Vector4 operator+(const Vector4& other) const;
   Vector4 operator-(const Vector4& other) const;
 
-  float& operator[](size_t idx) { assert(idx < 4); return data_[idx];}
-  const float& operator[](size_t idx) const { assert(idx < 4); return data_[idx];}
+  float& operator[](size_t idx) {
+    assert(idx < 4);
+    return data_[idx];
+  }
+  const float& operator[](size_t idx) const {
+    assert(idx < 4);
+    return data_[idx];
+  }
   const float* begin() const { return data_.begin(); }
   const float* end() const { return data_.end(); }
 
@@ -45,7 +51,6 @@ private:
   std::array<float, 4> data_;
 };
 
-} // ShapeShifter::Math
+} // namespace ShapeShifter::Math
 
 #endif /* MATH_VECTOR4_H */
-

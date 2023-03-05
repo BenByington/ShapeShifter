@@ -14,9 +14,9 @@
 #ifndef RENDERING_SHADERS_UNIFORM_MANAGER_H
 #define RENDERING_SHADERS_UNIFORM_MANAGER_H
 
+#include "rendering/Camera.h"
 #include "rendering/shaders/BaseUniformManager.h"
 #include "rendering/shaders/ShaderProgramBase.h"
-#include "rendering/Camera.h"
 
 namespace ShapeShifter::Rendering::Shaders {
 
@@ -25,14 +25,15 @@ struct UniformManager : BaseUniformManager, Uniforms::UniformManager... {
   UniformManager() {}
 
   void Combine(const UniformManager& other) {
-    auto worker = {(Manager<Uniforms>::Combine(other),1)...};
-    (void) worker;
+    auto worker = {(Manager<Uniforms>::Combine(other), 1)...};
+    (void)worker;
   }
 
   const UniformManager& operator=(const UniformManager& other) {
-    auto worker = {(Manager<Uniforms>::Clone(other),1)...};
-    (void) worker;
+    auto worker = {(Manager<Uniforms>::Clone(other), 1)...};
+    (void)worker;
   }
+
 private:
   template <class Manage>
   using Manager = typename Manage::UniformManager;
@@ -54,16 +55,14 @@ public:
     // make sure we've got proper subsets
     // rename these damned _ differences
     UniformManager<Uniforms...> ret;
-    auto worker = {(
-        static_cast<Manager<Uniforms>&>(ret) = static_cast<const Initializer<Uniforms>&>(initializer).InitUniform()
-        ,1)...};
-    (void) worker;
+    auto worker = {(static_cast<Manager<Uniforms>&>(ret) =
+                        static_cast<const Initializer<Uniforms>&>(initializer).InitUniform(),
+                    1)...};
+    (void)worker;
     return ret;
   }
-
 };
 
-} /* ShapeShifter::Rendering::Shaders */
+} // namespace ShapeShifter::Rendering::Shaders
 
 #endif /* RENDERING_SHADERS_UNIFORM_MANAGER_H */
-

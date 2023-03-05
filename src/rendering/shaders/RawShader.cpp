@@ -15,9 +15,9 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <string>
 #include <map>
 #include <sstream>
+#include <string>
 
 namespace ShapeShifter::Rendering::Shaders::detail {
 std::map<std::string, size_t> ParseLayouts(const std::string& data) {
@@ -31,7 +31,7 @@ std::map<std::string, size_t> ParseLayouts(const std::string& data) {
       auto end = line.find(')');
       assert(start != std::string::npos);
       assert(end != std::string::npos);
-      std::istringstream temp(line.substr(start+1, end-start-1));
+      std::istringstream temp(line.substr(start + 1, end - start - 1));
       std::string trash;
       char op;
       size_t location;
@@ -41,11 +41,11 @@ std::map<std::string, size_t> ParseLayouts(const std::string& data) {
       end = line.find(";");
       assert(start != std::string::npos);
       assert(end != std::string::npos);
-      auto name = line.substr(start+5, end-start-5);
+      auto name = line.substr(start + 5, end - start - 5);
 
       ret[name] = location;
     }
   }
   return ret;
 }
-} // ShapeShifter::Rendering::Shaders
+} // namespace ShapeShifter::Rendering::Shaders::detail

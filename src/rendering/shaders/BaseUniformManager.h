@@ -27,8 +27,6 @@ struct BaseUniformInitializer {
   virtual ~BaseUniformInitializer() {}
 };
 
-
-} /* ShapeShifter::Rendering::Shaders */
+} // namespace ShapeShifter::Rendering::Shaders
 
 #endif /* BASE_RENDERING_SHADERS_UNIFORM_MANAGER_H */
-

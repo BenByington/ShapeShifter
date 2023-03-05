@@ -12,7 +12,8 @@ namespace detail {
 
 template <typename T>
 struct aux_wrapper {
-  aux_wrapper(T& t) : val{t} {}
+  aux_wrapper(T& t)
+      : val{t} {}
   std::reference_wrapper<T> val;
 };
 
@@ -22,7 +23,7 @@ concept InheritsFromAll = (std::derived_from<T, Parents> && ...);
 template <typename T, typename... Set>
 concept IsAnyOf = (std::same_as<T, Set> || ...);
 
-}
+} // namespace detail
 
 /*
  * Used to create a non-owning reference_wrapper that can be called like a smart
@@ -30,9 +31,8 @@ concept IsAnyOf = (std::same_as<T, Set> || ...);
  * type erasure with multiple inheritance, it can optionally provide access
  * to other parent types as well.
  */
-template <class T, class...Other>
+template <class T, class... Other>
 class MultiReferenceWrapper : private detail::aux_wrapper<Other>... {
-
 public:
   template <detail::InheritsFromAll<T, Other...> U>
   explicit MultiReferenceWrapper(U& u)
@@ -52,30 +52,32 @@ public:
   // These really could be defined in the parents, but I can't figure
   // out how to get a variadic using statement to work when the
   // operator has a space in the name...
-  template<detail::IsAnyOf<T, Other...> U>
+  template <detail::IsAnyOf<T, Other...> U>
   operator U&() {
     return static_cast<detail::aux_wrapper<U>*>(this)->val.get();
   }
-  template<detail::IsAnyOf<T, Other...> U>
+  template <detail::IsAnyOf<T, Other...> U>
   operator const U&() const {
     return static_cast<const detail::aux_wrapper<U>*>(this)->val.get();
   }
+
 private:
   std::reference_wrapper<T> w_;
 };
 
-template <class T, class...Other>
+template <class T, class... Other>
 class MultiReferenceOwner : public MultiReferenceWrapper<T, Other...> {
 public:
   template <detail::InheritsFromAll<T, Other...> U>
   MultiReferenceOwner(std::unique_ptr<U> u)
-    : MultiReferenceWrapper<T, Other...>(*u)
-    , owner_(std::move(u)) {}
+      : MultiReferenceWrapper<T, Other...>(*u)
+      , owner_(std::move(u)) {}
 
   using MultiReferenceWrapper<T, Other...>::operator->;
+
 private:
   std::unique_ptr<T> owner_;
 };
-}
+} // namespace ShapeShifter::Util
 
 #endif // UTIL_MULTI_REFERENCE_WRAPPER_H

@@ -5,7 +5,3 @@
  */
 
 #include "data/ConcreteBufferManager.h"
-
-
-
-

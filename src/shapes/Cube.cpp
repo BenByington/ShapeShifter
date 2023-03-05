@@ -19,7 +19,10 @@ namespace ShapeShifter::Shapes {
 
 using namespace Data;
 
-Cube::Cube(float sx, float sy, float sz) : sx_(sx), sy_(sy), sz_(sz) {}
+Cube::Cube(float sx, float sy, float sz)
+    : sx_(sx)
+    , sy_(sy)
+    , sz_(sz) {}
 
 BufferIndex Cube::ExclusiveNodeDataCount() const {
   auto ret = BufferIndex();
@@ -35,35 +38,22 @@ void Cube::FillVertexData(VectorSlice<float>& data) const {
     const auto d1 = dim == 0 ? 1 : 0;
     const auto d2 = dim == 2 ? 1 : 2;
 
-    const auto forward_perm = std::array<float, 12> {
-      0.0f, 0.0f,
-      1.0f, 0.0f,
-      0.0f, 1.0f,
-      1.0f, 0.0f,
-      1.0f, 1.0f,
-      0.0f, 1.0f
-    };
+    const auto forward_perm = std::array<float, 12>{
+        0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f};
 
-    const auto reverse_perm = std::array<float, 12> {
-      1.0f, 0.0f,
-      0.0f, 1.0f,
-      0.0f, 0.0f,
-      0.0f, 1.0f,
-      1.0f, 0.0f,
-      1.0f, 1.0f
-    };
+    const auto reverse_perm = std::array<float, 12>{
+        1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f};
 
     const auto& perm = pos ? forward_perm : reverse_perm;
 
-    auto point = std::array<float, 3> {};
-    for (size_t i = 0; i < 12; i+=2) {
+    auto point = std::array<float, 3>{};
+    for (size_t i = 0; i < 12; i += 2) {
       point[d1] = perm[i];
-      point[d2] = perm[i+1];
+      point[d2] = perm[i + 1];
       point[dim] = pos ? 0 : 1;
 
       DataFiller(sx_ * point[0], sy_ * point[1], sz_ * point[2]);
     }
-
   };
 
   FillFace(0, true);
@@ -91,11 +81,7 @@ void Cube::FillColorData(VectorSlice<float>& data) const {
 }
 
 void Cube::DrawSelf() const {
-  glDrawArrays (
-      GL_TRIANGLES,
-      start().vertex_,
-      ExclusiveNodeDataCount().vertex_
-  );
+  glDrawArrays(GL_TRIANGLES, start().vertex_, ExclusiveNodeDataCount().vertex_);
 }
 
-} // ShapeShifter::Shapes
+} // namespace ShapeShifter::Shapes

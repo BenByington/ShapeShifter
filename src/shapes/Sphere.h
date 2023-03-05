@@ -21,10 +21,7 @@
 
 namespace ShapeShifter::Shapes {
 
-class Sphere final : public Rendering::LeafNode<
-    Data::VertexManager,
-    Data::ColorManager
->{
+class Sphere final : public Rendering::LeafNode<Data::VertexManager, Data::ColorManager> {
   using BufferIndex = Data::BufferIndex;
 
 public:
@@ -34,8 +31,8 @@ public:
   Sphere& operator=(const Sphere& orig) = delete;
 
   ~Sphere() {}
-private:
 
+private:
   virtual BufferIndex ExclusiveNodeDataCount() const override;
   virtual void FillVertexData(Data::VectorSlice<float>& data) const override;
   virtual void FillColorData(Data::VectorSlice<float>& data) const override;
@@ -46,7 +43,6 @@ private:
   float radius_;
 };
 
-} // ShapeShifter::Shapes
+} // namespace ShapeShifter::Shapes
 
 #endif /* SHAPES_SPHERE_H */
-

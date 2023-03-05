@@ -16,21 +16,24 @@
 namespace ShapeShifter::ui {
 
 MainWindow::MainWindow() {
-    widget.setupUi(this);
-    qtw_.reset(new MyQtWidget());
-    widget.DisplayFrame->layout()->addWidget(qtw_.get());
-    //QMainWindow::showMaximized();
+  widget.setupUi(this);
+  qtw_.reset(new MyQtWidget());
+  widget.DisplayFrame->layout()->addWidget(qtw_.get());
+  // QMainWindow::showMaximized();
 
-    LinkActions();
+  LinkActions();
 }
 
-MainWindow::~MainWindow() {
-}
+MainWindow::~MainWindow() {}
 
 void MainWindow::LinkActions() {
   connect(widget.actionEmpty, &QAction::triggered, qtw_.get(), &MyQtWidget::EmptyScenario);
-  connect(widget.actionSquare2D, &QAction::triggered, qtw_.get(), &MyQtWidget::Squares2DScenario);
-  connect(widget.actionIndexBuffer, &QAction::triggered, qtw_.get(), &MyQtWidget::IndexBufferScenario);
+  connect(
+      widget.actionSquare2D, &QAction::triggered, qtw_.get(), &MyQtWidget::Squares2DScenario);
+  connect(widget.actionIndexBuffer,
+          &QAction::triggered,
+          qtw_.get(),
+          &MyQtWidget::IndexBufferScenario);
 }
 
-} //ShapeShifter::ui
+} // namespace ShapeShifter::ui

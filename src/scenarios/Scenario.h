@@ -26,13 +26,12 @@ public:
   Scenario(const Scenario& orig) = delete;
   Scenario(Scenario&& orig) = delete;
   Scenario& operator=(const Scenario& orig) = delete;
-  virtual ~Scenario() {};
+  virtual ~Scenario(){};
 
   virtual std::unique_ptr<Rendering::World> Setup() = 0;
-private:
 
+private:
 };
 
-} //namespace ShapeShifter::scenarios
+} // namespace ShapeShifter::scenarios
 #endif /* SCENARIOS_SCENARIO_H */
-

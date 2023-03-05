@@ -14,8 +14,8 @@
 #ifndef RENDERING_CAMERA_H
 #define RENDERING_CAMERA_H
 
-#include "math/Vector4.h"
 #include "math/Quaternion.h"
+#include "math/Vector4.h"
 #include "rendering/Frustum.h"
 
 namespace ShapeShifter::Rendering {
@@ -31,7 +31,8 @@ public:
   void ChangePitchUp(float rads);
   void ChangeYawLeft(float rads);
   void ChangePosition(const Math::Vector4& trans);
-  void PivotAroundLook(const std::pair<float, float>& start, const std::pair<float, float>& end);
+  void PivotAroundLook(const std::pair<float, float>& start,
+                       const std::pair<float, float>& end);
 
   void SetAspectRatio(float aspect);
 
@@ -40,10 +41,8 @@ private:
   float look_depth_;
   Math::Vector4 translation_{{0, 0, 0, 1}};
   Math::Quaternion rotation_{0, 0, 0, 1};
-
 };
 
-} // ShapeShifter::Rendering
+} // namespace ShapeShifter::Rendering
 
 #endif /* RENDERING_CAMERA_H */
-

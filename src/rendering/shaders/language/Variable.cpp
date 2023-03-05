@@ -12,9 +12,3 @@
  */
 
 #include "rendering/shaders/language/Variable.h"
-
-
-
-
-
-

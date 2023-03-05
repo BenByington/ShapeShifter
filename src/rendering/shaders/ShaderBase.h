@@ -34,16 +34,17 @@ protected:
   ShaderBase(ShaderBase&& other);
   ShaderBase& operator=(const ShaderBase&) = delete;
   ShaderBase& operator=(ShaderBase&& other);
+
 public:
   virtual ~ShaderBase();
 
 public:
-  operator GLuint() const {return shader;}
+  operator GLuint() const { return shader; }
   virtual const std::map<std::string, size_t>& layout_map() const = 0;
+
 private:
   GLuint shader = 0;
 };
 
-} // ShapeShifter::Rendering::Shaders
+} // namespace ShapeShifter::Rendering::Shaders
 #endif /* RENDERING_SHADERS_SHADER_BASE_H */
-

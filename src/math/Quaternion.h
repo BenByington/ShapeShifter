@@ -23,7 +23,8 @@ class Quaternion {
 public:
   Quaternion(float s, float x, float y, float z);
   Quaternion(float s, const Vector3& dir);
-  Quaternion() : Quaternion(0, 0, 0, 0) {}
+  Quaternion()
+      : Quaternion(0, 0, 0, 0) {}
   Quaternion(const Quaternion& orig) = default;
   Quaternion& operator=(const Quaternion& other) = default;
   virtual ~Quaternion() {}
@@ -48,7 +49,6 @@ private:
   float qz;
 };
 
-} // ShapeShifter::Math
+} // namespace ShapeShifter::Math
 
 #endif /* MATH_QUATERNION_H */
-

@@ -12,8 +12,3 @@
  */
 
 #include "rendering/shaders/language/IndentedStringStream.h"
-
-
-
-
-

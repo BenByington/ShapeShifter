@@ -20,10 +20,10 @@
 namespace ShapeShifter::Math {
 
 Vector3 Vector3::cross(const Vector3& other) const {
-  auto ret = Vector3 {};
-  ret[0] = data_[1] * other.data_[2] - data_[2]*other.data_[1];
-  ret[1] = data_[2] * other.data_[0] - data_[0]*other.data_[2];
-  ret[2] = data_[0] * other.data_[1] - data_[1]*other.data_[0];
+  auto ret = Vector3{};
+  ret[0] = data_[1] * other.data_[2] - data_[2] * other.data_[1];
+  ret[1] = data_[2] * other.data_[0] - data_[0] * other.data_[2];
+  ret[2] = data_[0] * other.data_[1] - data_[1] * other.data_[0];
   return ret;
 }
 
@@ -38,7 +38,7 @@ float Vector3::dot(const Vector3& other) const {
 float Vector3::Magnitude() const {
   auto mag = 0.0f;
   for (size_t i = 0; i < 3; ++i) {
-    mag += data_[i]*data_[i];
+    mag += data_[i] * data_[i];
   }
   mag = sqrt(mag);
   return mag;
@@ -49,13 +49,12 @@ void Vector3::Normalize() {
   for (size_t i = 0; i < 3; ++i) {
     data_[i] /= mag;
   }
-  //ISSUE: Create unit tests (this should be one of the checks)
-  //assert(Magnitude() > .99 && Magnitude() < 1.01);
+  // ISSUE: Create unit tests (this should be one of the checks)
+  // assert(Magnitude() > .99 && Magnitude() < 1.01);
 }
 
 void Vector3::Print() const {
   std::cerr << data_[0] << " " << data_[1] << " " << data_[2] << std::endl;
 }
 
-} // ShapeShifter::Math
-
+} // namespace ShapeShifter::Math

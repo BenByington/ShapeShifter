@@ -12,7 +12,3 @@
  */
 
 #include "rendering/RenderingTree.h"
-
-
-
-

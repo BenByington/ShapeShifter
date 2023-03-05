@@ -53,26 +53,20 @@ using strip_variable_t = typename strip_variable<T>::Type;
 
 template <typename T>
 struct extract {
-  static std::string name(const T& t) {
-    return std::to_string(t);
-  }
+  static std::string name(const T& t) { return std::to_string(t); }
 };
 
 template <typename T>
-struct extract<Variable<T>>{
-  static std::string name(const Variable<T>& t) {
-    return t.state_;
-  }
+struct extract<Variable<T>> {
+  static std::string name(const Variable<T>& t) { return t.state_; }
 };
 
 template <typename T>
-struct extract<Expression<T>>{
-  static std::string name(const Expression<T>& t) {
-    return t.state_;
-  }
+struct extract<Expression<T>> {
+  static std::string name(const Expression<T>& t) { return t.state_; }
 };
 
-}
+} // namespace detail
 
 /*
  * This is designed to be the only way to instantiate Variable<T> and Expression<T>
@@ -100,14 +94,13 @@ public:
     static_assert(
         detail::can_create<
             // std::decay may potentially not be what we want?  Does things to arrays
-            detail::strip_variable_t<typename std::decay_t<Args>>...
-        >::valid((T*)nullptr),
+            detail::strip_variable_t<typename std::decay_t<Args>>...>::valid((T*)nullptr),
         "Cannot instantiate Expression<T> unless T defines a static"
         " `Create` function with the appropriate arguments\n");
 
     using Type = Language::Expression<T>;
-    std::vector<std::string> names {
-      detail::extract<typename std::decay<Args>::type>::name(args)...};
+    std::vector<std::string> names{
+        detail::extract<typename std::decay<Args>::type>::name(args)...};
     std::string argument;
     for (size_t i = 0; i < names.size() - 1; ++i) {
       argument += names[i] + ", ";
@@ -124,8 +117,6 @@ private:
   Language::IndentedStringStream s;
 };
 
-
-} // ShapeShifter::Rendering::Shaders
+} // namespace ShapeShifter::Rendering::Shaders
 
 #endif /* RENDERING_SHADERS_LANGUAGEVVARIABLE_FACTORY_H */
-

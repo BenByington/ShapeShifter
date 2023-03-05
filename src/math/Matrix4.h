@@ -29,7 +29,6 @@ namespace ShapeShifter::Math {
  */
 class alignas(16) Matrix4 final {
 public:
-
   static const size_t DIM = 4;
 
   Matrix4(const std::array<float, 16>& cols);
@@ -55,10 +54,9 @@ public:
 
 private:
   Matrix4();
-  std::array<float,16> data_;
+  std::array<float, 16> data_;
 };
 
-} // ShapeShifter::Math
+} // namespace ShapeShifter::Math
 
 #endif /* MATH_MATRIX4_H */
-

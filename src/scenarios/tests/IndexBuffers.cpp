@@ -27,7 +27,6 @@
 namespace ShapeShifter::scenarios::tests {
 
 std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
-
   using Math::Quaternion;
   using Math::Vector4;
 
@@ -87,4 +86,4 @@ std::unique_ptr<Rendering::World> IndexBuffers::Setup() {
   return world;
 }
 
-}  // ShapeShifter::scenarios::tests
+} // namespace ShapeShifter::scenarios::tests

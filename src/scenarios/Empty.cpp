@@ -16,7 +16,6 @@
 namespace ShapeShifter::scenarios {
 
 std::unique_ptr<Rendering::World> Empty::Setup() {
-
   auto&& frust = Rendering::Frustum::Build()->aspect(1)->fov(.5)->far(300)->near(0.5);
   auto camera = std::unique_ptr<Rendering::Camera>(new Rendering::Camera(frust, 2.5));
   auto world = std::unique_ptr<Rendering::World>(new Rendering::World(std::move(camera)));

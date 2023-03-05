@@ -18,9 +18,10 @@
 namespace ShapeShifter::Shapes {
 
 using namespace Data;
-static const auto phi = (1.0f + std::sqrt(5.0f))/2.0f;
+static const auto phi = (1.0f + std::sqrt(5.0f)) / 2.0f;
 
-Sphere::Sphere(float radius) : radius_(radius) {}
+Sphere::Sphere(float radius)
+    : radius_(radius) {}
 
 BufferIndex Sphere::ExclusiveNodeDataCount() const {
   auto ret = BufferIndex();
@@ -32,7 +33,7 @@ BufferIndex Sphere::ExclusiveNodeDataCount() const {
 void Sphere::FillVertexData(VectorSlice<float>& data) const {
   auto data_filler = data.Filler();
   auto FillVertex = [&](float f1, float f2, float f3) {
-    data_filler(radius_*f1, radius_*f2, radius_*f3);
+    data_filler(radius_ * f1, radius_ * f2, radius_ * f3);
   };
 
   FillVertex(phi, 0, 1);
@@ -76,13 +77,13 @@ void Sphere::FillColorData(VectorSlice<float>& data) const {
 void Sphere::FillIndexData(VectorSlice<uint32_t>& data) const {
   auto FillData = data.Filler();
 
-  //ISSUE: Enable resolution adjusting, and put in a more procedural generation
-  FillData(0,1,2);
-  FillData(0,3,1);
+  // ISSUE: Enable resolution adjusting, and put in a more procedural generation
+  FillData(0, 1, 2);
+  FillData(0, 3, 1);
 
-  FillData(0,2,4);
-  FillData(0,4,5);
-  FillData(0,5,3);
+  FillData(0, 2, 4);
+  FillData(0, 4, 5);
+  FillData(0, 5, 3);
 
   FillData(3, 5, 6);
   FillData(3, 6, 7);
@@ -107,15 +108,12 @@ void Sphere::FillIndexData(VectorSlice<uint32_t>& data) const {
 }
 
 void Sphere::DrawSelf() const {
-  //ISSUE set up global and toggle-able culling
-  //glEnable(GL_CULL_FACE);
-  //glCullFace(GL_BACK);
+  // ISSUE set up global and toggle-able culling
+  // glEnable(GL_CULL_FACE);
+  // glCullFace(GL_BACK);
 
   glDrawElements(
-      GL_TRIANGLES,
-      ExclusiveNodeDataCount().index_,
-      GL_UNSIGNED_INT,
-      StartIndexAsVP());
+      GL_TRIANGLES, ExclusiveNodeDataCount().index_, GL_UNSIGNED_INT, StartIndexAsVP());
 }
 
-} // ShapeShifter::Shapes
+} // namespace ShapeShifter::Shapes

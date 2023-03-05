@@ -12,10 +12,3 @@
  */
 
 #include "rendering/shaders/VariableFactory.h"
-
-
-
-
-
-
-

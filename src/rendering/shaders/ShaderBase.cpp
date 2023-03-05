@@ -37,10 +37,10 @@ ShaderBase::ShaderBase(const std::string& data, GLenum shader_type) {
 
   glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
   if (!compiled) {
-    auto logLength = GLint {0};
+    auto logLength = GLint{0};
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
 
-    auto log = std::unique_ptr<char[]>(new char[logLength+1]);
+    auto log = std::unique_ptr<char[]>(new char[logLength + 1]);
     glGetShaderInfoLog(shader, logLength, nullptr, log.get());
 
     auto slog = std::string(log.get());
@@ -64,7 +64,7 @@ ShaderBase::ShaderBase(ShaderBase&& other) {
   other.shader = 0;
 }
 
-ShaderBase& ShaderBase::operator =(ShaderBase&& other) {
+ShaderBase& ShaderBase::operator=(ShaderBase&& other) {
   shader = other.shader;
 
   other.shader = 0;
@@ -72,4 +72,4 @@ ShaderBase& ShaderBase::operator =(ShaderBase&& other) {
   return *this;
 }
 
-} // ShapeShifter::Rendering::Shaders
+} // namespace ShapeShifter::Rendering::Shaders
