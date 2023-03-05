@@ -62,15 +62,10 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : Shaders::UniformManager<
   using Manipulator_t = Shaders::UniformManager<Uniforms...>;
 
   template <typename Other>
+  requires PackPermutation<typename Other::Interface_t, Interface_t> &&
+           PackPermutation<typename Other::Uniform_t, Uniform_t>
   Util::MultiReferenceWrapper<Manipulator_t, PureNode> AddChild(
       std::unique_ptr<Other> child) {
-
-    static_assert(
-        is_permutation<Interface_t, typename Other::Interface_t>::value,
-        "Internal nodes must all have the same interface");
-    static_assert(
-        is_permutation<Uniform_t, typename Other::Uniform_t>::value,
-        "Internal nodes must all have the same uniforms");
 
     Util::MultiReferenceWrapper<Manipulator_t, PureNode> ret(*child);
     this->subtrees_.emplace_back(std::move(child));
@@ -79,12 +74,8 @@ struct PureNode<Pack<Interface...>,Pack<Uniforms...>> : Shaders::UniformManager<
   }
 
   template <class Leaf, typename... Args>
+  requires PackSubset<Interface_t, typename Leaf::Interface_t>
   Util::MultiReferenceWrapper<Manipulator_t, PureNode> AddLeaf(Args&&... args) {
-    static_assert(
-        is_subset<Interface_t, typename Leaf::Interface_t>::value(),
-        "Attempting to add leaf node that does not fulfill the input interface"
-        " of the parent node");
-
     auto child = std::make_unique<PureNode>();
     auto leaf = std::make_unique<Leaf>(std::forward<Args>(args)...);
     child->leaf_ = LeafWrapper<Interface...>{std::move(leaf)};

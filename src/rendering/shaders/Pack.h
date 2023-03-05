@@ -23,42 +23,29 @@
 template <class ... Ts>
 class Pack {};
 
+template <class A, class... B>
+concept OneOf = (std::same_as<A, B> || ...);
+
 namespace detail {
 
-// Sees if class A exists in the variadic pack B.
-template <class A, class B> struct subset_helper;
-template <class A, class... B>
-struct subset_helper<A, Pack<B...>> {
-  static constexpr bool value() {
-    const std::array<bool, sizeof...(B)> check = { std::is_same<A,B>::value... };
-    auto ret = false;
-    for (size_t i = 0; i < sizeof...(B); ++i) {
-      ret |= check[i];
-    }
-    return ret;
-  }
+template <class A, class B> struct is_subset { static constexpr bool val = false;};
+template <class... B, OneOf<B...>... A>
+struct is_subset<Pack<A...>, Pack<B...>> {
+    static constexpr bool val = true;
 };
 
 }
 
-// Sees if all of the classes in the pack A exist in the pack B
-template <class A, class B> struct is_subset;
-template <class... A, class... B>
-struct is_subset<Pack<A...>, Pack<B...>> {
-  static constexpr bool value() {
-    using other = Pack<B...>;
-    const std::array<bool, sizeof...(A)> check = { detail::subset_helper<A, other>::value()... };
-    auto ret = true;
-    for (size_t i = 0; i < sizeof...(A); ++i) {
-      ret &= check[i];
-    }
-    return ret;
-  }
-};
+template <typename A, typename B>
+concept PackSubset = detail::is_subset<A, B>::val;
 
-template <class A, class B> struct is_permutation {
-  static constexpr bool value =
-    is_subset<A,B>::value() && is_subset<B,A>::value();
+template <typename A, typename B>
+concept PackSuperset = detail::is_subset<B, A>::val;
+
+template <typename A, typename B>
+concept PackPermutation = requires {
+    requires PackSubset<A, B>;
+    requires PackSubset<B, A>;
 };
 
 namespace detail {
@@ -71,7 +58,7 @@ struct unique_helper<Pack<Head...>, Pack<>> {
 template <class... Head, class Current, class... Tail>
 struct unique_helper<Pack<Head...>, Pack<Current, Tail...>> {
   using type = typename std::conditional<
-      is_subset<Pack<Current>, Pack<Head...>>::value(),
+      is_subset<Pack<Current>, Pack<Head...>>::val,
       typename unique_helper<Pack<Head...>, Pack<Tail...>>::type,
       typename unique_helper<Pack<Head..., Current>, Pack<Tail...>>::type
   >::type;

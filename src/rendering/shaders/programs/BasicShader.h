@@ -126,12 +126,9 @@ struct Transform : Language::Variable<Language::Mat4> {
       return ret;
     }
 
-    template <typename T1, typename T2>
+    template <typename T1, std::derived_from<UniformManager> T2>
     void SetOriginNode(const Util::MultiReferenceWrapper<T1, T2>& node)
     {
-      static_assert(std::is_base_of<UniformManager, T2>::value,
-                    "SetOriginNode called node without Transform Uniform");
-
       const auto& path = static_cast<const T2&>(node).PathToRoot();
       path_ = std::vector<const UniformManager*>(path.begin(), path.end());
     }

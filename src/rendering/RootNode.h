@@ -114,14 +114,11 @@ public:
   /**
    * Walks down the tree, applies rotation matrices, and calls opengl to render
    */
-  template <class IPack, class... Uniforms_>
+  template <PackSubset<TreePack> IPack, class... Uniforms_>
+  requires PackSubset<Pack<Uniforms...>, UniformPack>
   void RenderTree(
       const Camera& camera,
       const Shaders::ShaderProgram<IPack, Pack<Uniforms_...>>& program) const {
-    static_assert(is_subset<IPack, TreePack>::value(),
-        "Invalid shader requiring unsupported buffers");
-    static_assert(is_subset<Pack<Uniforms_...>, UniformPack>::value(),
-        "Invalid shader requiring unsupported uniforms");
     const auto& uniforms = Shaders::UniformInitializer<Uniforms_...>::InitializeUniforms(*this);
     this->DrawChildren(camera, uniforms, program);
   }

@@ -75,11 +75,8 @@ template <class... Managers>
 struct LeafWrapper {
 
   template <class Leaf>
+  requires PackSuperset<Pack<Managers...>, typename Leaf::Interface_t>
   LeafWrapper(std::unique_ptr<Leaf> node) {
-    static_assert(
-        is_subset<Pack<Managers...>, typename Leaf::Interface_t>::value(),
-        "Attempting to add leaf node that does not fulfill the input interface"
-        " of the parent node");
 
     this->leaf_ = std::make_unique<Util::MultiReferenceOwner<BaseLeafNode, typename Managers::Interface...>>(std::move(node));
   }
@@ -97,12 +94,8 @@ struct LeafWrapper {
 
   // ISSUE: implement something like client-attorney here so that *only*
   //        PureNodes can call these two functions
-  template <typename... Keys>
+  template <OneOf<Managers...>... Keys>
   void FillLocalBuffer(Data::BufferMap<Keys...>& data) {
-
-    static_assert(
-        is_subset<Pack<Keys...>, Pack<Managers...>>::value(),
-        "Attempting fill BufferMap containing Keys not part of our interface");
 
     auto size = (*leaf_)->ExclusiveNodeDataCount();
 

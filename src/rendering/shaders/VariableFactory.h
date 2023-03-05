@@ -50,6 +50,8 @@ template <typename T>
 struct strip_variable<Expression<T>> {
   using Type = T;
 };
+template <typename T>
+using strip_variable_t = typename strip_variable<T>::Type;
 
 template <typename T>
 struct extract {
@@ -100,7 +102,7 @@ public:
     static_assert(
         detail::can_create<
             // std::decay may potentially not be what we want?  Does things to arrays
-            typename detail::strip_variable<typename std::decay<Args>::type>::Type...
+            detail::strip_variable_t<typename std::decay_t<Args>>...
         >::valid((T*)nullptr),
         "Cannot instantiate Expression<T> unless T defines a static"
         " `Create` function with the appropriate arguments\n");
