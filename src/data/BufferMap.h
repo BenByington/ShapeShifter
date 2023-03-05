@@ -19,6 +19,7 @@
 #include <cassert>
 #include <memory>
 #include <set>
+#include <vector>
 
 namespace ShapeShifter {
 namespace Data {

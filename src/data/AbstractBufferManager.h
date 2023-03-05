@@ -14,8 +14,7 @@
 #ifndef DATA_ABSTRACT_BUFFERTYPES_H
 #define DATA_ABSTRACT_BUFFERTYPES_H
 
-#include "data/BufferMapBase.h"
-#include "rendering/LeafNode.h"
+#include "data/VectorSlice.h"
 #include "rendering/shaders/InterfaceVariableBase.h"
 
 #include <cstdlib>

@@ -14,6 +14,7 @@
 #ifndef DATA_BUFFER_MAP_BASE_H
 #define DATA_BUFFER_MAP_BASE_H
 
+#include "data/AbstractBufferManager.h"
 #include "data/MultiTypeMap.h"
 #include "data/VectorSlice.h"
 #include "rendering/shaders/Pack.h"

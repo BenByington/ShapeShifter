@@ -15,6 +15,7 @@
 #define RENDERING_PURE_NODE_H
 
 #include "data/BufferMapBase.h"
+#include "rendering/LeafNode.h"
 #include "rendering/shaders/Pack.h"
 #include "rendering/shaders/ShaderProgram.h"
 #include "rendering/shaders/UniformManager.h"
