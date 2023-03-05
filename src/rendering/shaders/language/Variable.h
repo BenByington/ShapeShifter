@@ -17,6 +17,7 @@
 #define RENDERING_SHADERS_LANGUAGE_VARIABLE_H
 
 #include "rendering/shaders/language/Expression.h"
+#include "rendering/shaders/language/Types.h"
 
 namespace ShapeShifter {
 namespace Rendering {

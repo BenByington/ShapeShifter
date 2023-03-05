@@ -16,7 +16,7 @@
 
 #include "data/AbstractBufferManager.h"
 #include "data/BufferMapBase.h"
-#include "rendering/shaders/InterfaceVariableBase.h"
+#include "rendering/shaders/InterfaceVariable.h"
 
 #include <cstdlib>
 #include <type_traits>
@@ -35,15 +35,18 @@ public:
   virtual bool isFloating() const override { return true; }
   virtual std::string name() const override { return Variable::name(); }
 
-  struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable, Type2> {
-    using Base = Rendering::Shaders::InterfaceVariableBase<Variable, Type2>;
-    using Base::InterfaceVariableBase;
+  struct Variable : Rendering::Shaders::Language::Variable<Type2> {
+    using Base = Rendering::Shaders::Language::Variable<Type2>;
+    Variable(Rendering::Shaders::VariableFactory& factory)
+        : Base(factory.create<Type2>(name()))
+    {}
     static constexpr const char* name() {
       return "inColor";
     }
     static constexpr bool smooth = false;
-    Variable_T& inColor = Base::var;
+    Base& inColor = static_cast<Base&>(*this);
   };
+  static_assert(Rendering::Shaders::InterfaceVariable<Variable>);
 
   class Interface {
   public:
@@ -62,15 +65,18 @@ public:
   virtual bool isFloating() const override { return true; }
   virtual std::string name() const override { return Variable::name(); }
 
-  struct Variable : Rendering::Shaders::InterfaceVariableBase<Variable, Type2> {
-    using Base = Rendering::Shaders::InterfaceVariableBase<Variable, Type2>;
-    using Base::InterfaceVariableBase;
+  struct Variable : Rendering::Shaders::Language::Variable<Type2> {
+    using Base = Rendering::Shaders::Language::Variable<Type2>;
+    Variable(Rendering::Shaders::VariableFactory& factory)
+        : Base(factory.create<Type2>(name()))
+    {}
     static constexpr const char* name() {
       return "inPosition";
     }
     static constexpr bool smooth = false;
-    Variable_T& inPosition = Base::var;
+    Base& inPosition = static_cast<Base&>(*this);
   };
+  static_assert(Rendering::Shaders::InterfaceVariable<Variable>);
 
   class Interface {
   public:

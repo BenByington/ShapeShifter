@@ -15,7 +15,7 @@
 #define DATA_ABSTRACT_BUFFERTYPES_H
 
 #include "data/VectorSlice.h"
-#include "rendering/shaders/InterfaceVariableBase.h"
+#include "rendering/shaders/InterfaceVariable.h"
 
 #include <cstdlib>
 #include <type_traits>
@@ -77,14 +77,8 @@ concept BufferManager = requires(Child c) {
         { i.FillData(v) } -> std::same_as<void>;
     };
 
-    typename Child::Type2;
     typename Child::Variable;
-    requires std::derived_from<
-        typename Child::Variable,
-        Rendering::Shaders::InterfaceVariableBase<
-            typename Child::Variable,
-            typename Child::Type2>
-        >;
+    requires Rendering::Shaders::InterfaceVariable<typename Child::Variable>;
 };
 
 }} // ShapeShifter::Data

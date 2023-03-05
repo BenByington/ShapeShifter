@@ -15,7 +15,7 @@
 #define RENDERING_SHADERS_SHADER_H
 
 #include "rendering/shaders/language/GLSLGeneratorBase.h"
-#include "rendering/shaders/InterfaceVariableBase.h"
+#include "rendering/shaders/InterfaceVariable.h"
 #include "rendering/shaders/Pack.h"
 #include "rendering/shaders/ShaderBase.h"
 
