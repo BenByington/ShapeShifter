@@ -47,22 +47,6 @@ struct check_inputs {
   static constexpr bool valid(...) { return false; }
 };
 
-template <class T>
-struct is_manager {
-  static constexpr bool value = std::is_base_of<Data::BaseManager<T>,T>::value;
-};
-
-template <class... Ts>
-struct are_managers {
-  static constexpr const bool check() {
-    const std::array<bool, sizeof...(Ts)> check { is_manager<Ts>::value... };
-    bool ret = true;
-    for (size_t i = 0; i < sizeof...(Ts); ++i) ret = ret && check[i];
-    return ret;
-  }
-};
-
-
 }
 
 template <class Input, class Uniform, class Output>
@@ -137,12 +121,10 @@ private:
   std::map<std::string, size_t> layout_map_;
 };
 
-template <class... Inputs, class... Uniforms, class... Outputs>
+template <Data::BufferManager... Inputs, class... Uniforms, class... Outputs>
 class GLSLVertexGeneratorBase<Pack<Inputs...>, Pack<Uniforms...>, Pack<Outputs...>>
   : public GLSLGeneratorBase<Pack<typename Inputs::Variable...>, Pack<Uniforms...>, Pack<Outputs...>> {
 
-static_assert(detail::are_managers<Inputs...>::check(),
-    "GLSLVertexGeneratorBase only accepts BufferManagers within the Inputs pack.");
 using  Base = GLSLGeneratorBase<Pack<typename Inputs::Variable...>, Pack<Uniforms...>, Pack<Outputs...>>;
 
 public:
