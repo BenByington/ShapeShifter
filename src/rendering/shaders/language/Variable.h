@@ -11,6 +11,8 @@
  * Created on November 15, 2016, 8:45 AM
  */
 
+#include <concepts>
+
 #ifndef RENDERING_SHADERS_LANGUAGE_VARIABLE_H
 #define RENDERING_SHADERS_LANGUAGE_VARIABLE_H
 
@@ -48,16 +50,13 @@ public:
     this->state_.clear();
   }
 
-  // Allow any implicit conversions?
-  //
   // Note that we are explicitly not returning a reference to ourself.  The
   // return type either needs to be captured by another operator, so the
   // information in the state_ variable can be slurped up, or it needs to be
   // destroyed so the information in the state_ variable can be output as a
   // line in the program.
-  template <typename U>
-  typename std::enable_if<std::is_same<U,T>::value, Expression<T>>::type
-  operator=(Expression<U>&& other) {
+  template <std::convertible_to<T> U>
+  Expression<T> operator=(Expression<U>&& other) {
     // ISSUE precidence for other operators?
     std::string result = this->state_ + " = " + other.state_;
     other.state_.clear();

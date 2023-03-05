@@ -68,13 +68,13 @@ template <> std::string type<void const*>() { return "void*";}
  * used for printing out arrays, but is included in all functions for symmetry.
  * Note: An exception to that is the 'count' parameter for the void* function
  * really is a GL_ENUM with type information.
- * 
+ *
  * Note: We also print the '=' sign here, since for some cases we are going to
  * need to place a [] after the variable name and before the '='
  */
 template <class T>
-typename std::enable_if<!std::is_pointer<T>::value, std::string>::type
-value(size_t count, T v) { return " = " + std::to_string(v); }
+requires ( std::is_pointer_v<T> == false)
+std::string value(size_t count, T v) { return " = " + std::to_string(v); }
 
 template <class T>
 std::string value(size_t count, const T* v) {

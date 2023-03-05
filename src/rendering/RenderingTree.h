@@ -17,6 +17,7 @@
 #include "rendering/PureNode.h"
 #include "rendering/RootNode.h"
 
+#include <concepts>
 #include <type_traits>
 
 namespace ShapeShifter {
@@ -26,11 +27,7 @@ class RenderingTree final{
 public:
   template <typename TreePack,
             typename UniformPack,
-            typename ShaderProgram,
-            typename dummy =
-      typename std::enable_if<
-          std::is_base_of<Shaders::ShaderProgramBase, ShaderProgram>::value
-      >::type
+            std::derived_from<Shaders::ShaderProgramBase> ShaderProgram
   >
   RenderingTree(
       std::shared_ptr<RootNode<TreePack, UniformPack>> root,
