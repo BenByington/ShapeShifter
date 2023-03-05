@@ -15,7 +15,7 @@
 #define RENDERING_SHADERS_SHADER_H
 
 #include "rendering/shaders/language/GLSLGeneratorBase.h"
-#include "rendering/shaders/InterfaceVariableBase.h"
+#include "rendering/shaders/InterfaceVariable.h"
 #include "rendering/shaders/Pack.h"
 #include "rendering/shaders/ShaderBase.h"
 
@@ -27,26 +27,21 @@ namespace Shaders {
 
 namespace detail {
 
-struct generator_traits {
-  template <class... Types>
-  static constexpr bool valid_vertex_shader(
-      Language::GLSLVertexGeneratorBase<Types...>*) {
-    return true;
-  }
-  static constexpr bool valid_vertex_shader(...) {
-    return false;
-  }
+// Dummy functions for the concept definition to try and call.
+template <typename... T>
+void valid_vertex_shader(const GLSLVertexGeneratorBase<T...>&);
+template <typename... T>
+void valid_fragment_shader(const GLSLFragmentGeneratorBase<T...>&);
 
-  template <class... Types>
-  static constexpr bool valid_fragment_shader(
-      Language::GLSLFragmentGeneratorBase<Types...>*) {
-    return true;
-  }
-  static constexpr bool valid_fragment_shader(...) {
-    return false;
-  }
+template <typename T>
+concept ValidVertexGenerator = requires(T t) {
+    valid_vertex_shader(t);
 };
 
+template <typename T>
+concept ValidFragmentGenerator = requires(T t) {
+    valid_fragment_shader(t);
+};
 }
 
 /*
@@ -80,11 +75,8 @@ private:
  * VertexGenerator that actually specifies the shader program to be
  * compiled
  */
-template <class Generator>
+template <detail::ValidVertexGenerator Generator>
 class VertexShader : public Shader<Generator> {
-    static_assert(
-        detail::generator_traits::valid_vertex_shader((Generator*)nullptr),
-        "Template to Shader class must be a child of an GLSLGeneratorBase type");
 public:
   VertexShader()
     : Shader<Generator>(
@@ -105,11 +97,8 @@ public:
  * FragmentGenerator that actually specifies the shader program to be
  * compiled
  */
-template <class Generator>
+template <detail::ValidFragmentGenerator Generator>
 class FragmentShader : public Shader<Generator> {
-    static_assert(
-        detail::generator_traits::valid_fragment_shader((Generator*)nullptr),
-        "Template to Shader class must be a child of an GLSLGeneratorBase type");
 public:
   FragmentShader()
     : Shader<Generator>(

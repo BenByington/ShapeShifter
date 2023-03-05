@@ -38,22 +38,19 @@ public:
   ShaderProgram(const ShaderProgram&) = delete;
   ShaderProgram& operator()(ShaderProgram&) = delete;
   template <class Vertex, class Fragment>
+           // Could do extra work allowing for re-ordering of inputs,
+           // but that should never be necessary if using the proper
+           // convenience functions
+  requires std::same_as<typename Vertex::Managers_t, Pack<Interface...>> &&
+           // This one should allow also re-ordering.  It's more
+           // important than the above, but still not necessary since
+           // the only shader currently written only has a single
+           // variable bridging these two stages.
+           std::same_as<typename Vertex::Outputs_t, typename Fragment::Inputs_t>
   ShaderProgram(
       std::unique_ptr<VertexShader<Vertex>> vert,
       std::unique_ptr<FragmentShader<Fragment>> frag)
     : ShaderProgramBase(std::move(vert), std::move(frag)) {
-    // Could do extra work allowing for re-ordering of inputs, but that
-    // should never be necessary if using the proper convenience functions
-    static_assert(
-        std::is_same<typename Vertex::Managers_t, Pack<Interface...>>::value,
-        "Input parameters for Vertex shader must match those of the"
-        " entire shader program");
-    // This one should allow also re-ordering.  It's more important than the
-    // above, but still not necessary since the only shader currently written
-    // only has a single variable bridging these two stages.
-    static_assert(
-        std::is_same<typename Vertex::Outputs_t, typename Fragment::Inputs_t>::value,
-        "Vertex and Fragment shader do not share common IO interface");
   }
   ShaderProgram(
       std::unique_ptr<RawShader<RawShaderType::VERTEX>> vert,

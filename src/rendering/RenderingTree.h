@@ -17,32 +17,24 @@
 #include "rendering/PureNode.h"
 #include "rendering/RootNode.h"
 
+#include <concepts>
 #include <type_traits>
 
 namespace ShapeShifter {
 namespace Rendering {
 
-class RenderingTree final{
+class RenderingTree final {
 public:
   template <typename TreePack,
             typename UniformPack,
-            typename ShaderProgram,
-            typename dummy =
-      typename std::enable_if<
-          std::is_base_of<Shaders::ShaderProgramBase, ShaderProgram>::value
-      >::type
+            std::derived_from<Shaders::ShaderProgramBase> ShaderProgram
   >
+  requires PackSubset<typename ShaderProgram::Interface_t, TreePack> &&
+           PackSubset<typename ShaderProgram::Uniform_t, UniformPack>
   RenderingTree(
       std::shared_ptr<RootNode<TreePack, UniformPack>> root,
       std::shared_ptr<ShaderProgram> program)
   : data_(std::make_unique<TypedStorage<RootNode<TreePack, UniformPack>, ShaderProgram>>(root, program)) {
-
-    static_assert(
-        is_subset<typename ShaderProgram::Interface_t, TreePack>::value(),
-        "Shader requires buffers not supplied by this rendering tree\n");
-    static_assert(
-        is_subset<typename ShaderProgram::Uniform_t, UniformPack>::value(),
-        "Shader required uniform variables not supplied by this rendering tree\n");
 
     glGenVertexArrays (1, &vao);
     glBindVertexArray (vao);

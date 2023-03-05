@@ -30,42 +30,51 @@ using Data::ColorManager;
 using Data::VertexManager;
 
 namespace detail {
-struct ColorPass : InterfaceVariableBase<ColorPass, Language::Vec3> {
+struct ColorPass : Language::Variable<Language::Vec3> {
+  using Base = Language::Variable<Language::Vec3>;
   ColorPass() = delete;
+  ColorPass(VariableFactory& factory)
+    : Base(factory.create<Language::Vec3>(name()))
+  {}
 
-  using Base = InterfaceVariableBase<ColorPass, Language::Vec3>;
-  using Base::InterfaceVariableBase;
   static constexpr const char* name() {
     return "theColor";
   }
   static constexpr bool smooth = true;
-  Variable_T& theColor = Base::var;
+  Base& theColor = static_cast<Base&>(*this);
 };
+static_assert(Rendering::Shaders::InterfaceVariable<ColorPass>);
 
-struct OutputColor : InterfaceVariableBase<OutputColor, Language::Vec4> {
+
+struct OutputColor : Language::Variable<Language::Vec4> {
+  using Base = Language::Variable<Language::Vec4>;
   OutputColor() = delete;
+  OutputColor(VariableFactory& factory)
+    : Base(factory.create<Language::Vec4>(name()))
+  {}
 
-  using Base = InterfaceVariableBase<OutputColor, Language::Vec4>;
-  using Base::InterfaceVariableBase;
   static constexpr const char* name() {
     return "outputColor";
   }
   static constexpr bool smooth = false;
-  Variable_T& outputColor = Base::var;
+  Base& outputColor = static_cast<Base&>(*this);
 };
+static_assert(Rendering::Shaders::InterfaceVariable<OutputColor>);
 
-// ISSUE: There needs to be some sort of constraint ensuring the second
+// ISSUE: There needs to be some sort of constraint ensuring the
 //        template parameter here is consistent with the StorageType
 //        defined in the inner class.
-struct Transform : UniformVariableBase<Transform, Language::Mat4> {
+struct Transform : Language::Variable<Language::Mat4> {
+  using Base = Language::Variable<Language::Mat4>;
   Transform() = delete;
-  using Base = UniformVariableBase<Transform, Language::Mat4>;
-  using Base::UniformVariableBase;
+  Transform(VariableFactory& factory)
+    : Base(factory.create<Language::Mat4>(name()))
+  {}
   static constexpr const char* name() {
     return "transform";
   }
   static constexpr bool smooth = false;
-  Variable_T& transform = Base::var;
+    Base& transform = static_cast<Base&>(*this);
 
   class UniformManager {
   public:
@@ -117,13 +126,10 @@ struct Transform : UniformVariableBase<Transform, Language::Mat4> {
       return ret;
     }
 
-    template <typename T1, typename T2>
+    template <typename T1, std::derived_from<UniformManager> T2>
     void SetOriginNode(const Util::MultiReferenceWrapper<T1, T2>& node)
     {
-      static_assert(std::is_base_of<UniformManager, T2>::value,
-                    "SetOriginNode called node without Transform Uniform");
-
-      const auto& path = node.template Convert<T2>()->PathToRoot();
+      const auto& path = static_cast<const T2&>(node).PathToRoot();
       path_ = std::vector<const UniformManager*>(path.begin(), path.end());
     }
 

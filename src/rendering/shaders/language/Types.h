@@ -14,46 +14,44 @@
 #ifndef RENDERING_SHADERS_LANGUAGE_TYPES_H
 #define RENDERING_SHADERS_LANGUAGE_TYPES_H
 
+#include <concepts>
+
 namespace ShapeShifter {
 namespace Rendering {
 namespace Shaders {
 namespace Language {
 
-/*
- * Every valid variable type in GLSL needs a specialization for this class,
- * defining both what string to use for the variable type, and if the
- * variable is allowed to be used as an InterfaceVariable (between c++ and opengl)
- * Common types will have a specialization supplied here, but any custom types
- * will need to do this themselves
- */
-template <class T>
-class VariableTraits;
-
 class Vec3 {};
 class Vec4 {
 public:
-  static Vec4 Create(Vec3, float) {}
+    static Vec4 Create(Vec3, float) { return Vec4{}; }
 
 };
 class Mat4 {
 public:
-  Vec4 operator*(const Vec4& other) {}
+    Vec4 operator*(const Vec4& other) { return Vec4{}; }
 };
 
+/*
+ * Every valid variable type in GLSL needs a specialization for this
+ * class, defining what string to use for the variable type Common
+ * types will have a specialization supplied here, but any custom
+ * types will need to do this themselves
+ */
+template <class T>
+class VariableTraits;
 
 template <>
 struct VariableTraits<Mat4> {
   static constexpr const char* name() {
     return "mat4";
   }
-  static constexpr bool InterfaceAllowed = true;
 };
 template <>
 struct VariableTraits<Vec4> {
   static constexpr const char* name() {
     return "vec4";
   }
-  static constexpr bool InterfaceAllowed = true;
 };
 
 template <>
@@ -61,8 +59,12 @@ struct VariableTraits<Vec3> {
   static constexpr const char* name() {
     return "vec3";
   }
-  static constexpr bool InterfaceAllowed = true;
 };
+
+template <typename T>
+concept InterfaceType = std::same_as<T, Mat4>
+    || std::same_as<T, Vec4>
+    || std::same_as<T, Vec3>;
 
 }}}} // ShapeShifter::Rendering::Shaders::Language
 

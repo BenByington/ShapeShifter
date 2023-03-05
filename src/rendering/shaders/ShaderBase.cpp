@@ -15,6 +15,7 @@
 
 #include <cassert>
 #include <memory>
+#include <stdexcept>
 
 namespace ShapeShifter {
 namespace Rendering {

@@ -2,6 +2,10 @@
 #ifndef UTIL_MULTI_REFERENCE_WRAPPER_H
 #define UTIL_MULTI_REFERENCE_WRAPPER_H
 
+#include <concepts>
+#include <functional>
+#include <memory>
+
 namespace ShapeShifter {
 namespace Util {
 
@@ -13,6 +17,12 @@ struct aux_wrapper {
   std::reference_wrapper<T> val;
 };
 
+template <typename T, typename... Parents>
+concept InheritsFromAll = (std::derived_from<T, Parents> && ...);
+
+template <typename T, typename... Set>
+concept IsAnyOf = (std::same_as<T, Set> || ...);
+
 }
 
 /*
@@ -23,32 +33,12 @@ struct aux_wrapper {
  */
 template <class T, class...Other>
 class MultiReferenceWrapper : private detail::aux_wrapper<Other>... {
-  template <typename U>
-  static constexpr bool validate_aux_types() {
-    const std::array<bool, sizeof...(Other)> is_child = {{std::is_base_of<Other, U>::value...}};
-    int sum = 0;
-    for (int i = 0; i < sizeof...(Other); ++i) {
-      if (is_child[i]) sum++;
-    }
-    return sum == sizeof...(Other);
-  }
-  template <typename U>
-  static constexpr bool validate_conversion() {
-    const std::array<bool, sizeof...(Other)> is_child = {{std::is_base_of<Other, U>::value...}} ;
-    int sum = 0;
-    for (int i = 0; i < sizeof...(Other); ++i) {
-      if (is_child[i]) sum++;
-    }
-    return sum == 1;
-  }
 
 public:
-  // If any compilation errors crop up here, change contraints to SFINAE
-  template <typename U>
-  explicit MultiReferenceWrapper(U& u) : detail::aux_wrapper<Other>(u)..., w_(u) {
-    static_assert(std::is_base_of<T,U>::value, "Is not a child of main type");
-    static_assert(validate_aux_types<U>(), "Is not a child of one or more auxiliary types");
-  }
+  template <detail::InheritsFromAll<T, Other...> U>
+  explicit MultiReferenceWrapper(U& u)
+      : detail::aux_wrapper<Other>(u)...
+      , w_(u) {}
 
   MultiReferenceWrapper(const MultiReferenceWrapper&) = delete;
   MultiReferenceWrapper(MultiReferenceWrapper&&) = default;
@@ -60,17 +50,16 @@ public:
   operator T&() { return w_; }
   operator const T&() const { return w_; }
 
-  template<typename U>
-  MultiReferenceWrapper<U> Convert() {
-    static_assert(validate_conversion<U>(), "is not valid auxiliary type");
-    U& v = static_cast<detail::aux_wrapper<U>*>(this)->val.get();
-    return MultiReferenceWrapper<U>(v);
+  // These really could be defined in the parents, but I can't figure
+  // out how to get a variadic using statement to work when the
+  // operator has a space in the name...
+  template<detail::IsAnyOf<T, Other...> U>
+  operator U&() {
+    return static_cast<detail::aux_wrapper<U>*>(this)->val.get();
   }
-  template<typename U>
-  MultiReferenceWrapper<const U> Convert() const {
-    static_assert(validate_conversion<U>(), "is not valid auxiliary type");
-    const U& v = static_cast<const detail::aux_wrapper<U>*>(this)->val.get();
-    return MultiReferenceWrapper<const U>(v);
+  template<detail::IsAnyOf<T, Other...> U>
+  operator const U&() const {
+    return static_cast<const detail::aux_wrapper<U>*>(this)->val.get();
   }
 private:
   std::reference_wrapper<T> w_;
@@ -79,7 +68,7 @@ private:
 template <class T, class...Other>
 class MultiReferenceOwner : public MultiReferenceWrapper<T, Other...> {
 public:
-  template <typename U>
+  template <detail::InheritsFromAll<T, Other...> U>
   MultiReferenceOwner(std::unique_ptr<U> u)
     : MultiReferenceWrapper<T, Other...>(*u)
     , owner_(std::move(u)) {}

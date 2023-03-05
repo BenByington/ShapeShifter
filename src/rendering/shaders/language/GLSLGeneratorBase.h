@@ -14,8 +14,8 @@
 #ifndef RENDERING_SHADERS_LANGUAGE_GLSLGENERATORBASE_H
 #define RENDERING_SHADERS_LANGUAGE_GLSLGENERATORBASE_H
 
-#include "rendering/shaders/InterfaceVariableBase.h"
-#include "rendering/shaders/UniformVariableBase.h"
+#include "rendering/shaders/InterfaceVariable.h"
+#include "rendering/shaders/UniformVariable.h"
 #include "rendering/shaders/Pack.h"
 #include "data/ConcreteBufferManager.h"
 
@@ -26,50 +26,44 @@ namespace Rendering {
 namespace Shaders {
 namespace Language {
 
-namespace detail {
-
-template <template <class, class> class Parent>
-struct check_inputs {
-  template <class Input>
-  static constexpr bool is_child() {
-    return std::is_base_of<
-        Parent<Input, typename Input::Type>,
-        Input
-    >::value;
-  }
-  template <class... Inputs>
-  static constexpr bool valid() {
-    constexpr bool checks[] = { is_child<Inputs>()... };
-    bool ret = true;
-    for (auto b : checks) ret &= b;
-    return ret;
-  }
-  static constexpr bool valid(...) { return false; }
+template <typename T>
+struct AllInterface
+{ static constexpr bool val = false; };
+template <InterfaceVariable... Is>
+struct AllInterface<Pack<Is...>>
+{ static constexpr bool val  = true; };
+template <typename T>
+concept InterfacePack = requires {
+    requires AllInterface<T>::val;
 };
 
-template <class T>
-struct is_manager {
-  static constexpr bool value = std::is_base_of<Data::BaseManager<T>,T>::value;
+template <typename T>
+struct AllUniform
+{ static constexpr bool val = false; };
+template <UniformVariable... Is>
+struct AllUniform<Pack<Is...>>
+{ static constexpr bool val  = true; };
+template <typename T>
+concept UniformPack = requires {
+    requires AllUniform<T>::val;
 };
 
-template <class... Ts>
-struct are_managers {
-  static constexpr const bool check() {
-    const std::array<bool, sizeof...(Ts)> check { is_manager<Ts>::value... };
-    bool ret = true;
-    for (size_t i = 0; i < sizeof...(Ts); ++i) ret = ret && check[i];
-    return ret;
-  }
+template <typename T>
+struct AllManager
+{ static constexpr bool val = false; };
+template <Data::BufferManager... Is>
+struct AllManager<Pack<Is...>>
+{ static constexpr bool val  = true; };
+template <typename T>
+concept ManagerPack = requires {
+    requires AllManager<T>::val;
 };
 
-
-}
-
-template <class Input, class Uniform, class Output>
+template <InterfacePack Input, UniformPack Uniform, InterfacePack Output>
 class GLSLGeneratorBase;
-template <class Input, class Uniform, class Output>
+template <ManagerPack Input, UniformPack Uniform, InterfacePack Output>
 class GLSLVertexGeneratorBase;
-template <class Input, class Uniform, class Output>
+template <InterfacePack Input, UniformPack Uniform, InterfacePack Output>
 class GLSLFragmentGeneratorBase;
 
 /*
@@ -81,18 +75,9 @@ class GLSLFragmentGeneratorBase;
  * This class should not be extended directly, but rather the Vertex and
  * Fragment children below.
  */
-template <class... Inputs, class... Uniforms, class... Outputs>
+template <InterfaceVariable... Inputs, UniformVariable... Uniforms, InterfaceVariable... Outputs>
 struct GLSLGeneratorBase<Pack<Inputs...>, Pack<Uniforms...>, Pack<Outputs...>>
   : Inputs... , Uniforms..., Outputs... {
-private:
-  static_assert(
-      detail::check_inputs<InterfaceVariableBase>::valid<Inputs..., Outputs...>(),
-      "Shader template parameters must be InterfaceVariable types");
-  static_assert(
-      detail::check_inputs<UniformVariableBase>::valid<Uniforms...>(),
-      "Shader template parameters must be UniformVariable types");
-
-public:
 
   GLSLGeneratorBase(const GLSLGeneratorBase&) = delete;
   GLSLGeneratorBase(GLSLGeneratorBase&&) = delete;
@@ -109,13 +94,13 @@ public:
     factory_.stream() << "#version 410\n\n";
     if (vertex) {
       size_t idx = 0;
-      layout_map_ = {static_cast<Inputs&>(*this).LayoutDeclaration(factory_, idx++)...};
+      layout_map_ = {LayoutDeclaration<Inputs>(factory_, idx++)...};
     } else {
-      auto temp = {(static_cast<Inputs&>(*this).InputDeclaration(factory_), 0)...};
+      auto temp = {(InputDeclaration<Inputs>(factory_), 0)...};
     }
 
-    std::initializer_list<int> temp = {(static_cast<Uniforms&>(*this).UniformDeclaration(factory_), 0)...};
-    temp = {(static_cast<Outputs&>(*this).OutputDeclaration(factory_), 0)...};
+    std::initializer_list<int> temp = {(UniformDeclaration<Uniforms>(factory_), 0)...};
+    auto temp2 = {(OutputDeclaration<Outputs>(factory_), 0)...};
 
     factory_.stream() << "\nvoid main() {\n\n";
     factory_.stream().incIndent();
@@ -134,15 +119,56 @@ protected:
   std::stringstream stream;
 
 private:
+
+  template <InterfaceVariable Var>
+  std::pair<const std::string, size_t>
+  static LayoutDeclaration(VariableFactory& factory, size_t idx) {
+    factory.stream()
+        << "layout (location = "
+        << idx << ") in "
+        << Language::Variable<typename Var::Type>::TypeName()
+        << " " << Var::name()
+        << ";\n";
+    return {Var::name(), idx};
+  }
+
+  template <InterfaceVariable Var>
+  static void OutputDeclaration(VariableFactory& factory) {
+    if (Var::smooth) factory.stream() << "smooth ";
+    factory.stream()
+        << "out "
+        << Language::Variable<typename Var::Type>::TypeName()
+        << " " << Var::name()
+        << ";\n";
+  }
+
+  template <InterfaceVariable Var>
+  static void InputDeclaration(VariableFactory& factory) {
+    if (Var::smooth) factory.stream() << "smooth ";
+    factory.stream()
+        << "in "
+        << Language::Variable<typename Var::Type>::TypeName()
+        << " " << Var::name()
+        << ";\n";
+  }
+
+  template <UniformVariable Var>
+  static void UniformDeclaration(VariableFactory& factory) {
+    factory.stream()
+        << "uniform "
+        << Language::Variable<typename Var::Type>::TypeName()
+        << " " << Var::name()
+        << ";\n";
+  }
+
+
   std::map<std::string, size_t> layout_map_;
 };
 
-template <class... Inputs, class... Uniforms, class... Outputs>
+template <Data::BufferManager... Inputs, UniformVariable... Uniforms, InterfaceVariable... Outputs>
 class GLSLVertexGeneratorBase<Pack<Inputs...>, Pack<Uniforms...>, Pack<Outputs...>>
   : public GLSLGeneratorBase<Pack<typename Inputs::Variable...>, Pack<Uniforms...>, Pack<Outputs...>> {
 
-static_assert(detail::are_managers<Inputs...>::check(),
-    "GLSLVertexGeneratorBase only accepts BufferManagers within the Inputs pack.");
 using  Base = GLSLGeneratorBase<Pack<typename Inputs::Variable...>, Pack<Uniforms...>, Pack<Outputs...>>;
 
 public:
@@ -165,7 +191,7 @@ protected:
   Language::Variable<Language::Vec4>  gl_Position;
 };
 
-template <class... Inputs, class... Uniforms, class... Outputs>
+template <InterfaceVariable... Inputs, UniformVariable... Uniforms, InterfaceVariable... Outputs>
 class GLSLFragmentGeneratorBase<Pack<Inputs...>, Pack<Uniforms...>, Pack<Outputs...>>
   : public GLSLGeneratorBase<Pack<Inputs...>, Pack<Uniforms...>, Pack<Outputs...>> {
 using  Base = GLSLGeneratorBase<Pack<Inputs...>, Pack<Uniforms...>, Pack<Outputs...>>;
