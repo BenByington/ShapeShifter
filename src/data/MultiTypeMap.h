@@ -36,35 +36,36 @@ class MultiTypeMap<Pack<Keys...>, Pack<Values...>> : public detail::KVPair<Keys,
  public:
 
   template <typename K, typename V>
+      requires std::derived_from<MultiTypeMap, detail::KVPair<K, V>>
   V& Val() {
-    static_assert(std::is_base_of<detail::KVPair<K,V>, MultiTypeMap>::value,
-                  "Type is not a member of this map");
     return static_cast<detail::KVPair<K,V>*>(this)->Val();
   }
+
   template <typename K, typename V>
+      requires std::derived_from<MultiTypeMap, detail::KVPair<K, V>>
   const V& Val() const {
-    static_assert(std::is_base_of<detail::KVPair<K,V>, MultiTypeMap>::value,
-                  "Type is not a member of this map");
     return static_cast<const detail::KVPair<K,V>*>(this)->Val();
   }
+
   template <typename K, typename V>
+      requires std::derived_from<MultiTypeMap, detail::KVPair<K, V>>
   K& Key() {
-    static_assert(std::is_base_of<detail::KVPair<K,V>, MultiTypeMap>::value,
-                  "Type is not a member of this map");
     return static_cast<detail::KVPair<K,V>*>(this)->Key();
   }
+
   template <typename K, typename V>
+      requires std::derived_from<MultiTypeMap, detail::KVPair<K, V>>
   const K& Key() const {
-    static_assert(std::is_base_of<detail::KVPair<K,V>, MultiTypeMap>::value,
-                  "Type is not a member of this map");
     return static_cast<const detail::KVPair<K,V>*>(this)->Key();
   }
+
   template <typename Functor>
   void ForEachVal(Functor&& func)
   {
     auto worker = {(func(Val<Keys, Values>()),1)...};
     (void)worker;
   }
+
   template <typename Functor>
   void ForEachKeyVal(Functor&& func)
   {

@@ -33,7 +33,7 @@ namespace Data {
  * and iterate over the different data buffers used for rendering, despite having
  * different Manager classes (which are used as the keys)
  */
-template <template <typename...> class Storage, typename... Managers>
+template <template <typename...> class Storage, BufferManager... Managers>
 class BufferMapBase {
 public:
   template <typename T>
@@ -49,19 +49,19 @@ public:
     return indices_;
   }
 
-  template <typename Manager>
+  template <BufferManager Manager>
   auto& Key() {
     return data_.template Key<std::shared_ptr<Manager>, Storage<typename Manager::Type>>();
   }
-  template <typename Manager>
+  template <BufferManager Manager>
   const auto& Key() const {
     return data_.template Key<std::shared_ptr<Manager>, Storage<typename Manager::Type>>();
   }
-  template <typename Manager>
+  template <BufferManager Manager>
   auto& Val() {
     return data_.template Val<std::shared_ptr<Manager>, Storage<typename Manager::Type>>();
   }
-  template <typename Manager>
+  template <BufferManager Manager>
   const auto& Val() const {
     return data_.template Val<std::shared_ptr<Manager>, Storage<typename Manager::Type>>();
   }

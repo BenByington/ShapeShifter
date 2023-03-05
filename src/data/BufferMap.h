@@ -30,21 +30,22 @@ namespace Data {
  * allowing it to dole out new slices of data to be populated, keeping all the
  * buffers in sync while it does so.
  */
-template <typename... Keys>
-class BufferMap final : public BufferMapBase<std::vector, Keys...> {
+template <BufferManager... Managers>
+class BufferMap final : public BufferMapBase<std::vector, Managers...> {
 public:
   // Construction requires a full set of BufferManagers already created as well
   // as a BufferIndex variable dictating how large to make the buffers
-  BufferMap(
-      BufferIndex count)
+  BufferMap(BufferIndex count)
     : total_(count) {
 
     // ISSUE Rethink these shared_ptr being used as keys.  They live in both this data
     //       structure and another, so their lifecycle is confusing.
-    auto worker = {(this->data_.template Key<std::shared_ptr<Keys>, std::vector<typename Keys::Type>>() = std::make_shared<Keys>(),1)...};
+    auto worker = {(this->data_.template Key<std::shared_ptr<Managers>, std::vector<typename Managers::Type>>() = std::make_shared<Managers>(),1)...};
     (void) worker;
-    this->ForEachKeyVal([&](auto& key, auto& vec){ vec.resize(count.vertex_ * key->ElementsPerEntry()); });
-  
+    this->ForEachKeyVal([&](auto& key, auto& vec){
+        vec.resize(count.vertex_ * key->ElementsPerEntry());
+    });
+
     this->indices_.resize(count.index_);
   }
 
@@ -61,10 +62,10 @@ public:
    * WARNING: If you ask for more data when none is available you will overrun
    * array bounds.
    */
-  BufferSliceMap<Keys...> NextSlice(BufferIndex count) {
+  BufferSliceMap<Managers...> NextSlice(BufferIndex count) {
     auto start = next_free_;
     next_free_ += count;
-    return BufferSliceMap<Keys...>(
+    return BufferSliceMap<Managers...>(
         *this,
         this->indices_,
         start,

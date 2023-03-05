@@ -29,8 +29,8 @@ namespace Data {
  * behaviour and interface of the MixedDataMap class.  Used when populating
  * data from individual RenderNodes into the buffers.
  */
-template <typename... Keys>
-class BufferSliceMap final : public BufferMapBase<VectorSlice, Keys...> {
+template <BufferManager... Managers>
+class BufferSliceMap final : public BufferMapBase<VectorSlice, Managers...> {
 public:
   BufferSliceMap(const BufferSliceMap& other) = delete;
   BufferSliceMap(BufferSliceMap&& other) = default;
@@ -39,18 +39,18 @@ public:
   BufferSliceMap& operator=(BufferSliceMap&& other) = default;
 
   BufferSliceMap(
-      BufferMapBase<std::vector, Keys...>& data,
+      BufferMapBase<std::vector, Managers...>& data,
       std::vector<uint32_t>& indices,
       BufferIndex start, BufferIndex end)
     : start_(start)
     , end_(end) {
 
     auto worker = {(
-        this->template Val<Keys>() =
-            VectorSlice(data.template Val<Keys>(),
+        this->template Val<Managers>() =
+            VectorSlice(data.template Val<Managers>(),
                         start_.vertex_,
                         end_.vertex_,
-                        data.template Key<Keys>()->ElementsPerEntry())
+                        data.template Key<Managers>()->ElementsPerEntry())
     ,1)...};
     (void) worker;
 
