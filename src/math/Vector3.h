@@ -15,6 +15,7 @@
 #define MATH_VECTOR3_H
 
 #include <array>
+#include <cstddef>
 
 namespace ShapeShifter {
 namespace Math {

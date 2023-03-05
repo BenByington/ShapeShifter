@@ -32,12 +32,12 @@ class VariableTraits;
 class Vec3 {};
 class Vec4 {
 public:
-  static Vec4 Create(Vec3, float) {}
+    static Vec4 Create(Vec3, float) { return Vec4{}; }
 
 };
 class Mat4 {
 public:
-  Vec4 operator*(const Vec4& other) {}
+    Vec4 operator*(const Vec4& other) { return Vec4{}; }
 };
 
 

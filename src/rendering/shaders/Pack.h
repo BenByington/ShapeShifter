@@ -15,6 +15,7 @@
 #define RENDERING_SHADERS_PACK_H
 
 #include <array>
+#include <cstddef>
 
 //TODO move to another place?
 

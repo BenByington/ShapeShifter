@@ -16,6 +16,8 @@
 
 #include "ShaderProgramBase.h"
 
+#include <stdexcept>
+
 namespace ShapeShifter {
 namespace Rendering {
 namespace Shaders {

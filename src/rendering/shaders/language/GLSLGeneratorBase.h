@@ -115,7 +115,7 @@ public:
     }
 
     std::initializer_list<int> temp = {(static_cast<Uniforms&>(*this).UniformDeclaration(factory_), 0)...};
-    temp = {(static_cast<Outputs&>(*this).OutputDeclaration(factory_), 0)...};
+    auto temp2 = {(static_cast<Outputs&>(*this).OutputDeclaration(factory_), 0)...};
 
     factory_.stream() << "\nvoid main() {\n\n";
     factory_.stream().incIndent();

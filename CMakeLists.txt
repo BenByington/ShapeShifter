@@ -1,6 +1,7 @@
-cmake_minimum_required (VERSION 2.8.1)
+cmake_minimum_required (VERSION 3.10)
 
 cmake_policy(SET CMP0025 NEW)
+cmake_policy(SET CMP0072 NEW)
 
 project (Project)
 
