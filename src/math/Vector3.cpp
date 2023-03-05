@@ -40,7 +40,7 @@ float Vector3::Magnitude() const {
   for (size_t i = 0; i < 3; ++i) {
     mag += data_[i] * data_[i];
   }
-  mag = sqrt(mag);
+  mag = std::sqrt(mag);
   return mag;
 }
 

@@ -25,7 +25,7 @@ Matrix4::Matrix4(const std::array<float, 16>& orig)
 Matrix4::Matrix4(const Matrix4& orig)
     : data_(orig.data_) {}
 
-const Matrix4& Matrix4::operator=(const Matrix4& other) {
+Matrix4& Matrix4::operator=(const Matrix4& other) {
   data_ = other.data_;
   return *this;
 }

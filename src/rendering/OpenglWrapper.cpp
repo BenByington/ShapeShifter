@@ -219,7 +219,8 @@ std::vector<std::string> param_list(std::string raw) {
 }
 
 void check(bool first) {
-  for (GLenum err; (err = glGetError()) != GL_NO_ERROR;) {
+  GLenum err = GL_NO_ERROR;
+  while ((err = glGetError()) != GL_NO_ERROR) {
     if (first) {
       std::cerr << "unexpected error...! Are there unwrapped opengl calls?\n";
     }
@@ -267,6 +268,9 @@ void check(bool first) {
 // ISSUE: clean all this up.  All the MACROS called from here can be functions
 //        instead.  We only needed the macro here for the '::function' line.
 //        Everything else can be runtime string manipulations.
+//
+//        If this issue gets resolved, consider removing cppcoreguidelines-maro-usage from
+//        the clang-tidy blacklist
 #define FUNC_BODY(function, ...)                                                              \
   CHECK(true)                                                                                 \
   ::function(__VA_ARGS__);                                                                    \

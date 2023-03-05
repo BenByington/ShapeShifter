@@ -45,7 +45,7 @@ void Camera::ChangePosition(const Math::Vector4& trans) {
 void Camera::PivotAroundLook(const std::pair<float, float>& start,
                              const std::pair<float, float>& end) {
   if (start == end) return;
-  auto proj_width = look_depth_ * tan(frust_.aspect());
+  auto proj_width = look_depth_ * std::tan(frust_.aspect());
   // ISSUE Add camera controls so this can be configurable.  Currently things
   // are a bit odd when there is a very large or very small aspect ratio
   auto ball_rad = proj_width;
@@ -56,10 +56,10 @@ void Camera::PivotAroundLook(const std::pair<float, float>& start,
     coord[0] = in.first * proj_width;
     coord[1] = in.second * proj_width / frust_.aspect();
     auto rad2 = coord[0] * coord[0] + coord[1] * coord[1];
-    auto rad = sqrt(rad2);
+    auto rad = std::sqrt(rad2);
 
     if (rad2 < ball_rad2 / 2) {
-      coord[2] = sqrt(ball_rad2 - rad2);
+      coord[2] = std::sqrt(ball_rad2 - rad2);
     } else {
       coord[2] = ball_rad2 / 2 / rad;
     }
@@ -72,7 +72,7 @@ void Camera::PivotAroundLook(const std::pair<float, float>& start,
   auto rot_dir = first.cross(second);
   rot_dir.Normalize();
   auto dot = first.dot(second);
-  auto theta = acos(dot / first.Magnitude() / second.Magnitude());
+  auto theta = std::acos(dot / first.Magnitude() / second.Magnitude());
 
   auto q = Math::Quaternion(theta, rot_dir);
   rotation_ = q * rotation_;

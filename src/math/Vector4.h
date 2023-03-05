@@ -26,7 +26,7 @@ public:
   Vector4(float f1, float f2, float f3, float f4);
   Vector4(const __m128 data) { _mm_store_ps(data_.begin(), data); }
   Vector4(const Vector4& orig);
-  const Vector4& operator=(const Vector4& other);
+  Vector4& operator=(const Vector4& other);
   ~Vector4();
 
   Vector4 operator+(const Vector4& other) const;

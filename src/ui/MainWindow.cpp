@@ -15,9 +15,10 @@
 
 namespace ShapeShifter::ui {
 
-MainWindow::MainWindow() {
+MainWindow::MainWindow()
+    : widget()
+    , qtw_{std::make_unique<MyQtWidget>()} {
   widget.setupUi(this);
-  qtw_.reset(new MyQtWidget());
   widget.DisplayFrame->layout()->addWidget(qtw_.get());
   // QMainWindow::showMaximized();
 

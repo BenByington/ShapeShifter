@@ -40,15 +40,13 @@ ShaderBase::ShaderBase(const std::string& data, GLenum shader_type) {
     auto logLength = GLint{0};
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
 
-    auto log = std::unique_ptr<char[]>(new char[logLength + 1]);
-    glGetShaderInfoLog(shader, logLength, nullptr, log.get());
-
-    auto slog = std::string(log.get());
+    std::string log(logLength + 1, 0);
+    glGetShaderInfoLog(shader, logLength, nullptr, log.data());
 
     // ISSUE: wrap all gl functions and add error checking.
     glDeleteShader(shader);
 
-    throw std::runtime_error(slog);
+    throw std::runtime_error(log);
   }
 }
 
@@ -58,9 +56,8 @@ ShaderBase::~ShaderBase() {
   }
 }
 
-ShaderBase::ShaderBase(ShaderBase&& other) {
-  shader = other.shader;
-
+ShaderBase::ShaderBase(ShaderBase&& other)
+    : shader(std::move(other.shader)) {
   other.shader = 0;
 }
 

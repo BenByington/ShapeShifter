@@ -91,8 +91,8 @@ struct BufferIndex {
       : vertex_(o.vertex_)
       , index_(o.index_) {}
 
-  size_t vertex_ = 0;
-  size_t index_ = 0;
+  int vertex_ = 0;
+  int index_ = 0;
 
   BufferIndex& operator+=(const BufferIndex& o) {
     vertex_ += o.vertex_;

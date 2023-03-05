@@ -11,6 +11,9 @@ find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Gui REQUIRED)
 find_package(Qt5OpenGL REQUIRED)
 
+find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
+set(CLANG_TIDY_COMMAND "${CLANG_TIDY_EXE}")
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS off)
 
@@ -33,6 +36,8 @@ target_link_libraries(ShapeShifter Qt5::Gui)
 target_link_libraries(ShapeShifter Qt5::Widgets)
 target_link_libraries(ShapeShifter Qt5::OpenGL)
 target_link_libraries(ShapeShifter ${OPENGL_LIBRARIES})
+
+set_target_properties(ShapeShifter PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_COMMAND}")
 
 #Doxygen target
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/doc)

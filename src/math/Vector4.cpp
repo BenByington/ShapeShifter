@@ -20,19 +20,15 @@ namespace ShapeShifter::Math {
 Vector4::Vector4(const std::array<float, 4>& other)
     : data_(other) {}
 
-Vector4::Vector4(float f1, float f2, float f3, float f4) {
-  data_[0] = f1;
-  data_[1] = f2;
-  data_[2] = f3;
-  data_[3] = f4;
-}
+Vector4::Vector4(float f1, float f2, float f3, float f4)
+    : data_{f1, f2, f3, f4} {}
 
 Vector4::Vector4(const Vector4& orig)
     : data_(orig.data_) {}
 
 Vector4::~Vector4() {}
 
-const Vector4& Vector4::operator=(const Vector4& other) {
+Vector4& Vector4::operator=(const Vector4& other) {
   data_ = other.data_;
   return *this;
 }

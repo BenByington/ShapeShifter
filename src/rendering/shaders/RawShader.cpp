@@ -33,8 +33,8 @@ std::map<std::string, size_t> ParseLayouts(const std::string& data) {
       assert(end != std::string::npos);
       std::istringstream temp(line.substr(start + 1, end - start - 1));
       std::string trash;
-      char op;
-      size_t location;
+      char op = 0;
+      size_t location = 0;
       temp >> trash >> op >> location;
 
       start = line.find("vec3");

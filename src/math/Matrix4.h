@@ -33,7 +33,7 @@ public:
 
   Matrix4(const std::array<float, 16>& cols);
   Matrix4(const Matrix4& orig);
-  const Matrix4& operator=(const Matrix4& other);
+  Matrix4& operator=(const Matrix4& other);
   ~Matrix4();
 
   // Don't know which of these will stick, just throwing out functions to try

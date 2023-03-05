@@ -26,6 +26,11 @@ public:
   Quaternion()
       : Quaternion(0, 0, 0, 0) {}
   Quaternion(const Quaternion& orig) = default;
+
+private:
+  Quaternion(float x, float y, float z, float cos, float sin);
+
+public:
   Quaternion& operator=(const Quaternion& other) = default;
   virtual ~Quaternion() {}
 
