@@ -17,15 +17,20 @@
 #include "math/Matrix4.h"
 #include "math/Vector3.h"
 
-namespace ShapeShifter {
-namespace Math {
+namespace ShapeShifter::Math {
 
 class Quaternion {
 public:
   Quaternion(float s, float x, float y, float z);
   Quaternion(float s, const Vector3& dir);
-  Quaternion() : Quaternion(0, 0, 0, 0) {}
+  Quaternion()
+      : Quaternion(0, 0, 0, 0) {}
   Quaternion(const Quaternion& orig) = default;
+
+private:
+  Quaternion(float x, float y, float z, float cos, float sin);
+
+public:
   Quaternion& operator=(const Quaternion& other) = default;
   virtual ~Quaternion() {}
 
@@ -49,7 +54,6 @@ private:
   float qz;
 };
 
-}} // ShapeShifter::Math
+} // namespace ShapeShifter::Math
 
 #endif /* MATH_QUATERNION_H */
-

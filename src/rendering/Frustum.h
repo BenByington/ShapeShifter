@@ -18,8 +18,7 @@
 
 #include <memory>
 
-namespace ShapeShifter {
-namespace Rendering {
+namespace ShapeShifter::Rendering {
 
 struct Frustum;
 
@@ -34,15 +33,18 @@ struct FrustumFar {
   virtual ~FrustumFar() {}
 };
 struct FrustumFov {
-  virtual FrustumFar*  fov(float f) = 0;
+  virtual FrustumFar* fov(float f) = 0;
   virtual ~FrustumFov() {}
 };
 struct FrustumAspect {
-  virtual FrustumFov*  aspect(float a) = 0;
+  virtual FrustumFov* aspect(float a) = 0;
   virtual ~FrustumAspect() {}
 };
 
-struct FrustumBuilder : public detail::FrustumNear, detail::FrustumFar, detail::FrustumFov, detail::FrustumAspect {
+struct FrustumBuilder : public detail::FrustumNear,
+                        detail::FrustumFar,
+                        detail::FrustumFov,
+                        detail::FrustumAspect {
   virtual FrustumFov* aspect(float a) override;
   virtual FrustumFar* fov(float f) override;
   virtual FrustumNear* far(float f) override;
@@ -54,7 +56,7 @@ private:
   float aspect_;
 };
 
-}
+} // namespace detail
 
 struct Frustum {
   Math::Matrix4 FrustTransform() const;
@@ -81,10 +83,8 @@ private:
   float far_;
   float fov_;
   float aspect_;
-
 };
 
-}} // ShapeShifter::Rendering
+} // namespace ShapeShifter::Rendering
 
 #endif /* RENDERING_FRUSTUM_H */
-

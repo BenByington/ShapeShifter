@@ -43,36 +43,46 @@ using GLboolean = uint8_t;
 using GLfloat = float;
 #endif
 
-void glGetIntegerv (GLenum pname, GLint *params);
-GLuint glCreateProgram (void);
-GLuint glCreateShader (GLenum type);
-void glShaderSource (GLuint shader, GLsizei count, const GLchar* const *string, const GLint *length);
-void glCompileShader (GLuint shader);
-void glGetShaderiv (GLuint shader, GLenum pname, GLint *params);
-void glGetShaderInfoLog (GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
-void glDeleteShader (GLuint shader);
-void glUseProgram (GLuint program);
-void glGenVertexArrays (GLsizei n, GLuint *arrays);
-void glBindVertexArray (GLuint array);
-void glGenBuffers (GLsizei n, GLuint *buffers);
-void glBindBuffer (GLenum target, GLuint buffer);
-void glBufferData (GLenum target, const std::vector<float>& data, GLenum usage);
-void glBufferData (GLenum target, const std::vector<uint32_t>& data, GLenum usage);
-void glAttachShader (GLuint program, GLuint shader);
-void glVertexAttribPointer (GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer);
-void glEnableVertexAttribArray (GLuint index);
-void glDeleteVertexArrays (GLsizei n, const GLuint *arrays);
-void glLinkProgram (GLuint program);
-void glGetProgramiv (GLuint program, GLenum pname, GLint *params);
-void glGetProgramInfoLog (GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
-void glDeleteProgram (GLuint program);
-void glDeleteBuffers (GLsizei n, const GLuint *buffers);
-GLint glGetUniformLocation (GLuint program, const GLchar *name);
-void glUniformMatrix4fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
-void glDrawArrays (GLenum mode, GLint first, GLsizei count);
-void glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
-GLboolean glIsVertexArray (GLuint array);
+void glGetIntegerv(GLenum pname, GLint* params);
+GLuint glCreateProgram(void);
+GLuint glCreateShader(GLenum type);
+void glShaderSource(GLuint shader,
+                    GLsizei count,
+                    const GLchar* const* string,
+                    const GLint* length);
+void glCompileShader(GLuint shader);
+void glGetShaderiv(GLuint shader, GLenum pname, GLint* params);
+void glGetShaderInfoLog(GLuint shader, GLsizei bufSize, GLsizei* length, GLchar* infoLog);
+void glDeleteShader(GLuint shader);
+void glUseProgram(GLuint program);
+void glGenVertexArrays(GLsizei n, GLuint* arrays);
+void glBindVertexArray(GLuint array);
+void glGenBuffers(GLsizei n, GLuint* buffers);
+void glBindBuffer(GLenum target, GLuint buffer);
+void glBufferData(GLenum target, const std::vector<float>& data, GLenum usage);
+void glBufferData(GLenum target, const std::vector<uint32_t>& data, GLenum usage);
+void glAttachShader(GLuint program, GLuint shader);
+void glVertexAttribPointer(GLuint index,
+                           GLint size,
+                           GLenum type,
+                           GLboolean normalized,
+                           GLsizei stride,
+                           const GLvoid* pointer);
+void glEnableVertexAttribArray(GLuint index);
+void glDeleteVertexArrays(GLsizei n, const GLuint* arrays);
+void glLinkProgram(GLuint program);
+void glGetProgramiv(GLuint program, GLenum pname, GLint* params);
+void glGetProgramInfoLog(GLuint program, GLsizei bufSize, GLsizei* length, GLchar* infoLog);
+void glDeleteProgram(GLuint program);
+void glDeleteBuffers(GLsizei n, const GLuint* buffers);
+GLint glGetUniformLocation(GLuint program, const GLchar* name);
+void glUniformMatrix4fv(GLint location,
+                        GLsizei count,
+                        GLboolean transpose,
+                        const GLfloat* value);
+void glDrawArrays(GLenum mode, GLint first, GLsizei count);
+void glDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices);
+GLboolean glIsVertexArray(GLuint array);
 
-}
+} // namespace ShapeShifter
 #endif /* OPENGL_WRAPPER_H */
-

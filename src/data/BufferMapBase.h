@@ -24,8 +24,7 @@
 #include <memory>
 #include <set>
 
-namespace ShapeShifter {
-namespace Data {
+namespace ShapeShifter::Data {
 
 /*
  * Generic base class for both BufferMap and BufferSliceMap, giving them the
@@ -45,9 +44,7 @@ public:
   BufferMapBase& operator=(const BufferMapBase&) = delete;
   BufferMapBase& operator=(BufferMapBase&&) = default;
 
-  Storage<uint32_t>& indices() {
-    return indices_;
-  }
+  Storage<uint32_t>& indices() { return indices_; }
 
   template <BufferManager Manager>
   auto& Key() {
@@ -74,8 +71,8 @@ public:
   void ForEachKeyVal(Functor&& func) {
     data_.ForEachKeyVal(std::forward<Functor>(func));
   }
-protected:
 
+protected:
   using MapData = MultiTypeMap<Pack<std::shared_ptr<Managers>...>,
                                Pack<Storage<typename Managers::Type>...>>;
   MapData data_;
@@ -87,12 +84,15 @@ protected:
  * are almost always used in conjunction with each other.
  */
 struct BufferIndex {
-  BufferIndex() : vertex_(0), index_(0) {}
+  BufferIndex()
+      : vertex_(0)
+      , index_(0) {}
   BufferIndex(const BufferIndex& o)
-  : vertex_(o.vertex_), index_(o.index_) {}
+      : vertex_(o.vertex_)
+      , index_(o.index_) {}
 
-  size_t vertex_ = 0;
-  size_t index_ = 0;
+  int vertex_ = 0;
+  int index_ = 0;
 
   BufferIndex& operator+=(const BufferIndex& o) {
     vertex_ += o.vertex_;
@@ -115,7 +115,6 @@ struct BufferIndex {
   }
 };
 
-}} // ShapeShifter::Data
+} // namespace ShapeShifter::Data
 
 #endif /* DATA_BUFFER_MAP_BASE_H */
-

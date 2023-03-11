@@ -15,15 +15,11 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <string>
 #include <map>
 #include <sstream>
+#include <string>
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
-
-namespace detail {
+namespace ShapeShifter::Rendering::Shaders::detail {
 std::map<std::string, size_t> ParseLayouts(const std::string& data) {
   std::map<std::string, size_t> ret;
   auto stream = std::istringstream(data);
@@ -35,23 +31,21 @@ std::map<std::string, size_t> ParseLayouts(const std::string& data) {
       auto end = line.find(')');
       assert(start != std::string::npos);
       assert(end != std::string::npos);
-      std::istringstream temp(line.substr(start+1, end-start-1));
+      std::istringstream temp(line.substr(start + 1, end - start - 1));
       std::string trash;
-      char op;
-      size_t location;
+      char op = 0;
+      size_t location = 0;
       temp >> trash >> op >> location;
 
       start = line.find("vec3");
       end = line.find(";");
       assert(start != std::string::npos);
       assert(end != std::string::npos);
-      auto name = line.substr(start+5, end-start-5);
+      auto name = line.substr(start + 5, end - start - 5);
 
       ret[name] = location;
     }
   }
   return ret;
 }
-}
-
-}}} // ShapeShifter::Rendering::Shaders
+} // namespace ShapeShifter::Rendering::Shaders::detail

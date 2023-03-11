@@ -14,15 +14,13 @@
 #ifndef RENDERING_SHADERS_INTERFACE_VARIABLE_H
 #define RENDERING_SHADERS_INTERFACE_VARIABLE_H
 
+#include "rendering/shaders/VariableFactory.h"
 #include "rendering/shaders/language/Types.h"
 #include "rendering/shaders/language/Variable.h"
-#include "rendering/shaders/VariableFactory.h"
 
 #include <concepts>
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
+namespace ShapeShifter::Rendering::Shaders {
 
 /*
  * Base class used in the framework defining the interface for shader
@@ -32,20 +30,21 @@ namespace Shaders {
  * consistent.
  */
 template <typename Var>
-concept InterfaceVariable = requires(Var* t) {
-    // Defines which GLSL type wrapper will be used in C++ code
-    // (e.g. vec3).  Var::Type is actually supplied by the Variable
-    // base class we must be derived from
-    typename Var::Type;
-    requires Language::InterfaceType<typename Var::Type>;
-    requires std::derived_from<Var, Language::Variable<typename Var::Type>>;
+concept InterfaceVariable =
+    requires(Var* t) {
+      // Defines which GLSL type wrapper will be used in C++ code
+      // (e.g. vec3).  Var::Type is actually supplied by the Variable
+      // base class we must be derived from
+      typename Var::Type;
+      requires Language::InterfaceType<typename Var::Type>;
+      requires std::derived_from<Var, Language::Variable<typename Var::Type>>;
 
-    // Provides the string name to use in the generated GLSL program
-    { Var::name() } -> std::same_as<const char*>;
-    // Defines if the variable is smoothed or not
-    { Var::smooth } -> std::convertible_to<bool>;
-};
+      // Provides the string name to use in the generated GLSL program
+      { Var::name() } -> std::same_as<const char*>;
+      // Defines if the variable is smoothed or not
+      { Var::smooth } -> std::convertible_to<bool>;
+    };
 
-}}} // ShapeShifter::Rendering::Shaders
+} // namespace ShapeShifter::Rendering::Shaders
 
 #endif /* RENDERING_SHADERS_INTERFACE_VARIABLE_H */

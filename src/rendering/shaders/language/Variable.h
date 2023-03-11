@@ -19,9 +19,7 @@
 #include "rendering/shaders/language/Expression.h"
 #include "rendering/shaders/language/Types.h"
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
+namespace ShapeShifter::Rendering::Shaders {
 
 // forward declare
 class VariableFactory;
@@ -38,7 +36,8 @@ template <typename T>
 class Variable : public Expression<T> {
   friend class ShapeShifter::Rendering::Shaders::VariableFactory;
   Variable(IndentedStringStream& stream, const std::string& name)
-    : Expression<T>(stream, name, Expression<T>::Key()) {}
+      : Expression<T>(stream, name, Expression<T>::Key()) {}
+
 public:
   using Base = Expression<T>;
 
@@ -78,10 +77,11 @@ public:
   // Variable<T> types use this field to store their variable name, and need to
   // avoid being cleared every time they are used, thus the noop here.
   virtual void clear_state() const {}
+
 private:
 };
 
-}}}} // ShapeShifter::Rendering::Shaders::Language
+} // namespace Language
+} // namespace ShapeShifter::Rendering::Shaders
 
 #endif /* RENDERING_SHADERS_LANGUAGE_VARIABLE_H */
-

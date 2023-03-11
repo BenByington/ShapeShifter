@@ -23,16 +23,17 @@
 
 #include "rendering/World.h"
 
-namespace ShapeShifter {
-namespace ui {
+namespace ShapeShifter::ui {
 
 class MyQtWidget : public QOpenGLWidget {
   Q_OBJECT
 public:
   MyQtWidget();
   virtual ~MyQtWidget();
+
 private:
   Ui::MyQtWidget widget;
+
 protected:
   void initializeGL() override;
   void resizeGL(int width, int height) override;
@@ -50,7 +51,7 @@ protected:
     world_ = Scenario().Setup();
     update();
   }
-  
+
   // Can we make this not public?
 public slots:
   void EmptyScenario();
@@ -58,15 +59,13 @@ public slots:
   void IndexBufferScenario();
 
 private:
-
   std::pair<float, float> PixelCoordToCameraProj(const QPointF& p) const;
 
   std::unique_ptr<Rendering::World> world_;
 
   bool tracking_mouse = false;
   std::pair<float, float> last_mouse_coords_rel_;
-
 };
 
-}} //ShapeShifter::ui
+} // namespace ShapeShifter::ui
 #endif /* _MYQTWIDGET_H */

@@ -14,18 +14,14 @@
 #ifndef SHAPES_CUBE_H
 #define SHAPES_CUBE_H
 
-#include "rendering/PureNode.h"
 #include "data/ConcreteBufferManager.h"
+#include "rendering/PureNode.h"
 
-namespace ShapeShifter {
-namespace Shapes {
+namespace ShapeShifter::Shapes {
 
-class Cube final : public Rendering::LeafNode<
-    Data::VertexManager,
-    Data::ColorManager
->{
-
+class Cube final : public Rendering::LeafNode<Data::VertexManager, Data::ColorManager> {
   using BufferIndex = Data::BufferIndex;
+
 public:
   Cube(float sx, float sy, float sz);
   Cube(const Cube& orig) = delete;
@@ -33,8 +29,8 @@ public:
   Cube& operator=(const Cube& orig) = delete;
 
   ~Cube() {}
-private:
 
+private:
   virtual BufferIndex ExclusiveNodeDataCount() const override;
   virtual void FillVertexData(Data::VectorSlice<float>& data) const override;
   virtual void FillColorData(Data::VectorSlice<float>& data) const override;
@@ -46,7 +42,6 @@ private:
   float sz_;
 };
 
-}} // ShapeShifter::Shapes
+} // namespace ShapeShifter::Shapes
 
- #endif /*SHAPES_CUBE_H */
-
+#endif /*SHAPES_CUBE_H */

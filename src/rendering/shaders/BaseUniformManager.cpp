@@ -12,11 +12,3 @@
  */
 
 #include "rendering/shaders/BaseUniformManager.h"
-
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
-
-}}} /* ShapeShifter::Rendering::Shaders */
-
-

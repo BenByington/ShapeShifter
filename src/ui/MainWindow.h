@@ -20,21 +20,21 @@
 
 #include "ui/MyQtWidget.h"
 
-namespace ShapeShifter {
-namespace ui {
+namespace ShapeShifter::ui {
 
 class MainWindow : public QMainWindow {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    MainWindow();
-    virtual ~MainWindow();
-private:
-    Ui::MainWindow widget;
-    std::unique_ptr<MyQtWidget> qtw_;
+  MainWindow();
+  virtual ~MainWindow();
 
-    void LinkActions();
+private:
+  Ui::MainWindow widget;
+  std::unique_ptr<MyQtWidget> qtw_;
+
+  void LinkActions();
 };
 
-}} //ShapeShifter::ui
+} // namespace ShapeShifter::ui
 
 #endif /* _MAINWINDOW_H */

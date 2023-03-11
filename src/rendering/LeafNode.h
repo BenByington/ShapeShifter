@@ -19,12 +19,12 @@
 #include "rendering/shaders/Pack.h"
 #include "util/MultiReferenceWrapper.h"
 
-namespace ShapeShifter {
-namespace Rendering {
+namespace ShapeShifter::Rendering {
 
 class BaseLeafNode {
 protected:
   BaseLeafNode() = default;
+
 public:
   BaseLeafNode(const BaseLeafNode& orig) = delete;
   BaseLeafNode(BaseLeafNode&& orig) = delete;
@@ -37,11 +37,9 @@ public:
 
   // Functions for child classes to figure out what indices in the VAO they
   // should be modifying.
-  Data::BufferIndex start() const {return start_; }
-  Data::BufferIndex end() const {return end_; }
-  GLvoid* StartIndexAsVP() const {
-    return (GLvoid*)(start().index_*sizeof(uint32_t));
-  }
+  Data::BufferIndex start() const { return start_; }
+  Data::BufferIndex end() const { return end_; }
+  GLvoid* StartIndexAsVP() const { return (GLvoid*)(start().index_ * sizeof(uint32_t)); }
 
   // Personal rendering function
   virtual void DrawSelf() const = 0;
@@ -60,9 +58,7 @@ public:
   // finalized by creating a RootNode.
   Data::BufferIndex start_;
   Data::BufferIndex end_;
-
 };
-
 
 template <class... Managers>
 struct LeafNode : BaseLeafNode, Managers::Interface... {
@@ -73,12 +69,12 @@ struct LeafNode : BaseLeafNode, Managers::Interface... {
 
 template <class... Managers>
 struct LeafWrapper {
-
   template <class Leaf>
-  requires PackSuperset<Pack<Managers...>, typename Leaf::Interface_t>
+    requires PackSuperset<Pack<Managers...>, typename Leaf::Interface_t>
   LeafWrapper(std::unique_ptr<Leaf> node) {
-
-    this->leaf_ = std::make_unique<Util::MultiReferenceOwner<BaseLeafNode, typename Managers::Interface...>>(std::move(node));
+    this->leaf_ = std::make_unique<
+        Util::MultiReferenceOwner<BaseLeafNode, typename Managers::Interface...>>(
+        std::move(node));
   }
   LeafWrapper() = default;
 
@@ -96,31 +92,30 @@ struct LeafWrapper {
   //        PureNodes can call these two functions
   template <OneOf<Managers...>... Keys>
   void FillLocalBuffer(Data::BufferMap<Keys...>& data) {
-
     auto size = (*leaf_)->ExclusiveNodeDataCount();
 
     auto local_data = data.NextSlice(size);
-    (*leaf_)->start_= local_data.start();
-    (*leaf_)->end_= local_data.end();
+    (*leaf_)->start_ = local_data.start();
+    (*leaf_)->end_ = local_data.end();
 
-    auto worker = {(static_cast<typename Keys::Interface&>(*leaf_).FillData(local_data.template Val<Keys>())
-                    ,1)...
-    };
-    (void) worker;
+    auto worker = {(static_cast<typename Keys::Interface&>(*leaf_).FillData(
+                        local_data.template Val<Keys>()),
+                    1)...};
+    (void)worker;
 
     auto& indices = local_data.indices();
     (*leaf_)->FillIndexData(indices);
     size_t offset = (*leaf_)->start().vertex_;
-    for (auto& ind: indices) {
+    for (auto& ind : indices) {
       ind += offset;
     }
   }
 
 private:
-  std::unique_ptr<Util::MultiReferenceOwner<BaseLeafNode, typename Managers::Interface...>> leaf_;
+  std::unique_ptr<Util::MultiReferenceOwner<BaseLeafNode, typename Managers::Interface...>>
+      leaf_;
 };
 
-}} // ShapeShifter::Rendering
+} // namespace ShapeShifter::Rendering
 
 #endif /* SHAPESHIFTER_RENDERING_LEAFNODE_H */
-

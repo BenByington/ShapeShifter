@@ -21,22 +21,19 @@
 
 #include <memory>
 
-namespace ShapeShifter {
-namespace scenarios {
-namespace tests {
+namespace ShapeShifter::scenarios::tests {
 
-class Squares2D : public Scenario{
+class Squares2D : public Scenario {
 public:
-  Squares2D() {};
+  Squares2D(){};
   Squares2D(const Squares2D& orig) = delete;
   Squares2D(Squares2D&& orign) = delete;
   Squares2D& operator=(const Squares2D& other) = delete;
-  virtual ~Squares2D() {};
+  virtual ~Squares2D(){};
 
   virtual std::unique_ptr<Rendering::World> Setup() override;
 
 private:
-
 };
 
 namespace detail {
@@ -44,12 +41,11 @@ namespace detail {
 /**
  * Simple test class that will draw a shaded square in the center of the screen
  */
-class SquareTest2D : public Rendering::LeafNode<
-    Data::VertexManager,
-    Data::ColorManager> {
+class SquareTest2D : public Rendering::LeafNode<Data::VertexManager, Data::ColorManager> {
 public:
   SquareTest2D() = default;
   virtual ~SquareTest2D() {}
+
 private:
   using BufferIndex = Data::BufferIndex;
   virtual BufferIndex ExclusiveNodeDataCount() const override;
@@ -59,9 +55,8 @@ private:
   virtual void DrawSelf() const override;
 };
 
-}
+} // namespace detail
 
-}}} // ShapeShifter::scenarios::tests
+} // namespace ShapeShifter::scenarios::tests
 
 #endif /* SCENARIOS_TESTS_SQUARES2D_H */
-

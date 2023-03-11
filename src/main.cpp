@@ -16,9 +16,9 @@
 
 #include "ui/MainWindow.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   auto format = QSurfaceFormat{};
-  format.setVersion(4,1);
+  format.setVersion(4, 1);
   format.setProfile(QSurfaceFormat::CoreProfile);
   QSurfaceFormat::setDefaultFormat(format);
 

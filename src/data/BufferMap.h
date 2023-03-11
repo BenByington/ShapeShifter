@@ -21,8 +21,7 @@
 #include <set>
 #include <vector>
 
-namespace ShapeShifter {
-namespace Data {
+namespace ShapeShifter::Data {
 
 /*
  * Convenience class, allowing the buffers to all be stored together even though
@@ -36,19 +35,20 @@ public:
   // Construction requires a full set of BufferManagers already created as well
   // as a BufferIndex variable dictating how large to make the buffers
   BufferMap(BufferIndex count)
-    : total_(count) {
-
+      : total_(count) {
     // ISSUE Rethink these shared_ptr being used as keys.  They live in both this data
     //       structure and another, so their lifecycle is confusing.
-    auto worker = {(this->data_.template Key<std::shared_ptr<Managers>, std::vector<typename Managers::Type>>() = std::make_shared<Managers>(),1)...};
-    (void) worker;
-    this->ForEachKeyVal([&](auto& key, auto& vec){
-        vec.resize(count.vertex_ * key->ElementsPerEntry());
-    });
+    auto worker = {
+        (this->data_
+             .template Key<std::shared_ptr<Managers>, std::vector<typename Managers::Type>>() =
+             std::make_shared<Managers>(),
+         1)...};
+    (void)worker;
+    this->ForEachKeyVal(
+        [&](auto& key, auto& vec) { vec.resize(count.vertex_ * key->ElementsPerEntry()); });
 
     this->indices_.resize(count.index_);
   }
-
 
   BufferMap(const BufferMap&) = delete;
   BufferMap(BufferMap&&) = default;
@@ -65,32 +65,20 @@ public:
   BufferSliceMap<Managers...> NextSlice(BufferIndex count) {
     auto start = next_free_;
     next_free_ += count;
-    return BufferSliceMap<Managers...>(
-        *this,
-        this->indices_,
-        start,
-        next_free_
-    );
+    return BufferSliceMap<Managers...>(*this, this->indices_, start, next_free_);
   }
-
 
   // Amount of data not yet returned in a MixedSliceMap for population
-  BufferIndex DataRemaining() {
-    return total_ - next_free_;
-  }
-
+  BufferIndex DataRemaining() { return total_ - next_free_; }
 
   // Size of the map, both in vertices and triangles.
-  BufferIndex Size() {
-    return total_;
-  }
+  BufferIndex Size() { return total_; }
 
 private:
   BufferIndex next_free_;
   BufferIndex total_;
 };
 
-}} // ShapeShifter::Data
+} // namespace ShapeShifter::Data
 
 #endif /* DATA_BUFFER_MAP_H */
-

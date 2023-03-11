@@ -13,13 +13,9 @@
 
 #include "BasicShader.h"
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
-namespace Programs {
+namespace ShapeShifter::Rendering::Shaders::Programs {
 
 void BasicVertexShader::DefineMain(const VariableFactory& factory) {
-
   gl_Position = transform * factory_.temporary<Language::Vec4>(inPosition, 1.0f);
   theColor = inColor;
 }
@@ -28,4 +24,4 @@ void BasicFragmentShader::DefineMain(const VariableFactory& factory) {
   outputColor = factory_.temporary<Language::Vec4>(theColor, 1.0f);
 }
 
-}}}} // ShapeShifter::Rendering::Shaders::Programs
+} // namespace ShapeShifter::Rendering::Shaders::Programs

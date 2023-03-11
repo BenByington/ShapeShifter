@@ -18,10 +18,7 @@
 #include <memory>
 #include <sstream>
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
-namespace Language {
+namespace ShapeShifter::Rendering::Shaders::Language {
 
 /*
  * Convenience class for managing indententaion levels in generated
@@ -43,7 +40,10 @@ public:
   }
 
   void incIndent() { ++indentation_; }
-  void decIndent() { assert(indentation_ >= 0); --indentation_; }
+  void decIndent() {
+    assert(indentation_ >= 0);
+    --indentation_;
+  }
   std::string str() { return stream_.str(); }
 
 private:
@@ -51,8 +51,6 @@ private:
   size_t indentation_ = 0;
 };
 
-
-}}}} // ShapeShifter::Rendering::Shaders::Language
+} // namespace ShapeShifter::Rendering::Shaders::Language
 
 #endif /* RENDERING_SHADERS_LANGUAGE_INDENTED_STRINGSTREAM_H */
-

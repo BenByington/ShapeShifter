@@ -20,25 +20,21 @@
 
 #include <memory>
 
-namespace ShapeShifter {
-namespace scenarios {
-namespace tests {
+namespace ShapeShifter::scenarios::tests {
 
-class IndexBuffers : public Scenario{
+class IndexBuffers : public Scenario {
 public:
-  IndexBuffers() {};
+  IndexBuffers(){};
   IndexBuffers(const IndexBuffers& orig) = delete;
   IndexBuffers(IndexBuffers&& orign) = delete;
   IndexBuffers& operator=(const IndexBuffers& other) = delete;
-  virtual ~IndexBuffers() {};
+  virtual ~IndexBuffers(){};
 
   virtual std::unique_ptr<Rendering::World> Setup() override;
 
 private:
-
 };
 
-}}} // ShapeShifter::scenarios::tests
+} // namespace ShapeShifter::scenarios::tests
 
 #endif /* SCENARIOS_TESTS_INDEXED_BUFFERS_H */
-

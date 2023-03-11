@@ -18,23 +18,20 @@
 
 #include <memory>
 
-namespace ShapeShifter {
-namespace scenarios {
+namespace ShapeShifter::scenarios {
 
-class Empty : public Scenario{
+class Empty : public Scenario {
 public:
-  Empty() {};
+  Empty(){};
   Empty(const Empty& orig) = delete;
   Empty(Empty&& orign) = delete;
   Empty& operator=(const Empty& other) = delete;
-  virtual ~Empty() {};
+  virtual ~Empty(){};
 
   virtual std::unique_ptr<Rendering::World> Setup() override;
 
 private:
-
 };
 
-}} // namespace ShapeShifter::scenarios
+} // namespace ShapeShifter::scenarios
 #endif /* SCENARIOS_EMPTY_H */
-

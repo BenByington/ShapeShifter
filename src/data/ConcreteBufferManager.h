@@ -21,15 +21,14 @@
 #include <cstdlib>
 #include <type_traits>
 
-namespace ShapeShifter {
-namespace Data {
+namespace ShapeShifter::Data {
 
 class ColorManager final : public AbstractManager {
 public:
   using Type = float;
   using Type2 = Rendering::Shaders::Language::Vec3;
 
-  virtual ~ColorManager(){}
+  virtual ~ColorManager() {}
 
   virtual size_t ElementsPerEntry() const override { return 3; }
   virtual bool isFloating() const override { return true; }
@@ -38,11 +37,8 @@ public:
   struct Variable : Rendering::Shaders::Language::Variable<Type2> {
     using Base = Rendering::Shaders::Language::Variable<Type2>;
     Variable(Rendering::Shaders::VariableFactory& factory)
-        : Base(factory.create<Type2>(name()))
-    {}
-    static constexpr const char* name() {
-      return "inColor";
-    }
+        : Base(factory.create<Type2>(name())) {}
+    static constexpr const char* name() { return "inColor"; }
     static constexpr bool smooth = false;
     Base& inColor = static_cast<Base&>(*this);
   };
@@ -59,7 +55,7 @@ class VertexManager final : public AbstractManager {
 public:
   using Type = float;
   using Type2 = Rendering::Shaders::Language::Vec3;
-  virtual ~VertexManager(){}
+  virtual ~VertexManager() {}
 
   virtual size_t ElementsPerEntry() const override { return 3; }
   virtual bool isFloating() const override { return true; }
@@ -68,11 +64,8 @@ public:
   struct Variable : Rendering::Shaders::Language::Variable<Type2> {
     using Base = Rendering::Shaders::Language::Variable<Type2>;
     Variable(Rendering::Shaders::VariableFactory& factory)
-        : Base(factory.create<Type2>(name()))
-    {}
-    static constexpr const char* name() {
-      return "inPosition";
-    }
+        : Base(factory.create<Type2>(name())) {}
+    static constexpr const char* name() { return "inPosition"; }
     static constexpr bool smooth = false;
     Base& inPosition = static_cast<Base&>(*this);
   };
@@ -85,7 +78,6 @@ public:
   };
 };
 
-}} // ShapeShifter::Data
+} // namespace ShapeShifter::Data
 
 #endif /* DATA_BUFFERTYPES_H */
-

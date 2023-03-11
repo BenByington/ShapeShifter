@@ -16,20 +16,16 @@
 
 #include <concepts>
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
-namespace Language {
+namespace ShapeShifter::Rendering::Shaders::Language {
 
 class Vec3 {};
 class Vec4 {
 public:
-    static Vec4 Create(Vec3, float) { return Vec4{}; }
-
+  static Vec4 Create(Vec3, float) { return Vec4{}; }
 };
 class Mat4 {
 public:
-    Vec4 operator*(const Vec4& other) { return Vec4{}; }
+  Vec4 operator*(const Vec4& other) { return Vec4{}; }
 };
 
 /*
@@ -43,30 +39,22 @@ class VariableTraits;
 
 template <>
 struct VariableTraits<Mat4> {
-  static constexpr const char* name() {
-    return "mat4";
-  }
+  static constexpr const char* name() { return "mat4"; }
 };
 template <>
 struct VariableTraits<Vec4> {
-  static constexpr const char* name() {
-    return "vec4";
-  }
+  static constexpr const char* name() { return "vec4"; }
 };
 
 template <>
 struct VariableTraits<Vec3> {
-  static constexpr const char* name() {
-    return "vec3";
-  }
+  static constexpr const char* name() { return "vec3"; }
 };
 
 template <typename T>
-concept InterfaceType = std::same_as<T, Mat4>
-    || std::same_as<T, Vec4>
-    || std::same_as<T, Vec3>;
+concept InterfaceType =
+    std::same_as<T, Mat4> || std::same_as<T, Vec4> || std::same_as<T, Vec3>;
 
-}}}} // ShapeShifter::Rendering::Shaders::Language
+} // namespace ShapeShifter::Rendering::Shaders::Language
 
 #endif /* RENDERING_SHADERS_LANGUAGE_TYPES_H */
-

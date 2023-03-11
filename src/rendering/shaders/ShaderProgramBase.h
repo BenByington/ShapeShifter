@@ -18,9 +18,7 @@
 #include "math/Matrix4.h"
 #include "rendering/shaders/ShaderBase.h"
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
+namespace ShapeShifter::Rendering::Shaders {
 
 /*
  * Abstract base class for all shader programs.  (Children classes will be
@@ -30,17 +28,13 @@ class ShaderProgramBase {
 public:
   ShaderProgramBase(const ShaderProgramBase&) = delete;
   ShaderProgramBase& operator()(ShaderProgramBase&) = delete;
-  ShaderProgramBase(
-      std::unique_ptr<ShaderBase> vert,
-      std::unique_ptr<ShaderBase> frag);
+  ShaderProgramBase(std::unique_ptr<ShaderBase> vert, std::unique_ptr<ShaderBase> frag);
 
   virtual ~ShaderProgramBase();
 
   void UseProgram() const { glUseProgram(program_); }
 
-  const auto& layout_map() const {
-    return vert_shader_->layout_map();
-  }
+  const auto& layout_map() const { return vert_shader_->layout_map(); }
 
 protected:
   void UploadValue(const Math::Matrix4& mat, const char* name) const;
@@ -51,7 +45,6 @@ private:
   GLuint program_;
 };
 
-}}} // ShapeShifter::Rendering::Shaders
+} // namespace ShapeShifter::Rendering::Shaders
 
 #endif /* RENDERING_SHADERS_SHADER_PROGRAM_BASE_H */
-

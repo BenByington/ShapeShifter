@@ -17,13 +17,18 @@
 #include <array>
 #include <cstddef>
 
-namespace ShapeShifter {
-namespace Math {
+namespace ShapeShifter::Math {
 
 class Vector3 {
 public:
-  Vector3() : data_{0, 0, 0,} {}
-  Vector3(float x, float y, float z) : data_{x, y, z} {}
+  Vector3()
+      : data_{
+            0,
+            0,
+            0,
+        } {}
+  Vector3(float x, float y, float z)
+      : data_{x, y, z} {}
   Vector3(const Vector3& orig) = default;
   virtual ~Vector3() {}
 
@@ -36,12 +41,11 @@ public:
   float& operator[](size_t idx) { return data_[idx]; }
 
   void Print() const;
+
 private:
   std::array<float, 3> data_;
-
 };
 
-}} // ShapeShifter::Math
+} // namespace ShapeShifter::Math
 
 #endif /* MATH_VECTOR3_H */
-

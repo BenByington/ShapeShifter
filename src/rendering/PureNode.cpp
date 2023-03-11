@@ -12,5 +12,3 @@
  */
 
 #include "rendering/PureNode.h"
-
-

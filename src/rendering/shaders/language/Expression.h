@@ -17,9 +17,7 @@
 #include "rendering/shaders/language/IndentedStringStream.h"
 #include "rendering/shaders/language/Types.h"
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
+namespace ShapeShifter::Rendering::Shaders {
 
 // forward declare
 class VariableFactory;
@@ -33,10 +31,10 @@ namespace Language {
 class ExpressionBase {
 private:
   ExpressionBase() {}
+
 protected:
-  static ExpressionBase Key() {
-    return ExpressionBase{};
-  }
+  static ExpressionBase Key() { return ExpressionBase{}; }
+
 public:
   ExpressionBase(ExpressionBase&&) = default;
 };
@@ -48,17 +46,16 @@ public:
  * will generate an Expression<T*U>.
  */
 template <typename T>
-class Expression : private ExpressionBase{
+class Expression : private ExpressionBase {
   friend class ShapeShifter::Rendering::Shaders::VariableFactory;
+
 public:
   Expression(IndentedStringStream& stream, const std::string& name, ExpressionBase b)
-    : ExpressionBase(std::move(b))
-    , stream_(stream)
-    , state_(name) {}
+      : ExpressionBase(std::move(b))
+      , stream_(stream)
+      , state_(name) {}
 
-  static constexpr const char* TypeName() {
-    return VariableTraits<T>::name();
-  }
+  static constexpr const char* TypeName() { return VariableTraits<T>::name(); }
 
   using Type = T;
 
@@ -81,23 +78,22 @@ protected:
 public:
   Expression(Expression&&) = default;
   virtual ~Expression() {
-    if(!state_.empty()) stream_.get() << state_ << ";" << std::endl;
+    if (!state_.empty()) stream_.get() << state_ << ";" << std::endl;
   }
 
   // ISSUE need to handle precidence!  Right now, a * (b+c) will get written as
   // a * b + c;
   template <typename U>
-  auto operator*(U&& other) -> Expression<decltype(std::declval<T>()*std::declval<typename U::Type>())> {
-    using Type = Expression<decltype(std::declval<T>()*std::declval<typename U::Type>())>;
+  auto operator*(U&& other)
+      -> Expression<decltype(std::declval<T>() * std::declval<typename U::Type>())> {
+    using Type = Expression<decltype(std::declval<T>() * std::declval<typename U::Type>())>;
     std::string result = state_ + " * " + other.state_;
     other.clear_state();
     return Type(this->stream_, result, Key());
   }
 };
 
-
-
-}}}} // ShapeShifter::Rendering::Shaders::Language
+} // namespace Language
+} // namespace ShapeShifter::Rendering::Shaders
 
 #endif /* RENDERING_SHADERS_LANGUAGE_EXPRESSION_H */
-

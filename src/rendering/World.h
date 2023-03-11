@@ -19,16 +19,15 @@
 
 #include <memory>
 
-namespace ShapeShifter {
-namespace Rendering {
+namespace ShapeShifter::Rendering {
 
-class World final{
+class World final {
 public:
   World(std::unique_ptr<Camera> cam);
   World(const World& orig) = delete;
   World(World&& orig) = delete;
   World& operator=(const World& other) = delete;
-  ~World() {};
+  ~World(){};
 
   void SetRenderTree(std::unique_ptr<RenderingTree> tree);
   Camera& camera();
@@ -40,7 +39,6 @@ private:
   std::unique_ptr<Camera> camera_;
 };
 
-}} // ShapeShifter::Rendering
+} // namespace ShapeShifter::Rendering
 
 #endif /* RENDERING_WORLD_H */
-

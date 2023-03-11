@@ -15,10 +15,10 @@
 
 #include <algorithm>
 #include <cassert>
-#include <limits>
 #include <iostream>
-#include <sstream>
+#include <limits>
 #include <map>
+#include <sstream>
 #include <vector>
 
 // Declare this, so that we don't overwrite the #defines and etc from the real
@@ -29,10 +29,10 @@
 // Defines used to control what extra debugging steps occur
 // The last three are subsets of each other.  LOG_PARAMETERS will enable
 // LOG_FUNCTIONS, and DETAIL_LOG_PARAMETERS will enable both the others.
-//#define ERROR_CHECKING
-//#define LOG_FUNCTIONS
-//#define LOG_PARAMETERS
-//#define DETAIL_LOG_PARAMETERS
+// #define ERROR_CHECKING
+// #define LOG_FUNCTIONS
+// #define LOG_PARAMETERS
+// #define DETAIL_LOG_PARAMETERS
 
 // Ugly hack, but in the count_map, we will toss in a GL_ENUM instead of
 // a count, so that sections that took a void pointer to a single value
@@ -44,20 +44,62 @@ static constexpr size_t TYPE_IDX = std::numeric_limits<size_t>::max();
 // [] now but add it to the value printing.
 template <class T>
 std::string type();
-template <> std::string type<long>() { return "long";}
-template <> std::string type<unsigned long>() { return "unsigned long";}
-template <> std::string type<uint32_t>() { return "uint32_t";}
-template <> std::string type<int32_t>() { return "int32_t";}
-template <> std::string type<char const* const*>() { return "const char*";}
-template <> std::string type<char const*>() { return "const char*";}
-template <> std::string type<char*>() { return "const char*";}
-template <> std::string type<uint8_t>() { return "uint8_t";}
-template <> std::string type<float const*>() { return "float";}
-template <> std::string type<int const*>() { return "int";}
-template <> std::string type<int*>() { return "int";}
-template <> std::string type<uint32_t const*>() { return "uint32_t";}
-template <> std::string type<uint32_t *>() { return "uint32_t";}
-template <> std::string type<void const*>() { return "void*";}
+template <>
+std::string type<long>() {
+  return "long";
+}
+template <>
+std::string type<unsigned long>() {
+  return "unsigned long";
+}
+template <>
+std::string type<uint32_t>() {
+  return "uint32_t";
+}
+template <>
+std::string type<int32_t>() {
+  return "int32_t";
+}
+template <>
+std::string type<char const* const*>() {
+  return "const char*";
+}
+template <>
+std::string type<char const*>() {
+  return "const char*";
+}
+template <>
+std::string type<char*>() {
+  return "const char*";
+}
+template <>
+std::string type<uint8_t>() {
+  return "uint8_t";
+}
+template <>
+std::string type<float const*>() {
+  return "float";
+}
+template <>
+std::string type<int const*>() {
+  return "int";
+}
+template <>
+std::string type<int*>() {
+  return "int";
+}
+template <>
+std::string type<uint32_t const*>() {
+  return "uint32_t";
+}
+template <>
+std::string type<uint32_t*>() {
+  return "uint32_t";
+}
+template <>
+std::string type<void const*>() {
+  return "void*";
+}
 
 /*
  * Classes for printing out values.  There are a number of special cases to
@@ -73,8 +115,10 @@ template <> std::string type<void const*>() { return "void*";}
  * need to place a [] after the variable name and before the '='
  */
 template <class T>
-requires ( std::is_pointer_v<T> == false)
-std::string value(size_t count, T v) { return " = " + std::to_string(v); }
+  requires(std::is_pointer_v<T> == false)
+std::string value(size_t count, T v) {
+  return " = " + std::to_string(v);
+}
 
 template <class T>
 std::string value(size_t count, const T* v) {
@@ -89,12 +133,11 @@ std::string value(size_t count, const T* v) {
   if (count == 0) return "[] = {}";
   std::stringstream ss;
   ss << "[] = { ";
-  for (size_t i = 0; i < max-1; ++i) {
+  for (size_t i = 0; i < max - 1; ++i) {
     ss << v[i] << ", ";
   }
-  ss << v[max-1] << cont << " }";
+  ss << v[max - 1] << cont << " }";
   return ss.str();
-
 }
 
 template <>
@@ -103,7 +146,7 @@ std::string value<char>(size_t count, const char* v) {
   return " = \"" + std::string(v) + "\"";
 }
 
-std::string value(size_t count, const char* const * v) {
+std::string value(size_t count, const char* const* v) {
 #ifdef DETAIL_LOG_PARAMETERS
   size_t max = count;
   std::string cont = "";
@@ -115,36 +158,35 @@ std::string value(size_t count, const char* const * v) {
   if (count == 0) return "[] = {}";
   std::stringstream ss;
   ss << "[] = { ";
-  for (size_t i = 0; i < max-1; ++i) {
-    ss << "R\"(" << v[i] << ")\"" << ", ";
+  for (size_t i = 0; i < max - 1; ++i) {
+    ss << "R\"(" << v[i] << ")\""
+       << ", ";
   }
-  ss << "R\"(" << v[max-1] << ")\"" << cont << " }";
+  ss << "R\"(" << v[max - 1] << ")\"" << cont << " }";
   return ss.str();
 }
 
-template<> std::string value<void>(size_t count, const void* v) {
-  switch(count) {
-    case GL_FLOAT:
-      assert(size_t(v) / sizeof(float) == 0);
-      return " = " + std::to_string((size_t(v)) / sizeof(float)) + " // (float)";
-    case GL_UNSIGNED_INT:
-      assert(size_t(v) / sizeof(uint32_t) == 0);
-      return " = " + std::to_string((size_t(v)) / sizeof(uint32_t)) + " //(uint32)";
-    default:
-      std::cerr << "unhandled type in void printing!\n";
-      assert(false);
-      return "";
+template <>
+std::string value<void>(size_t count, const void* v) {
+  switch (count) {
+  case GL_FLOAT:
+    assert(size_t(v) / sizeof(float) == 0);
+    return " = " + std::to_string((size_t(v)) / sizeof(float)) + " // (float)";
+  case GL_UNSIGNED_INT:
+    assert(size_t(v) / sizeof(uint32_t) == 0);
+    return " = " + std::to_string((size_t(v)) / sizeof(uint32_t)) + " //(uint32)";
+  default:
+    std::cerr << "unhandled type in void printing!\n";
+    assert(false);
+    return "";
   }
 }
 
 template <size_t... Indexes, class... Args>
-std::vector<std::pair<std::string, std::string>>
-types_values_helper(
-    std::map<size_t, size_t> count_map,
-    std::index_sequence<Indexes...> idxs,
-    Args&&... args) {
+std::vector<std::pair<std::string, std::string>> types_values_helper(
+    std::map<size_t, size_t> count_map, std::index_sequence<Indexes...> idxs, Args&&... args) {
   // Extract the count information if it exists.  Be default it will always be 1.
-  auto count = [&](size_t index) -> size_t{
+  auto count = [&](size_t index) -> size_t {
     if (count_map.count(index)) {
       return count_map[index];
     } else {
@@ -152,17 +194,15 @@ types_values_helper(
     }
   };
 
-  return {{
-      type<typename std::decay<typename std::remove_pointer<Args>::type>::type>(),
-      value(count(Indexes), args)
-  }...};
+  return {{type<typename std::decay<typename std::remove_pointer<Args>::type>::type>(),
+           value(count(Indexes), args)}...};
 }
 
 struct types_values {
-  types_values(const std::map<size_t, size_t>& map) : count_map(map) {}
-  template <class...Args>
-  std::vector<std::pair<std::string, std::string>>
-  operator()(Args&&... args) {
+  types_values(const std::map<size_t, size_t>& map)
+      : count_map(map) {}
+  template <class... Args>
+  std::vector<std::pair<std::string, std::string>> operator()(Args&&... args) {
     constexpr auto idxs = std::make_index_sequence<sizeof...(args)>();
     return types_values_helper(count_map, idxs, args...);
   }
@@ -179,199 +219,210 @@ std::vector<std::string> param_list(std::string raw) {
 }
 
 void check(bool first) {
-    for(GLenum err; (err = glGetError()) != GL_NO_ERROR;)
-    {
-      if(first) {
-        std::cerr << "unexpected error...! Are there unwrapped opengl calls?\n";
-      }
-      std::cerr << "Encountered opengl error: " << err << std::endl;
+  GLenum err = GL_NO_ERROR;
+  while ((err = glGetError()) != GL_NO_ERROR) {
+    if (first) {
+      std::cerr << "unexpected error...! Are there unwrapped opengl calls?\n";
     }
+    std::cerr << "Encountered opengl error: " << err << std::endl;
+  }
 }
 
 #if defined(ERROR_CHECKING)
-  #define CHECK(first) check(first);
+#define CHECK(first) check(first);
 #else
-  #define CHECK(first)
+#define CHECK(first)
 #endif
 
 #if defined(LOG_PARAMETERS) or defined(DETAIL_LOG_PARAMETERS)
-  #define PRINT_PARAMS(...) \
-    auto param_names_ = param_list(#__VA_ARGS__); \
-    auto tvs_ = types_values(count_map)(__VA_ARGS__); \
-    for (size_t i = 0; i < param_names_.size(); ++i)  \
-      std::cerr << "  " << tvs_[i].first << " " \
-          << param_names_[i]  \
-          << tvs_[i].second << ";\n";
+#define PRINT_PARAMS(...)                                                                     \
+  auto param_names_ = param_list(#__VA_ARGS__);                                               \
+  auto tvs_ = types_values(count_map)(__VA_ARGS__);                                           \
+  for (size_t i = 0; i < param_names_.size(); ++i)                                            \
+    std::cerr << "  " << tvs_[i].first << " " << param_names_[i] << tvs_[i].second << ";\n";
 #else
-  #define PRINT_PARAMS(...)
+#define PRINT_PARAMS(...)
 #endif
 
 #if defined(LOG_PARAMETERS) or defined(DETAIL_LOG_PARAMETERS)
-  #define PRINT_RETURN \
-    std::cerr << "  return: " << std::to_string(ret) << std::endl;
+#define PRINT_RETURN std::cerr << "  return: " << std::to_string(ret) << std::endl;
 #else
-  #define PRINT_RETURN
+#define PRINT_RETURN
 #endif
 
 #if defined(LOG_FUNCTIONS) or defined(LOG_PARAMETERS) or defined(DETAIL_LOG_PARAMETERS)
-  #define PRINT_CALL(function, ...) \
-    std::cerr << "  " << #function << "(" << #__VA_ARGS__ << ");\n";
+#define PRINT_CALL(function, ...)                                                             \
+  std::cerr << "  " << #function << "(" << #__VA_ARGS__ << ");\n";
 #else
-  #define PRINT_CALL(function, ...)
+#define PRINT_CALL(function, ...)
 #endif
 
 #if defined(LOG_FUNCTIONS) or defined(LOG_PARAMETERS) or defined(DETAIL_LOG_PARAMETERS)
-  #define OPEN_SCOPE std::cerr << "\n{\n";
-  #define CLOSE_SCOPE std::cerr << "}\n";
+#define OPEN_SCOPE std::cerr << "\n{\n";
+#define CLOSE_SCOPE std::cerr << "}\n";
 #else
-  #define OPEN_SCOPE
-  #define CLOSE_SCOPE
+#define OPEN_SCOPE
+#define CLOSE_SCOPE
 #endif
 
 // ISSUE: clean all this up.  All the MACROS called from here can be functions
-//        instead.  We only needed the macro here for the '::function' line. 
+//        instead.  We only needed the macro here for the '::function' line.
 //        Everything else can be runtime string manipulations.
-#define FUNC_BODY(function, ...)  \
-  CHECK(true) \
-  ::function(__VA_ARGS__); \
-  CHECK(false) \
-  OPEN_SCOPE \
-  PRINT_PARAMS(__VA_ARGS__); \
-  PRINT_CALL(function, __VA_ARGS__); \
-  CLOSE_SCOPE \
+//
+//        If this issue gets resolved, consider removing cppcoreguidelines-maro-usage from
+//        the clang-tidy blacklist
+#define FUNC_BODY(function, ...)                                                              \
+  CHECK(true)                                                                                 \
+  ::function(__VA_ARGS__);                                                                    \
+  CHECK(false)                                                                                \
+  OPEN_SCOPE                                                                                  \
+  PRINT_PARAMS(__VA_ARGS__);                                                                  \
+  PRINT_CALL(function, __VA_ARGS__);                                                          \
+  CLOSE_SCOPE                                                                                 \
   return;
 
-#define FUNC_BODY_RETURN(function, ...)  \
-  CHECK(true) \
-  auto ret = ::function(__VA_ARGS__); \
-  CHECK(false) \
-  OPEN_SCOPE \
-  PRINT_PARAMS(__VA_ARGS__); \
-  PRINT_CALL(function, __VA_ARGS__); \
-  PRINT_RETURN \
-  CLOSE_SCOPE \
+#define FUNC_BODY_RETURN(function, ...)                                                       \
+  CHECK(true)                                                                                 \
+  auto ret = ::function(__VA_ARGS__);                                                         \
+  CHECK(false)                                                                                \
+  OPEN_SCOPE                                                                                  \
+  PRINT_PARAMS(__VA_ARGS__);                                                                  \
+  PRINT_CALL(function, __VA_ARGS__);                                                          \
+  PRINT_RETURN                                                                                \
+  CLOSE_SCOPE                                                                                 \
   return ret;
 
 namespace ShapeShifter {
-void glGetIntegerv (GLenum pname, GLint *params) {
+void glGetIntegerv(GLenum pname, GLint* params) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glGetIntegerv, pname, params);
 }
-GLuint glCreateProgram (void) {
+GLuint glCreateProgram(void) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY_RETURN(glCreateProgram);
 }
-GLuint glCreateShader (GLenum type) {
+GLuint glCreateShader(GLenum type) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY_RETURN(glCreateShader, type);
 }
-void glShaderSource (GLuint shader, GLsizei count, const GLchar* const *string, const GLint *length) {
-  std::map<size_t, size_t> count_map {{3, count}};
+void glShaderSource(GLuint shader,
+                    GLsizei count,
+                    const GLchar* const* string,
+                    const GLint* length) {
+  std::map<size_t, size_t> count_map{{3, count}};
   FUNC_BODY(glShaderSource, shader, count, string, length);
 }
-void glCompileShader (GLuint shader) {
+void glCompileShader(GLuint shader) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glCompileShader, shader);
 }
-void glGetShaderiv (GLuint shader, GLenum pname, GLint *params) {
+void glGetShaderiv(GLuint shader, GLenum pname, GLint* params) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glGetShaderiv, shader, pname, params);
 }
-void glGetShaderInfoLog (GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog) {
+void glGetShaderInfoLog(GLuint shader, GLsizei bufSize, GLsizei* length, GLchar* infoLog) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glGetShaderInfoLog, shader, bufSize, length, infoLog);
 }
-void glDeleteShader (GLuint shader) {
+void glDeleteShader(GLuint shader) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glDeleteShader, shader);
 }
-void glUseProgram (GLuint program) {
+void glUseProgram(GLuint program) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glUseProgram, program);
 }
-void glGenVertexArrays (GLsizei n, GLuint *arrays) {
-  std::map<size_t, size_t> count_map {{1,n}};
+void glGenVertexArrays(GLsizei n, GLuint* arrays) {
+  std::map<size_t, size_t> count_map{{1, n}};
   FUNC_BODY(glGenVertexArrays, n, arrays);
 }
-void glBindVertexArray (GLuint array) {
+void glBindVertexArray(GLuint array) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glBindVertexArray, array);
 }
-void glGenBuffers (GLsizei n, GLuint *buffers) {
-  std::map<size_t, size_t> count_map {{1,n}};
+void glGenBuffers(GLsizei n, GLuint* buffers) {
+  std::map<size_t, size_t> count_map{{1, n}};
   FUNC_BODY(glGenBuffers, n, buffers);
 }
-void glBindBuffer (GLenum target, GLuint buffer) {
+void glBindBuffer(GLenum target, GLuint buffer) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glBindBuffer, target, buffer);
 }
-void glBufferData (GLenum target, const std::vector<float>& data, GLenum usage) {
-  std::map<size_t, size_t> count_map {{2, data.size()}};
-  auto size = data.size()*sizeof(float);
+void glBufferData(GLenum target, const std::vector<float>& data, GLenum usage) {
+  std::map<size_t, size_t> count_map{{2, data.size()}};
+  auto size = data.size() * sizeof(float);
   auto dat = data.data();
   FUNC_BODY(glBufferData, target, size, dat, usage);
 }
-void glBufferData (GLenum target, const std::vector<uint32_t>& data, GLenum usage) {
-  std::map<size_t, size_t> count_map {{2, data.size()}};
-  auto size = data.size()*sizeof(uint32_t);
+void glBufferData(GLenum target, const std::vector<uint32_t>& data, GLenum usage) {
+  std::map<size_t, size_t> count_map{{2, data.size()}};
+  auto size = data.size() * sizeof(uint32_t);
   auto dat = data.data();
   FUNC_BODY(glBufferData, target, size, dat, usage);
 }
-void glAttachShader (GLuint program, GLuint shader) {
+void glAttachShader(GLuint program, GLuint shader) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glAttachShader, program, shader);
 }
-void glVertexAttribPointer (GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer) {
-  std::map<size_t, size_t> count_map {{5,type}};
+void glVertexAttribPointer(GLuint index,
+                           GLint size,
+                           GLenum type,
+                           GLboolean normalized,
+                           GLsizei stride,
+                           const GLvoid* pointer) {
+  std::map<size_t, size_t> count_map{{5, type}};
   FUNC_BODY(glVertexAttribPointer, index, size, type, normalized, stride, pointer);
 }
-void glEnableVertexAttribArray (GLuint index) {
+void glEnableVertexAttribArray(GLuint index) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glEnableVertexAttribArray, index);
 }
-void glDeleteVertexArrays (GLsizei n, const GLuint *arrays) {
-  std::map<size_t, size_t> count_map {{1,n}};
+void glDeleteVertexArrays(GLsizei n, const GLuint* arrays) {
+  std::map<size_t, size_t> count_map{{1, n}};
   FUNC_BODY(glDeleteVertexArrays, n, arrays);
 }
-void glLinkProgram (GLuint program) {
+void glLinkProgram(GLuint program) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glLinkProgram, program);
 }
-void glGetProgramiv (GLuint program, GLenum pname, GLint *params) {
+void glGetProgramiv(GLuint program, GLenum pname, GLint* params) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glGetProgramiv, program, pname, params);
 }
-void glGetProgramInfoLog (GLuint program, GLsizei bufSize, GLsizei *length, GLchar *infoLog) {
+void glGetProgramInfoLog(GLuint program, GLsizei bufSize, GLsizei* length, GLchar* infoLog) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glGetProgramInfoLog, program, bufSize, length, infoLog);
 }
-void glDeleteProgram (GLuint program) {
+void glDeleteProgram(GLuint program) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glDeleteProgram, program);
 }
-void glDeleteBuffers (GLsizei n, const GLuint *buffers) {
-  std::map<size_t, size_t> count_map {{1,n}};
+void glDeleteBuffers(GLsizei n, const GLuint* buffers) {
+  std::map<size_t, size_t> count_map{{1, n}};
   FUNC_BODY(glDeleteBuffers, n, buffers);
 }
-GLint glGetUniformLocation (GLuint program, const GLchar *name) {
+GLint glGetUniformLocation(GLuint program, const GLchar* name) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY_RETURN(glGetUniformLocation, program, name);
 }
-void glUniformMatrix4fv (GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) {
-  std::map<size_t, size_t> count_map {{3,16*count}};
+void glUniformMatrix4fv(GLint location,
+                        GLsizei count,
+                        GLboolean transpose,
+                        const GLfloat* value) {
+  std::map<size_t, size_t> count_map{{3, 16 * count}};
   FUNC_BODY(glUniformMatrix4fv, location, count, transpose, value);
 }
-void glDrawArrays (GLenum mode, GLint first, GLsizei count) {
+void glDrawArrays(GLenum mode, GLint first, GLsizei count) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY(glDrawArrays, mode, first, count);
 }
-void glDrawElements (GLenum mode, GLsizei count, GLenum type, const GLvoid *indices) {
-  std::map<size_t, size_t> count_map {{3, type}};
+void glDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices) {
+  std::map<size_t, size_t> count_map{{3, type}};
   FUNC_BODY(glDrawElements, mode, count, type, indices);
 }
-GLboolean glIsVertexArray (GLuint array) {
+GLboolean glIsVertexArray(GLuint array) {
   std::map<size_t, size_t> count_map;
   FUNC_BODY_RETURN(glIsVertexArray, array);
 }
 
-}
+} // namespace ShapeShifter

@@ -21,19 +21,16 @@ using namespace ShapeShifter;
 namespace {
 
 struct HasSmooth {
-    static constexpr bool smooth = true;
+  static constexpr bool smooth = true;
 };
 
 void Test() {
-
   class NoStorage {
   public:
     void SetRotation(const Math::Quaternion& rot) {}
     void SetTranslation(const Math::Vector4& trans) {}
 
-    Math::Matrix4 Data(const Camera& camera) const {
-      return camera.ProjectionMatrix();
-    }
+    Math::Matrix4 Data(const Camera& camera) const { return camera.ProjectionMatrix(); }
 
     void Combine(const NoStorage& other) {}
     void CombineInverse(const NoStorage& other) {}
@@ -49,9 +46,7 @@ void Test() {
     void SetRotation(const Math::Quaternion& rot) {}
     void SetTranslation(const Math::Vector4& trans) {}
 
-    Math::Matrix4 Data(const Camera& camera) const {
-      return camera.ProjectionMatrix();
-    }
+    Math::Matrix4 Data(const Camera& camera) const { return camera.ProjectionMatrix(); }
 
     void Combine(const NoDefaultConstruct& other) {}
     void CombineInverse(const NoDefaultConstruct& other) {}
@@ -79,9 +74,7 @@ void Test() {
     void SetRotation(const Math::Quaternion& rot) {}
     void SetTranslation(const Math::Vector4& trans) {}
 
-    Math::Matrix4 Data(int) const {
-      return Math::Matrix4{{}};
-    }
+    Math::Matrix4 Data(int) const { return Math::Matrix4{{}}; }
 
     void Combine(const DataWrongArgs& other) {}
     void CombineInverse(const DataWrongArgs& other) {}
@@ -96,9 +89,7 @@ void Test() {
     void SetRotation(const Math::Quaternion& rot) {}
     void SetTranslation(const Math::Vector4& trans) {}
 
-    int Data(const Camera& camera) const {
-        return 1;
-    }
+    int Data(const Camera& camera) const { return 1; }
 
     void Combine(const DataWrongReturn& other) {}
     void CombineInverse(const DataWrongReturn& other) {}
@@ -113,9 +104,7 @@ void Test() {
     void SetRotation(const Math::Quaternion& rot) {}
     void SetTranslation(const Math::Vector4& trans) {}
 
-    Math::Matrix4 Data(const Camera& camera){
-      return camera.ProjectionMatrix();
-    }
+    Math::Matrix4 Data(const Camera& camera) { return camera.ProjectionMatrix(); }
 
     void Combine(const DataNotConst& other) {}
     void CombineInverse(const DataNotConst& other) {}
@@ -130,9 +119,7 @@ void Test() {
     void SetRotation(const Math::Quaternion& rot) {}
     void SetTranslation(const Math::Vector4& trans) {}
 
-    Math::Matrix4 Data(const Camera& camera) const {
-      return camera.ProjectionMatrix();
-    }
+    Math::Matrix4 Data(const Camera& camera) const { return camera.ProjectionMatrix(); }
 
     void Combine(const NoClone& other) {}
     void CombineInverse(const NoClone& other) {}
@@ -146,9 +133,7 @@ void Test() {
     void SetRotation(const Math::Quaternion& rot) {}
     void SetTranslation(const Math::Vector4& trans) {}
 
-    Math::Matrix4 Data(const Camera& camera) const {
-      return camera.ProjectionMatrix();
-    }
+    Math::Matrix4 Data(const Camera& camera) const { return camera.ProjectionMatrix(); }
 
     void Combine(int) {}
     void CombineInverse(const cloneWrongArgs& other) {}
@@ -163,9 +148,7 @@ void Test() {
     void SetRotation(const Math::Quaternion& rot) {}
     void SetTranslation(const Math::Vector4& trans) {}
 
-    Math::Matrix4 Data(const Camera& camera) const {
-      return camera.ProjectionMatrix();
-    }
+    Math::Matrix4 Data(const Camera& camera) const { return camera.ProjectionMatrix(); }
 
     void Combine(const CloneWrongReturn& other) {}
     void CombineInverse(const CloneWrongReturn& other) {}
@@ -180,9 +163,7 @@ void Test() {
     void SetRotation(const Math::Quaternion& rot) {}
     void SetTranslation(const Math::Vector4& trans) {}
 
-    Math::Matrix4 Data(const Camera& camera) const {
-      return camera.ProjectionMatrix();
-    }
+    Math::Matrix4 Data(const Camera& camera) const { return camera.ProjectionMatrix(); }
 
     void CombineInverse(const NoCombine& other) {}
     void Clone(const NoCombine& other) {}
@@ -196,9 +177,7 @@ void Test() {
     void SetRotation(const Math::Quaternion& rot) {}
     void SetTranslation(const Math::Vector4& trans) {}
 
-    Math::Matrix4 Data(const Camera& camera) const {
-      return camera.ProjectionMatrix();
-    }
+    Math::Matrix4 Data(const Camera& camera) const { return camera.ProjectionMatrix(); }
 
     void Combine(const CombineWrongArgs& other) {}
     void CombineInverse(const CombineWrongArgs& other) {}
@@ -213,13 +192,11 @@ void Test() {
     void SetRotation(const Math::Quaternion& rot) {}
     void SetTranslation(const Math::Vector4& trans) {}
 
-    Math::Matrix4 Data(const Camera& camera) const {
-      return camera.ProjectionMatrix();
-    }
+    Math::Matrix4 Data(const Camera& camera) const { return camera.ProjectionMatrix(); }
 
     void Combine(const CombineWrongReturn& other) {}
     void CombineInverse(const CombineWrongReturn& other) {}
-    int Clone(const CombineWrongReturn& other) { return 1;}
+    int Clone(const CombineWrongReturn& other) { return 1; }
   };
   static_assert(!UniformVarManager<CombineWrongReturn>);
 
@@ -230,9 +207,7 @@ void Test() {
     void SetRotation(const Math::Quaternion& rot) {}
     void SetTranslation(const Math::Vector4& trans) {}
 
-    Math::Matrix4 Data(const Camera& camera) const {
-      return camera.ProjectionMatrix();
-    }
+    Math::Matrix4 Data(const Camera& camera) const { return camera.ProjectionMatrix(); }
 
     void Combine(const NoInverse& other) {}
     void Clone(const NoInverse& other) {}
@@ -246,9 +221,7 @@ void Test() {
     void SetRotation(const Math::Quaternion& rot) {}
     void SetTranslation(const Math::Vector4& trans) {}
 
-    Math::Matrix4 Data(const Camera& camera) const {
-      return camera.ProjectionMatrix();
-    }
+    Math::Matrix4 Data(const Camera& camera) const { return camera.ProjectionMatrix(); }
 
     void Combine(const InverseWrongArgs& other) {}
     void CombineInverse(int) {}
@@ -263,12 +236,10 @@ void Test() {
     void SetRotation(const Math::Quaternion& rot) {}
     void SetTranslation(const Math::Vector4& trans) {}
 
-    Math::Matrix4 Data(const Camera& camera) const {
-      return camera.ProjectionMatrix();
-    }
+    Math::Matrix4 Data(const Camera& camera) const { return camera.ProjectionMatrix(); }
 
     void Combine(const InverseWrongRet& other) {}
-    int CombineInverse(const InverseWrongRet& other) { return 1;}
+    int CombineInverse(const InverseWrongRet& other) { return 1; }
     void Clone(const InverseWrongRet& other) {}
   };
   static_assert(!UniformVarManager<InverseWrongRet>);
@@ -280,9 +251,7 @@ void Test() {
     void SetRotation(const Math::Quaternion& rot) {}
     void SetTranslation(const Math::Vector4& trans) {}
 
-    Math::Matrix4 Data(const Camera& camera) const {
-      return camera.ProjectionMatrix();
-    }
+    Math::Matrix4 Data(const Camera& camera) const { return camera.ProjectionMatrix(); }
 
     void Combine(const GoodManager& other) {}
     void CombineInverse(const GoodManager& other) {}
@@ -293,10 +262,9 @@ void Test() {
   struct NotInterface {
     using UniformManager = GoodManager;
 
-    class UniformInitializer
-    {
-      public:
-        UniformManager InitUniform() const { return {}; }
+    class UniformInitializer {
+    public:
+      UniformManager InitUniform() const { return {}; }
     };
   };
   static_assert(!UniformVariable<NotInterface>);
@@ -305,16 +273,12 @@ void Test() {
     using Base = Language::Variable<Language::Mat4>;
     NoManager() = delete;
     NoManager(VariableFactory& factory)
-      : Base(factory.create<Language::Mat4>(name()))
-    {}
-    static constexpr const char* name() {
-      return "transform";
-    }
+        : Base(factory.create<Language::Mat4>(name())) {}
+    static constexpr const char* name() { return "transform"; }
 
-    class UniformInitializer
-    {
-      public:
-        GoodManager InitUniform() const { return {}; }
+    class UniformInitializer {
+    public:
+      GoodManager InitUniform() const { return {}; }
     };
   };
   static_assert(!UniformVariable<NoManager>);
@@ -323,11 +287,8 @@ void Test() {
     using Base = Language::Variable<Language::Mat4>;
     NoInitializer() = delete;
     NoInitializer(VariableFactory& factory)
-      : Base(factory.create<Language::Mat4>(name()))
-    {}
-    static constexpr const char* name() {
-      return "transform";
-    }
+        : Base(factory.create<Language::Mat4>(name())) {}
+    static constexpr const char* name() { return "transform"; }
 
     using UniformManager = GoodManager;
   };
@@ -337,17 +298,12 @@ void Test() {
     using Base = Language::Variable<Language::Mat4>;
     NoInitFunc() = delete;
     NoInitFunc(VariableFactory& factory)
-      : Base(factory.create<Language::Mat4>(name()))
-    {}
-    static constexpr const char* name() {
-      return "transform";
-    }
+        : Base(factory.create<Language::Mat4>(name())) {}
+    static constexpr const char* name() { return "transform"; }
 
     using UniformManager = GoodManager;
 
-    class UniformInitializer
-    {
-    };
+    class UniformInitializer {};
   };
   static_assert(!UniformVariable<NoInitFunc>);
 
@@ -355,21 +311,17 @@ void Test() {
     using Base = Language::Variable<Language::Mat4>;
     GoodUniform() = delete;
     GoodUniform(VariableFactory& factory)
-      : Base(factory.create<Language::Mat4>(name()))
-    {}
-    static constexpr const char* name() {
-      return "transform";
-    }
+        : Base(factory.create<Language::Mat4>(name())) {}
+    static constexpr const char* name() { return "transform"; }
 
     using UniformManager = GoodManager;
 
-    class UniformInitializer
-    {
-      public:
-        UniformManager InitUniform() const { return {}; }
+    class UniformInitializer {
+    public:
+      UniformManager InitUniform() const { return {}; }
     };
   };
   static_assert(UniformVariable<GoodUniform>);
 }
 
-}
+} // namespace

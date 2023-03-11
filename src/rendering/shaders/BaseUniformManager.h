@@ -16,9 +16,7 @@
 
 #include "rendering/shaders/BaseUniformManager.h"
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
+namespace ShapeShifter::Rendering::Shaders {
 
 struct BaseUniformManager {
   virtual ~BaseUniformManager() {}
@@ -29,8 +27,6 @@ struct BaseUniformInitializer {
   virtual ~BaseUniformInitializer() {}
 };
 
-
-}}} /* ShapeShifter::Rendering::Shaders */
+} // namespace ShapeShifter::Rendering::Shaders
 
 #endif /* BASE_RENDERING_SHADERS_UNIFORM_MANAGER_H */
-

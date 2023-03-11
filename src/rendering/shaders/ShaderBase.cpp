@@ -17,9 +17,7 @@
 #include <memory>
 #include <stdexcept>
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
+namespace ShapeShifter::Rendering::Shaders {
 
 ShaderBase::ShaderBase(const std::string& data, GLenum shader_type) {
   assert(data.size() > 0);
@@ -39,18 +37,16 @@ ShaderBase::ShaderBase(const std::string& data, GLenum shader_type) {
 
   glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
   if (!compiled) {
-    auto logLength = GLint {0};
+    auto logLength = GLint{0};
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
 
-    auto log = std::unique_ptr<char[]>(new char[logLength+1]);
-    glGetShaderInfoLog(shader, logLength, nullptr, log.get());
-
-    auto slog = std::string(log.get());
+    std::string log(logLength + 1, 0);
+    glGetShaderInfoLog(shader, logLength, nullptr, log.data());
 
     // ISSUE: wrap all gl functions and add error checking.
     glDeleteShader(shader);
 
-    throw std::runtime_error(slog);
+    throw std::runtime_error(log);
   }
 }
 
@@ -60,13 +56,12 @@ ShaderBase::~ShaderBase() {
   }
 }
 
-ShaderBase::ShaderBase(ShaderBase&& other) {
-  shader = other.shader;
-
+ShaderBase::ShaderBase(ShaderBase&& other)
+    : shader(std::move(other.shader)) {
   other.shader = 0;
 }
 
-ShaderBase& ShaderBase::operator =(ShaderBase&& other) {
+ShaderBase& ShaderBase::operator=(ShaderBase&& other) {
   shader = other.shader;
 
   other.shader = 0;
@@ -74,4 +69,4 @@ ShaderBase& ShaderBase::operator =(ShaderBase&& other) {
   return *this;
 }
 
-}}} // ShapeShifter::Rendering::Shaders
+} // namespace ShapeShifter::Rendering::Shaders

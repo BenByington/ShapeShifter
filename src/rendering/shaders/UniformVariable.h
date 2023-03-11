@@ -14,12 +14,10 @@
 #ifndef RENDERING_SHADERS_UNIFORM_VARIABLE_H
 #define RENDERING_SHADERS_UNIFORM_VARIABLE_H
 
-#include "rendering/shaders/InterfaceVariable.h"
 #include "rendering/Camera.h"
+#include "rendering/shaders/InterfaceVariable.h"
 
-namespace ShapeShifter {
-namespace Rendering {
-namespace Shaders {
+namespace ShapeShifter::Rendering::Shaders {
 
 // ISSUE: Clean up camera/transform/uniform.  They are all conflated.
 //        The positions and relative transforms should be pulled out
@@ -35,31 +33,31 @@ namespace Shaders {
 //        pulled out of the Uniform concept, and let the tree handle
 //        the heirarchies
 template <typename Manager>
-concept UniformVarManager = requires(Manager& uniform,
-                                     const Manager& cuniform,
-                                     const Rendering::Camera& c){
-        typename Manager::StorageType;
-        requires std::default_initializable<Manager>;
-        { cuniform.Data(c) } -> std::same_as<typename Manager::StorageType>;
-        { uniform.Clone(cuniform) } -> std::same_as<void>;
-        { uniform.Combine(cuniform) } -> std::same_as<void>;
-        { uniform.CombineInverse(cuniform) } -> std::same_as<void>;
-};
+concept UniformVarManager =
+    requires(Manager& uniform, const Manager& cuniform, const Rendering::Camera& c) {
+      typename Manager::StorageType;
+      requires std::default_initializable<Manager>;
+      { cuniform.Data(c) } -> std::same_as<typename Manager::StorageType>;
+      { uniform.Clone(cuniform) } -> std::same_as<void>;
+      { uniform.Combine(cuniform) } -> std::same_as<void>;
+      { uniform.CombineInverse(cuniform) } -> std::same_as<void>;
+    };
 
 // GLSL program inputs such as the transform matrix to use.
 template <typename Var>
-concept UniformVariable = requires(Var* var) {
-    requires InterfaceVariable<Var>;
+concept UniformVariable =
+    requires(Var* var) {
+      requires InterfaceVariable<Var>;
 
-    typename Var::UniformManager;
-    requires UniformVarManager<typename Var::UniformManager>;
+      typename Var::UniformManager;
+      requires UniformVarManager<typename Var::UniformManager>;
 
-    typename Var::UniformInitializer;
-    requires requires(const typename Var::UniformInitializer& initializer) {
-        { initializer.InitUniform() } -> std::same_as<typename Var::UniformManager>;
+      typename Var::UniformInitializer;
+      requires requires(const typename Var::UniformInitializer& initializer) {
+                 { initializer.InitUniform() } -> std::same_as<typename Var::UniformManager>;
+               };
     };
-};
 
-}}} // ShapeShifter::Rendering::Shaders
+} // namespace ShapeShifter::Rendering::Shaders
 
 #endif /* RENDERING_SHADERS_INTERFACE_VARIABLE_H */

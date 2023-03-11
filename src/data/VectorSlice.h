@@ -18,8 +18,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace ShapeShifter {
-namespace Data {
+namespace ShapeShifter::Data {
 
 template <typename T>
 class SliceFiller;
@@ -37,14 +36,16 @@ public:
   VectorSlice(const VectorSlice& other) = default;
   VectorSlice(VectorSlice<T>&& other) = default;
 
-  VectorSlice() : data_(nullptr), size_(0) {}
+  VectorSlice()
+      : data_(nullptr)
+      , size_(0) {}
   VectorSlice(std::vector<T>& v, size_t start, size_t end, size_t elem_size)
-    : data_(v.data() + start*elem_size)
-    , size_(elem_size * (end-start)) {
+      : data_(v.data() + start * elem_size)
+      , size_(elem_size * (end - start)) {
     assert(v.size() > 0 || (start == 0 && end == 0));
     assert(end >= start);
-    assert(start*elem_size <= v.size());
-    assert(end*elem_size <= v.size());
+    assert(start * elem_size <= v.size());
+    assert(end * elem_size <= v.size());
     assert(elem_size > 0);
   }
 
@@ -55,19 +56,21 @@ public:
     assert(idx < size_);
     return data_[idx];
   }
-  T* begin() { return  data_; }
-  T* end() {return data_ + size_; }
+  T* begin() { return data_; }
+  T* end() { return data_ + size_; }
   size_t size() const { return size_; }
 
   // Returns a helper object that lets you fill data without manually keeping
   // track of current index.
   SliceFiller<T> Filler();
+
 private:
   T* data_;
   size_t size_;
 };
 
-template <typename T> VectorSlice(std::vector<T>, size_t, size_t, size_t) -> VectorSlice<T>;
+template <typename T>
+VectorSlice(std::vector<T>, size_t, size_t, size_t) -> VectorSlice<T>;
 
 /*
  * Convenience class for populating a VectorSlice.
@@ -79,7 +82,9 @@ template <typename T> VectorSlice(std::vector<T>, size_t, size_t, size_t) -> Vec
 template <typename T>
 class SliceFiller final {
 public:
-  explicit SliceFiller(const VectorSlice<T>& slice) : slice_(slice), curr_idx(0) {}
+  explicit SliceFiller(const VectorSlice<T>& slice)
+      : slice_(slice)
+      , curr_idx(0) {}
 
   void operator()(T val) {
     slice_[curr_idx] = val;
@@ -87,15 +92,16 @@ public:
   }
   void operator()(T val1, T val2) {
     slice_[curr_idx] = val1;
-    slice_[curr_idx+1] = val2;
+    slice_[curr_idx + 1] = val2;
     curr_idx += 2;
   }
   void operator()(T val1, T val2, T val3) {
     slice_[curr_idx] = val1;
-    slice_[curr_idx+1] = val2;
-    slice_[curr_idx+2] = val3;
+    slice_[curr_idx + 1] = val2;
+    slice_[curr_idx + 2] = val3;
     curr_idx += 3;
   }
+
 private:
   VectorSlice<T> slice_;
   size_t curr_idx;
@@ -106,7 +112,6 @@ SliceFiller<T> VectorSlice<T>::Filler() {
   return SliceFiller<T>(*this);
 }
 
-}} // ShapeShifter::Data
+} // namespace ShapeShifter::Data
 
 #endif /* DATA_VECTORSLICE_H */
-

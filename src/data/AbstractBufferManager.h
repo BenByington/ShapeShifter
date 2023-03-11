@@ -20,8 +20,7 @@
 #include <cstdlib>
 #include <type_traits>
 
-namespace ShapeShifter {
-namespace Data {
+namespace ShapeShifter::Data {
 
 /*
  * This is a base class that provides a polymorphic handle to a buffer
@@ -38,7 +37,7 @@ public:
   AbstractManager& operator=(const AbstractManager&) = delete;
   AbstractManager& operator=(AbstractManager&&) = delete;
 
-  virtual ~AbstractManager(){}
+  virtual ~AbstractManager() {}
 
   // E.g. vertices require three floats while textures only require two.
   virtual size_t ElementsPerEntry() const = 0;
@@ -55,33 +54,32 @@ protected:
 // constraints that cannot be sensibly inserted into the virtual
 // AbstractManager interface
 template <typename Child>
-concept BufferManager = requires(Child c) {
-    requires std::derived_from<Child, AbstractManager>;
+concept BufferManager =
+    requires(Child c) {
+      requires std::derived_from<Child, AbstractManager>;
 
-    // Implementation must work with floats or unsigned ints
-    typename Child::Type;
-    requires std::same_as<typename Child::Type, float>
-          || std::same_as<typename Child::Type, uint32_t>;
+      // Implementation must work with floats or unsigned ints
+      typename Child::Type;
+      requires std::same_as<typename Child::Type, float> ||
+                   std::same_as<typename Child::Type, uint32_t>;
 
-    // any buffer manager defined must supply an inner class named
-    // Interface that has a FillData function.  It is assumed but not
-    // enforced that this FillData function will in turn dispatch to a
-    // uniquely named virtual function that RenderNode children
-    // classes will implement.  e.g. A RenderNode that supports the
-    // VertexManager will extend the VertexManager::Interface class
-    // and be forced to implement the virtual FillVertexData()
-    // function.
-    typename Child::Interface;
-    requires requires (typename Child::Interface& i,
-                       VectorSlice<typename Child::Type>& v) {
-        { i.FillData(v) } -> std::same_as<void>;
+      // any buffer manager defined must supply an inner class named
+      // Interface that has a FillData function.  It is assumed but not
+      // enforced that this FillData function will in turn dispatch to a
+      // uniquely named virtual function that RenderNode children
+      // classes will implement.  e.g. A RenderNode that supports the
+      // VertexManager will extend the VertexManager::Interface class
+      // and be forced to implement the virtual FillVertexData()
+      // function.
+      typename Child::Interface;
+      requires requires(typename Child::Interface & i, VectorSlice<typename Child::Type> & v) {
+                 { i.FillData(v) } -> std::same_as<void>;
+               };
+
+      typename Child::Variable;
+      requires Rendering::Shaders::InterfaceVariable<typename Child::Variable>;
     };
 
-    typename Child::Variable;
-    requires Rendering::Shaders::InterfaceVariable<typename Child::Variable>;
-};
-
-}} // ShapeShifter::Data
+} // namespace ShapeShifter::Data
 
 #endif /* DATA_ABSTRACT_BUFFERTYPES_H */
-
